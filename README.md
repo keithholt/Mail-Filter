@@ -25,7 +25,7 @@ Default configuration is loaded from `~/Documents/GitHub/Mail-Filter`, regardles
 
 ## Choose accounts and batch size
 
-Edit `config/accounts.txt`: one exact Mail account name per line. Blank lines and lines beginning with `#` are ignored. Initially only `example.org` is enabled. Adding/uncommenting an account enables scanning; commenting it disables scanning. No rebuild is needed.
+Edit `config/accounts.txt`: one exact Mail account name per line. Blank lines and lines beginning with `#` are ignored. Set this file to the account names you want to scan. The commands below use the fictional account name `example.org`; replace it with your exact Mail account name. Adding/uncommenting an account enables scanning; commenting it disables scanning. No rebuild is needed.
 
 ```sh
 mail-filter --list-accounts
