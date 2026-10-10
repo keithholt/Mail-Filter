@@ -1,0 +1,32 @@
+[
+  {
+    "accountID": "fixture",
+    "account": "Sample",
+    "id": 1,
+    "messageID": "merch-1@example.invalid",
+    "subject": "Offer ends tonight",
+    "sender": "Pin offer <offer@example.invalid>",
+    "body": "Support our movement: claim your commemorative pin by contributing today.\n\nPaid for by Example Political Action Committee. Contributions help elect partisan candidates to Congress and oppose rival candidates.",
+    "truncated": false
+  },
+  {
+    "accountID": "fixture",
+    "account": "Sample",
+    "id": 2,
+    "messageID": "merch-2@example.invalid",
+    "subject": "Offer ends tonight",
+    "sender": "Pin shop <shop@example.invalid>",
+    "body": "Claim your commemorative pin at our store. Our patriotic designs celebrate local history. Unsubscribe from future promotions.",
+    "truncated": false
+  },
+  {
+    "accountID": "fixture",
+    "account": "Sample",
+    "id": 3,
+    "messageID": "merch-3@example.invalid",
+    "subject": "Your receipt",
+    "sender": "Receipt <receipt@example.invalid>",
+    "body": "Receipt for your completed purchase from Example Political Action Committee. Total: $10. No further action required.",
+    "truncated": false
+  }
+]

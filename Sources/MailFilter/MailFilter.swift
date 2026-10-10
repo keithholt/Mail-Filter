@@ -21,6 +21,7 @@ struct MailFilter {
       --fixture PATH              Classify JSON sample messages without accessing Mail
       --debug-model               Show raw model output for fixtures only (stderr)
       --verbose, -v               Show every result and all progress messages
+      --skip-processed            Remember kept messages in private local state
       --dry-run                   Preview matches without moving messages
       --apply --confirm-junk       Explicit apply mode (normal runs already move matches)
       --junk-mailbox NAME        Junk mailbox name in --account (default: Junk)
@@ -95,6 +96,9 @@ struct MailFilter {
                 let mode = options.apply ? "APPLY: destination \(options.junkMailbox) in \(options.scanAccounts.joined(separator: ", "))." : "DRY RUN: no messages will be moved."
                 FileHandle.standardOutput.write(Data((mode + "\nInspecting \(messages.count) message(s). JSON results follow; message bodies are not logged.\n").utf8))
             }
+            let statePath = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".local/state/mail-filter/processed.json").path
+            let state = options.fixture == nil ? try ProcessedMessages(path: statePath, rules: rules + "\n" + evidenceTerms.joined(separator: "\n")) : nil
+            var skippedCount = 0
             var failed = false
             var processedCount = 0
             var movedCount = 0
@@ -103,6 +107,16 @@ struct MailFilter {
             encoder.outputFormatting = [.sortedKeys]
             for (index, originalMessage) in messages.enumerated() {
                 let message = originalMessage.classificationExcerpt
+                if try state?.protectsReturnedMessage(message) == true {
+                    skippedCount += 1
+                    if options.verbose { print("Protected previously selected Junk message \(message.id) returned to Inbox; left in place.") }
+                    continue
+                }
+                if options.skipProcessed, try state?.contains(message) == true {
+                    skippedCount += 1
+                    if options.verbose { print("Already processed message \(message.id); skipped.") }
+                    continue
+                }
                 processedCount += 1
                 if options.verbose { FileHandle.standardError.write(Data("Classifying message \(index + 1) of \(messages.count)...\n".utf8)) }
                 let report: Report
@@ -110,6 +124,7 @@ struct MailFilter {
                 var processingFailed = false
                 if let reason = message.automaticKeepReason {
                     let kept = Report(account: message.account, id: message.id, subject: message.subject, decision: "not-political", reason: reason, action: "left-in-inbox")
+                    if options.skipProcessed { try state?.remember(message) }
                     try emit(kept, encoder: encoder, verbose: options.verbose, processingFailed: false)
                     continue
                 }
@@ -141,6 +156,7 @@ struct MailFilter {
                     if decision == "political" {
                         flaggedCount += 1
                         if options.apply {
+                            try state?.rememberJunkIntent(message)
                             moveAttempted = true
                             try MailAutomation.move(message, options: options)
                             action = "moved-to-junk"
@@ -153,6 +169,7 @@ struct MailFilter {
                     processingFailed = true
                     report = Report(account: message.account, id: message.id, subject: message.subject, decision: "review", reason: String(describing: error), action: moveAttempted ? "move-unconfirmed" : "left-in-inbox")
                 }
+                if options.skipProcessed && !processingFailed && report.decision == "not-political" { try state?.remember(message) }
                 try emit(report, encoder: encoder, verbose: options.verbose, processingFailed: processingFailed)
             }
             if options.apply {
@@ -160,6 +177,7 @@ struct MailFilter {
             } else {
                 print("Summary: processed \(processedCount) messages; flagged \(flaggedCount) for Junk; moved 0 (dry run).")
             }
+            if skippedCount > 0 || options.skipProcessed { print("Previously processed or protected messages skipped: \(skippedCount).") }
             if failed { exit(2) }
         } catch {
             FileHandle.standardError.write(Data("Error: \(error)\n".utf8))

@@ -110,6 +110,62 @@ struct SafetyTests {
             #expect(throws: (any Error).self) { try Options(args) }
         }
     }
+    @Test func testProcessedStateInvalidation() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let path = directory.appendingPathComponent("state.json").path
+        var m = MailMessage(accountID: "a", account: "A", id: 1, messageID: "id", subject: "Note", sender: "friend@example.org", body: "Hello", truncated: false)
+        do {
+            let state = try ProcessedMessages(path: path, rules: "rules")
+            #expect(try !state.contains(m))
+            try state.remember(m)
+            #expect(try state.contains(m))
+            #expect(throws: (any Error).self) { try ProcessedMessages(path: path, rules: "rules") }
+            m.body = "Changed"
+            #expect(try !state.contains(m))
+        }
+        m.body = "Hello"
+        do {
+            let state = try ProcessedMessages(path: path, rules: "rules")
+            #expect(try state.contains(m))
+        }
+        let changed = try ProcessedMessages(path: path, rules: "new rules")
+        #expect(try !changed.contains(m))
+    }
+
+    @Test func testReturnedJunkProtectedAcrossRulesAndMailIDs() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let path = directory.appendingPathComponent("state.json").path
+        var m = MailMessage(accountID: "a", account: "A", id: 1, messageID: "stable-id", subject: "Note", sender: "friend@example.org", body: "Hello", truncated: false)
+        do {
+            let state = try ProcessedMessages(path: path, rules: "rules")
+            // A dry-run positive makes no Junk intent entry.
+            #expect(try !state.protectsReturnedMessage(m))
+            try state.rememberJunkIntent(m)
+        }
+        let state = try ProcessedMessages(path: path, rules: "changed rules")
+        m.id = 999
+        m.body = "Changed by provider"
+        #expect(try state.protectsReturnedMessage(m))
+        m.messageID = "different-id"
+        #expect(try !state.protectsReturnedMessage(m))
+        m.messageID = "stable-id"
+        m.accountID = "other-account"
+        #expect(try !state.protectsReturnedMessage(m))
+    }
+
+    @Test func testLegacyStateAndCorruption() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let path = directory.appendingPathComponent("state.json")
+        try Data("[]".utf8).write(to: path)
+        do { _ = try ProcessedMessages(path: path.path, rules: "rules") }
+        try Data("broken".utf8).write(to: path)
+        #expect(throws: (any Error).self) { try ProcessedMessages(path: path.path, rules: "rules") }
+    }
+
     @Test func testPrivateAccountFileDefault() throws {
         let expected = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".config/mail-filter/accounts.txt").path
         #expect(try Options([]).accountsFile == expected)

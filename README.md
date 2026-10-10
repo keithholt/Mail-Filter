@@ -101,12 +101,65 @@ cd ~/Documents/GitHub/Mail-Filter
 ./test.sh
 mail-filter --fixture fixtures/sample.json --verbose
 mail-filter --fixture fixtures/sample.json --debug-model
+mail-filter --fixture fixtures/political-merchandise.json --verbose
 ```
 
 Fixture runs always classify synthetic messages without accessing or moving real mail. `--debug-model` shows escaped raw model responses only with fixtures. The script check compiles automation without executing it. Tests include personal-note protection, account selection, political evidence, output controls, long excerpts, and diagnostic/default-mode safeguards.
 
 Exit codes: `0` completed, `1` setup/argument/automation failure, `2` one or more per-message processing failures. Failed moves are reported as unconfirmed; inspect Mail instead of assuming rollback. Summary counts include kept, protected, reviewed and failed messages as processed; only confirmed moves count as moved.
 
-There is no processed-message database: each run revisits the current batch. No launchd or scheduling setup is included. Swift Package Manager and embedded AppleScript via `NSAppleScript` are used, without third-party dependencies. Build output is ignored under `.build/`.
+By default each run revisits the current batch. `--skip-processed` remembers successfully kept messages as hashes in `~/.local/state/mail-filter/processed.json`; dry-run political matches are retried when moving is enabled. Before an actual move attempt, a separate identity hash is saved so that the same message returned to Inbox is always protected, including during manual runs and after rule changes. This uses the account ID and RFC message ID, tolerating changes to Mail’s numeric ID. Unconfirmed move attempts also remain protected to avoid repeated moves after a crash. Messages moved before this feature was installed cannot be recognized. Changes to message fields, prompt text or evidence terms invalidate kept-message entries, but do not remove returned-message protection. The state contains no message bodies and uses a lock to prevent overlapping runs sharing that state. It still inspects only the latest configured batch; it does not search older mail beyond the 50-message cap. Swift Package Manager and embedded AppleScript via `NSAppleScript` are used, without third-party dependencies. Build output is ignored under `.build/`.
 
 The public [GitHub repository](https://github.com/keithholt/Mail-Filter) hosts this project. Apple documentation: [Foundation Models](https://developer.apple.com/documentation/foundationmodels) and [content transformation guardrails](https://developer.apple.com/documentation/foundationmodels/improving-the-safety-of-generative-model-output).
+
+
+## Run periodically in the background
+
+The LaunchAgent runs every 15 minutes while you are logged in and the Mac is awake. It uses your private account file, the default 30-message limit, and `--skip-processed`. No open Terminal is needed after installation. Python 3 is required for the installer.
+
+First configure your private `~/.config/mail-filter/accounts.txt` as described above. Keep Mail open and synced for the initial test. Build and install a **dry-run** schedule from your normal Terminal (no `sudo`):
+
+```sh
+cd ~/Documents/GitHub/Mail-Filter
+./build.sh
+./scripts/agent.sh install
+./scripts/agent.sh status
+./scripts/agent.sh logs
+```
+
+Check the logs for a completed run and confirm Mail automation permission and model generation work in the background. Terminal permission alone may not cover the launched executable. If macOS denies access, inspect System Settings → Privacy & Security → Automation; stop the schedule until resolved.
+
+After a successful dry run, enable actual moves:
+
+```sh
+./scripts/agent.sh install-apply
+```
+
+Both install commands start a run immediately and replace any previously loaded version of this agent. Classification may take several minutes before results appear. The agent also loads at login. It runs a batch and exits between scheduled runs.
+
+Run these commands from the repository directory:
+
+| Command | Effect |
+| --- | --- |
+| `./scripts/agent.sh status` | Show whether the job is running, its run count and last exit code. |
+| `./scripts/agent.sh logs` | Show the latest results and errors. |
+| `./scripts/agent.sh stop` | Unload the job for this login session. |
+| `./scripts/agent.sh start` | Reload an installed, stopped job and run immediately in its saved mode. |
+| `./scripts/agent.sh run` | Request a run now for a loaded job; it does not interrupt a running batch. |
+| `./scripts/agent.sh install` | Switch to dry-run scheduling. |
+| `./scripts/agent.sh install-apply` | Switch to scheduling actual Junk moves. |
+
+A stopped job returns at the next login because its installed file remains. To uninstall permanently, stop it if loaded, then remove its file:
+
+```sh
+./scripts/agent.sh stop
+rm ~/Library/LaunchAgents/org.mail-filter.agent.plist
+```
+
+The agent file is local and contains absolute paths to your checkout; no personal paths are published. If you move the checkout, stop the old agent and reinstall from the new location. After code updates, stop the agent, run `./build.sh`, and start it again. Prompt/account-list edits apply on the next run without rebuilding. To change the interval, stop the agent, change `StartInterval` (seconds) in the local plist, then start it; reinstalling resets it to 900 seconds.
+
+A status of `not running` with last exit code `0` is normal between batches. Exit codes `1` or `2` require checking the error log. A state-lock error means another run is already processing; retry after it finishes. Successful apply runs log a summary with the actual number moved. Dry runs log `moved 0 (dry run)`; install-apply is required to enable moves.
+
+Private output/error logs are in `~/.local/state/mail-filter/logs/`. They can contain message subjects and reasons; they are not committed. Logs append without automatic rotation. Deleting `processed.json` removes both kept-message state and returned-message protection; preserve it if you have restored false positives. Corrupt or inaccessible state stops processing with an error before any move. Manual runs without `--skip-processed` reclassify kept messages in the current batch, but still protect previously selected Junk messages returned to Inbox.
+
+The political-merchandise fixture checks a synthetic PAC-sponsored solicitation against ordinary patriotic retail marketing and a completed-purchase receipt. Expected classifications are political, not-political, not-political; actual model results require verification on your Mac. Prompt changes invalidate remembered kept results on the next scheduled run, while returned-message protection remains in effect.

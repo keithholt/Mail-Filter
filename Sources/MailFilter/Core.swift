@@ -12,6 +12,7 @@ struct Options {
     var account: String?
     var accountsFile = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".config/mail-filter/accounts.txt").path
     var scanAccounts: [String] = []
+    var skipProcessed = false
     var showConfig = false
     var fixture: String?
     var junkMailbox = "Junk"
@@ -45,6 +46,7 @@ struct Options {
                 inspectMessage = n
             case "--account": account = try value()
             case "--accounts-file": accountsFile = try value()
+            case "--skip-processed": skipProcessed = true
             case "--show-config": showConfig = true
             case "--fixture": fixture = try value()
             case "--debug-model": debugModel = true
