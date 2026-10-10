@@ -193,6 +193,16 @@ struct SafetyTests {
         #expect(longQuote != nil && m.body.contains(longQuote!))
     }
 
+    @Test func testImmediateAgentRunSelection() throws {
+        #expect(try agentRunAction(loaded: true, running: true, installed: true) == .alreadyRunning)
+        #expect(try agentRunAction(loaded: true, running: false, installed: true) == .kickstart)
+        #expect(try agentRunAction(loaded: false, running: false, installed: true) == .bootstrap)
+        #expect(throws: (any Error).self) { try agentRunAction(loaded: false, running: false, installed: false) }
+        #expect(try Options(["--run-now"]).runNow)
+        #expect(try !Options(["--run-now"]).apply)
+        #expect(throws: (any Error).self) { try Options(["--run-now", "--dry-run"]) }
+    }
+
     @Test func testPrivateAccountFileDefault() throws {
         let expected = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".config/mail-filter/accounts.txt").path
         #expect(try Options([]).accountsFile == expected)

@@ -12,6 +12,7 @@ struct Options {
     var account: String?
     var accountsFile = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".config/mail-filter/accounts.txt").path
     var scanAccounts: [String] = []
+    var runNow = false
     var skipProcessed = false
     var showConfig = false
     var fixture: String?
@@ -37,6 +38,7 @@ struct Options {
                 return arguments[i]
             }
             switch arg {
+            case "--run-now": runNow = true
             case "--prompt": prompt = try value()
             case "--evidence-terms": evidenceTermsFile = try value()
             case "--limit":
@@ -67,6 +69,7 @@ struct Options {
             }
             i += 1
         }
+        if runNow && arguments != ["--run-now"] { throw ToolError("--run-now must be used alone; it uses the installed agent’s saved mode and configuration") }
         if messageID != nil {
             guard account != nil, account != "", inspectMessage == nil, fixture == nil, !check, !checkScripts, !listAccounts, !showConfig, !debugModel else {
                 throw ToolError("--message-id requires --account and cannot be combined with fixtures or diagnostics")
@@ -90,7 +93,7 @@ struct Options {
                 throw ToolError("--apply cannot be combined with fixtures or diagnostic commands")
             }
         }
-        let diagnostic = fixture != nil || check || checkScripts || listAccounts || showConfig || help || inspectMessage != nil
+        let diagnostic = runNow || fixture != nil || check || checkScripts || listAccounts || showConfig || help || inspectMessage != nil
         if !apply && !arguments.contains("--dry-run") && !diagnostic {
             apply = true
             confirm = true

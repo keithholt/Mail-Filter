@@ -8,6 +8,7 @@ struct MailFilter {
     Mail-Filter — on-device Apple Mail filtering (moves political matches to Junk by default)
     Default configuration is loaded from the project location, regardless of your current directory.
       --help                      Show this help
+      --run-now                   Trigger the installed agent immediately in its saved mode
       --check                     Check model availability; does not access Mail
       --check-scripts              Compile automation scripts without executing them
       --list-accounts              List Mail account IDs and names (read-only)
@@ -42,6 +43,7 @@ struct MailFilter {
     static func main() async {
         do {
             var options = try Options(Array(CommandLine.arguments.dropFirst()))
+            if options.runNow { try triggerAgentRun(); return }
             if options.help { print(help); return }
             if options.checkScripts {
                 options.scanAccounts = try selectedAccountNames(options)

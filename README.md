@@ -172,3 +172,12 @@ mail-filter --account 'example.org' --message-id 123456 --dry-run
 ```
 
 `--message-id` reads exactly one message by its numeric Mail ID from that account’s Inbox, independent of the recent-message batch limit. It shows the result and bypasses remembered kept classifications, but preserves protection for returned Junk messages. Remove `--dry-run` to permit a verified positive to move to Junk. A missing or ambiguous message/account returns an error without scanning other messages. `--inspect-message` remains a separate read-only inspection command without AI classification.
+
+
+## Trigger the background agent from anywhere
+
+```sh
+mail-filter --run-now
+```
+
+This requests an immediate background run in the installed agent’s saved mode (dry-run or actual moves). A loaded idle agent starts now; an unloaded/stopped agent is loaded again and starts immediately, resuming its 15-minute schedule. If a batch is already running, the command reports that and does not interrupt it or queue another batch. If no agent is installed, it reports setup instructions. Use this option alone; change the saved mode with the installer rather than adding filtering flags. Completion is asynchronous: check `./scripts/agent.sh logs` from the checkout for results. The command does not itself classify or move messages.
