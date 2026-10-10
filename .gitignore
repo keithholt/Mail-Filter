@@ -4,3 +4,7 @@
 *.log
 reports/
 local-prompts/
+
+# Private account configurations must never be committed.
+config/accounts.txt
+config/accounts.local.txt

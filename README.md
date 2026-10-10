@@ -21,11 +21,20 @@ The launcher is `~/.local/bin/mail-filter`. That directory is added to PATH in `
 source ~/.zshrc
 ```
 
-Default configuration is loaded from `~/Documents/GitHub/Mail-Filter`, regardless of your current directory. Explicit relative file arguments are relative to your current directory. Rebuilding the project updates the executable used by the launcher. If you move the project, update the launcher's `MAIL_FILTER_ROOT` path.
+Prompt files are loaded from the project location and the private account list from `~/.config/mail-filter/accounts.txt`, regardless of your current directory. Explicit relative file arguments are relative to your current directory. Rebuilding the project updates the executable used by the launcher. If you move the project, update the launcher's `MAIL_FILTER_ROOT` path.
 
 ## Choose accounts and batch size
 
-Edit `config/accounts.txt`: one exact Mail account name per line. Blank lines and lines beginning with `#` are ignored. Set this file to the account names you want to scan. The commands below use the fictional account name `example.org`; replace it with your exact Mail account name. Adding/uncommenting an account enables scanning; commenting it disables scanning. No rebuild is needed.
+Keep your real account names in `~/.config/mail-filter/accounts.txt`, outside the repository. Set it up once:
+
+```sh
+mkdir -p ~/.config/mail-filter
+chmod 700 ~/.config/mail-filter
+cp config/accounts.example.txt ~/.config/mail-filter/accounts.txt
+chmod 600 ~/.config/mail-filter/accounts.txt
+```
+
+Edit the copied private file before running the tool: one exact Mail account name per line. The published example contains only a fictional account. A missing private file stops processing with setup instructions; the tool never falls back to the example. `config/accounts.txt` and `config/accounts.local.txt` are ignored by Git as an additional safeguard. Blank lines and lines beginning with `#` are ignored. Set this file to the account names you want to scan. The commands below use the fictional account name `example.org`; replace it with your exact Mail account name. Adding/uncommenting an account enables scanning; commenting it disables scanning. No rebuild is needed.
 
 ```sh
 mail-filter --list-accounts

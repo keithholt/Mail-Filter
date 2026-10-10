@@ -16,7 +16,7 @@ struct MailFilter {
       --evidence-terms PATH       Political evidence words (default: prompts/political-evidence.txt)
       --limit N                   Maximum messages per run, 1...50 (default: 30)
       --account NAME              Override the configured list for this run
-      --accounts-file PATH        Account list (default: config/accounts.txt)
+      --accounts-file PATH        Account list (default: ~/.config/mail-filter/accounts.txt)
       --show-config               Show selected accounts without accessing Mail or AI
       --fixture PATH              Classify JSON sample messages without accessing Mail
       --debug-model               Show raw model output for fixtures only (stderr)

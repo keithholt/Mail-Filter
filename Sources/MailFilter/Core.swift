@@ -10,7 +10,7 @@ struct Options {
     var evidenceTermsFile = defaultConfigurationPath("prompts/political-evidence.txt")
     var limit = 30
     var account: String?
-    var accountsFile = defaultConfigurationPath("config/accounts.txt")
+    var accountsFile = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".config/mail-filter/accounts.txt").path
     var scanAccounts: [String] = []
     var showConfig = false
     var fixture: String?
@@ -218,6 +218,9 @@ func selectedAccountNames(_ options: Options) throws -> [String] {
     if let name = options.account {
         guard !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw ToolError("--account cannot be empty") }
         return [name]
+    }
+    guard FileManager.default.fileExists(atPath: options.accountsFile) else {
+        throw ToolError("Account file missing: \(options.accountsFile). Copy config/accounts.example.txt to ~/.config/mail-filter/accounts.txt and set your exact Mail account names, or use --account NAME. No messages were scanned.")
     }
     return try parseAccountList(String(contentsOfFile: options.accountsFile, encoding: .utf8))
 }

@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import MailFilter
 
@@ -109,6 +110,11 @@ struct SafetyTests {
             #expect(throws: (any Error).self) { try Options(args) }
         }
     }
+    @Test func testPrivateAccountFileDefault() throws {
+        let expected = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".config/mail-filter/accounts.txt").path
+        #expect(try Options([]).accountsFile == expected)
+    }
+
     @Test func testEditableAccountList() throws {
         #expect(try parseAccountList("# Enable only one\n example.org \n# Personal\n\n") == ["example.org"])
         #expect(try parseAccountList("example.org\nPersonal\nexample.org") == ["example.org", "Personal"])
