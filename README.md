@@ -1,101 +1,103 @@
 # Mail-Filter
 
-A native macOS Swift command-line tool that classifies Apple Mail inbox messages using Apple's on-device Foundation Models. **Dry-run is the default.** Filtering rules live in an editable text file. The starting rules target unsolicited political campaign and advocacy solicitations; edit them to filter other content.
+Native macOS Swift command-line filtering of Apple Mail using on-device Foundation Models. Editable rules currently identify unsolicited political fundraising, campaign advertising, political advocacy, and political mass polls. Ordinary commercial spam is outside the filter.
 
-## Requirements
+**Normal runs move positive matches to Junk.** Use `--dry-run` to preview without moving. This default was explicitly selected after initial dry-run testing.
 
-- macOS 26 or newer on a Mac that supports Apple Intelligence.
-- Apple Intelligence enabled in System Settings, with its on-device model downloaded.
-- Swift 6.2 or newer (Xcode or compatible Command Line Tools).
-- Apple Mail configured and able to download the messages you want to inspect.
-- Permission for your terminal to control Mail, granted when macOS asks. If denied, review System Settings → Privacy & Security → Automation.
+## Run from anywhere
 
-No API key or cloud AI service is used. The model runs locally. Mail itself may sync with your mail provider as usual.
+```sh
+mail-filter
+mail-filter --dry-run
+mail-filter --verbose
+mail-filter --dry-run --verbose
+```
 
-## Build and start
+Plain `mail-filter` scans the configured accounts, processes up to **30 emails total**, classifies them, and moves positive matches to their account's existing `Junk` mailbox. `--verbose` shows all results and progress; it does not disable moving. Default output shows successful moves, errors, and the final summary. Dry-run output shows positive candidates and a summary confirming zero moves.
+
+The launcher is `~/.local/bin/mail-filter`. That directory is added to PATH in `~/.zshrc`; load it once in an existing Terminal:
+
+```sh
+source ~/.zshrc
+```
+
+Default configuration is loaded from `~/Documents/GitHub/Mail-Filter`, regardless of your current directory. Explicit relative file arguments are relative to your current directory. Rebuilding the project updates the executable used by the launcher. If you move the project, update the launcher's `MAIL_FILTER_ROOT` path.
+
+## Choose accounts and batch size
+
+Edit `config/accounts.txt`: one exact Mail account name per line. Blank lines and lines beginning with `#` are ignored. Initially only `example.org` is enabled. Adding/uncommenting an account enables scanning; commenting it disables scanning. No rebuild is needed.
+
+```sh
+mail-filter --list-accounts
+mail-filter --show-config
+mail-filter --account 'example.org' --limit 2 --dry-run
+mail-filter --limit 50
+```
+
+`--account` overrides the list for one run. `--accounts-file PATH` selects another list. The default is 30 messages; the hard maximum is 50 across the selected accounts in file order. Messages are fetched by index directly from each selected account's `INBOX`, without loading the combined Inbox. Mail typically exposes newer messages first but does not guarantee chronological order. Deleted messages are skipped and count toward the inspected limit.
+
+An empty/missing account list or unmatched account stops processing; there is no fallback to scanning all accounts. Configured names are checked before message retrieval. Each retrieval Apple event has a 20-second timeout. Open Mail and allow syncing to finish if retrieval times out.
+
+## Filtering rules and evidence
+
+Edit `prompts/filter.txt`. Political terms used to verify positive evidence are in `prompts/political-evidence.txt`. Changes apply on the next run without rebuilding. Override with `--prompt PATH` or `--evidence-terms PATH`.
+
+Model classifications are `political` / `not-political`. Operational failures are reported as `review` and leave the message untouched; that status is not a political classification. Marketing links, social media links, unsubscribe notices and urgent donation language alone do not establish politics.
+
+A positive requires verifiable political evidence from the supplied subject/body. Quotes tolerate whitespace, capitalization, invisible formatting, and smart-quote differences. If the model's quote is missing or incorrect but the actual subject contains a configured political term, the subject can serve as evidence. A term alone never triggers moving: the model must also classify the message as political. Positive reports include the evidence. This conservative check can miss euphemisms or names absent from the term list and does not guarantee perfect classification.
+
+The classifier uses Apple's documented `permissiveContentTransformations` mode with plain-text responses and strict JSON validation. Structured generation would still use default guardrails. Refusals, unknown decisions/fields, malformed output and model errors leave messages in place. A single enclosing Markdown JSON fence is accepted. Each email gets a fresh session; email fields are treated as untrusted data.
+
+## Protected messages and long bodies
+
+Messages from any address configured in Mail are kept without model classification, even if that account is disabled for scanning. This protects notes sent between different personal accounts. Other inboxes remain untouched unless enabled. Address comparison does not authenticate senders.
+
+Empty or invisible-only bodies are kept. Missing message identity or oversized headers are left for review. Bodies over 6,000 characters are classified using their first 6,000 characters and may be moved if the excerpt supports a positive. Positive reports include `bodyTruncated: true` for excerpted messages. Attachments and later body content are not inspected.
+
+Before moving, the tool rechecks account, numeric message ID, RFC message ID, sender, subject, Inbox presence, and classified body text. For long messages it compares the same excerpt, permitting changes beyond it. These are best-effort checks, not an atomic transaction with Mail.
+
+## Junk destination and recovery
+
+The destination must be an existing uniquely named root mailbox on the selected account. The default is `Junk`; use `--junk-mailbox 'actual name'` if Mail uses a different server-side name. The tool does not guess or create mailboxes.
+
+The operation moves messages into the folder; it does not train Mail's junk filter or change global settings. Mail-Filter never empties Junk or permanently deletes mail. Mail/provider retention settings may later delete messages from Junk. Recover a false positive by moving it back to Inbox in Mail.
+
+Legacy explicit apply syntax remains available:
+
+```sh
+mail-filter --apply --confirm-junk
+```
+
+`--apply` conflicts with `--dry-run`. Do not combine apply flags with diagnostics or fixtures.
+
+## Read-only diagnostics
+
+```sh
+mail-filter --check
+mail-filter --check-scripts
+mail-filter --show-config
+mail-filter --list-accounts
+mail-filter --account 'example.org' --inspect-message 632553
+```
+
+These commands never move mail. Inspection reports body length, a bounded preview, character codes, and personal-note protection. Preview content may be private. `mailBodyLength` over 6,000 identifies a long message; `previewTruncated` refers to the shorter diagnostic preview.
+
+## Build and test
+
+Requirements: macOS 26+, a Mac supporting Apple Intelligence with the model downloaded/enabled, and Swift 6.2+ from Xcode or compatible Command Line Tools. Mail must be configured, and your terminal must have permission to control it under System Settings → Privacy & Security → Automation. No API key or cloud AI service is used; Mail continues its ordinary provider syncing.
 
 ```sh
 cd ~/Documents/GitHub/Mail-Filter
 ./build.sh
-.build/release/mail-filter --help
-.build/release/mail-filter --check
+./test.sh
+mail-filter --fixture fixtures/sample.json --verbose
+mail-filter --fixture fixtures/sample.json --debug-model
 ```
 
-Check model availability first. This does not open or read Mail. Build artifacts stay under `.build/` and are ignored by Git.
+Fixture runs always classify synthetic messages without accessing or moving real mail. `--debug-model` shows escaped raw model responses only with fixtures. The script check compiles automation without executing it. Tests include personal-note protection, account selection, political evidence, output controls, long excerpts, and diagnostic/default-mode safeguards.
 
-## Test with sample email first
+Exit codes: `0` completed, `1` setup/argument/automation failure, `2` one or more per-message processing failures. Failed moves are reported as unconfirmed; inspect Mail instead of assuming rollback. Summary counts include kept, protected, reviewed and failed messages as processed; only confirmed moves count as moved.
 
-```sh
-.build/release/mail-filter --fixture fixtures/sample.json
-```
+There is no processed-message database: each run revisits the current batch. No launchd or scheduling setup is included. Swift Package Manager and embedded AppleScript via `NSAppleScript` are used, without third-party dependencies. Build output is ignored under `.build/`.
 
-This runs real on-device classification on synthetic messages, without accessing Apple Mail. The samples include a campaign solicitation, personal correspondence, and a receipt containing an attempted instruction override. Model decisions can vary; inspect the reasons before trusting your rules.
-
-```sh
-swift test
-.build/release/mail-filter --check-scripts
-```
-
-The safety tests do not access Mail or the model. The script check only compiles the AppleScript automation, including the move script; it does not execute it.
-
-## Read-only inspection of Mail
-
-```sh
-.build/release/mail-filter --list-accounts
-.build/release/mail-filter --account 'example.org' --limit 2
-```
-
-Use the exact account name shown by `--list-accounts`. Leaving out `--account` reads across the combined Inbox. It inspects at most 10 messages by default (up to 100 with `--limit`), in the order Mail exposes them. Empty inboxes produce zero results. Messages already marked deleted are skipped. Mail permission errors stop the run. Reading does not explicitly mark messages read, flag them, or move them.
-
-Results are JSON lines after a short status header, with account, message ID, subject, decision, reason, and action. Bodies are not logged, but subjects and model explanations can contain private information. If saving output, keep it under the ignored `reports/` directory and protect it appropriately.
-
-## Change the filtering rules
-
-Edit `prompts/filter.txt`, or use a private file outside the repository:
-
-```sh
-.build/release/mail-filter --prompt '/absolute/path/to/my-rules.txt' --limit 2
-```
-
-The default prompt path is relative to your working directory. Run from the repository root or provide an absolute path. Changes take effect on the next run without rebuilding. The model returns `keep`, `trash`, or `review`; only `trash` is eligible for moving. No fixed political category is hard-coded into the classifier.
-
-Each email gets a fresh model session. Email fields are explicitly treated as untrusted data. This reduces instruction-injection risk but does not make AI classification infallible. Review dry-run output against representative messages whenever changing rules.
-
-## Explicitly move matching messages
-
-After reviewing dry-run results, verify the exact destination mailbox in Mail. The destination must exist uniquely at the selected account's root; the tool does not create mailboxes or guess localized Trash names. You can choose an existing review/quarantine mailbox instead of Trash while validating the filter.
-
-```sh
-.build/release/mail-filter --account 'example.org' --limit 2 \
-  --apply --confirm-trash --trash-mailbox 'Trash'
-```
-
-**This command changes real mail.** It reclassifies the current batch, so it does not apply a previously saved dry-run report. Use small limits initially. Before each move, the tool checks the account, numeric message ID, RFC message ID, sender, subject, full body, and current Inbox presence. Changed or missing messages are not moved. This is a best-effort check rather than an atomic transaction with Mail.
-
-Mail-Filter uses Mail's `move` operation. It never permanently deletes messages or empties Trash. Mail or your provider's own Trash retention settings can later delete trashed messages. Recover mistakes using Mail's move commands before that happens.
-
-## Conservative behavior and limits
-
-- Missing bodies or RFC message IDs, truncated bodies, and oversized headers go to manual review without model classification or moving.
-- Bodies longer than 6,000 characters are truncated during retrieval and left untouched. Attachments are not inspected.
-- Prompts must contain 1–6,000 characters. The model has a limited context window; even accepted input can exceed it. Model refusals, context errors, and other failures leave mail in place for review.
-- A failed move is reported as unconfirmed: inspect Mail rather than assuming it was rolled back.
-- Exit codes: `0` completed, `1` setup/argument/automation error, `2` one or more messages need review because processing failed or safety checks rejected them.
-- No persistent processed-message database: each invocation inspects the current batch again. Keep/review messages may recur, so this first version is for manual command-line use rather than unattended inbox draining.
-- No scheduling or launchd setup is included.
-
-## Implementation
-
-Swift Package Manager executable, Foundation Models guided generation, and embedded AppleScript via `NSAppleScript`. No third-party dependencies. Automation returns typed Apple event lists rather than delimiter-separated email text.
-
-Apple's framework documentation: [Foundation Models](https://developer.apple.com/documentation/foundationmodels), [model availability](https://developer.apple.com/documentation/foundationmodels/systemlanguagemodel), and [generating content](https://developer.apple.com/documentation/foundationmodels/generating-content-and-performing-tasks-with-foundation-models).
-
-## Initial verification on this Mac
-
-- All six safety tests passed using Swift Testing.
-- The executable compiled with the installed Command Line Tools.
-- Read, account-list, and move AppleScripts compiled without execution. An explicit system Mail application path avoids application-name terminology lookup failures in a restricted environment.
-- Foundation Models reported available, but the synthetic-message generation attempt returned `ModelManagerServices.ModelManagerError 1008`. Each message was left for review and the run returned exit code 2. Successful model classification remains to be verified from a normal Terminal session.
-- The read-only account-list attempt returned AppleScript error `-10827` while accessing Mail from this environment. Real inbox retrieval and mailbox moves remain unverified. No real mail was deleted or moved.
-
-The local repository is connected to the private [keithholt/Mail-Filter](https://github.com/keithholt/Mail-Filter) repository. Initial code remains local until a push is explicitly approved.
+The private [GitHub repository](https://github.com/keithholt/Mail-Filter) hosts this project. Apple documentation: [Foundation Models](https://developer.apple.com/documentation/foundationmodels) and [content transformation guardrails](https://developer.apple.com/documentation/foundationmodels/improving-the-safety-of-generative-model-output).
