@@ -124,6 +124,15 @@ struct MailAutomation {
         """
     }
 
+    static func readMessage(account: String, id: Int) throws -> MailMessage {
+        let row = try script(inspectScript(account: account, id: id))
+        guard row.numberOfItems == 10 else { throw ToolError("Unexpected single-message response") }
+        return MailMessage(accountID: row.atIndex(1)?.stringValue ?? "", account: account, id: id,
+            messageID: row.atIndex(4)?.stringValue ?? "", subject: row.atIndex(5)?.stringValue ?? "",
+            sender: row.atIndex(6)?.stringValue ?? "", body: row.atIndex(7)?.stringValue ?? "",
+            truncated: row.atIndex(8)?.booleanValue ?? false, ownAddresses: addresses(row.atIndex(9)))
+    }
+
     static func inspect(account: String, id: Int) throws {
         let row = try script(inspectScript(account: account, id: id))
         guard row.numberOfItems == 10 else { throw ToolError("Unexpected inspection response") }

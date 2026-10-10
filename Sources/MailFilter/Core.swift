@@ -24,6 +24,7 @@ struct Options {
     var help = false
     var debugModel = false
     var verbose = false
+    var messageID: Int?
     var inspectMessage: Int?
 
     init(_ arguments: [String]) throws {
@@ -41,6 +42,9 @@ struct Options {
             case "--limit":
                 guard let n = Int(try value()), (1...50).contains(n) else { throw ToolError("--limit must be 1...50") }
                 limit = n
+            case "--message-id":
+                guard let n = Int(try value()), n > 0, n <= Int(Int32.max) else { throw ToolError("--message-id requires a positive Mail message ID") }
+                messageID = n
             case "--inspect-message":
                 guard let n = Int(try value()), n > 0, n <= Int(Int32.max) else { throw ToolError("--inspect-message requires a positive Mail message ID") }
                 inspectMessage = n
@@ -62,6 +66,13 @@ struct Options {
             default: throw ToolError("Unknown option: \(arg)")
             }
             i += 1
+        }
+        if messageID != nil {
+            guard account != nil, account != "", inspectMessage == nil, fixture == nil, !check, !checkScripts, !listAccounts, !showConfig, !debugModel else {
+                throw ToolError("--message-id requires --account and cannot be combined with fixtures or diagnostics")
+            }
+            verbose = true
+            skipProcessed = false
         }
         if arguments.contains("--dry-run") && apply { throw ToolError("--dry-run conflicts with --apply") }
         if confirm && !apply { throw ToolError("--confirm-junk requires --apply") }
@@ -274,6 +285,25 @@ func validatePoliticalEvidence(_ classification: Classification, message: MailMe
     // rejected just because the model omitted or reformatted its quote.
     if !message.subject.isEmpty && hasPoliticalTerm(message.subject, terms: terms) {
         return message.subject
+    }
+    // Recover evidence from the actual classified excerpt, never the sender or
+    // unseen remainder. The positive model decision is still required above.
+    let body = String(message.body.prefix(6000))
+    for sentence in body.components(separatedBy: CharacterSet(charactersIn: ".!?\n\r")) {
+        let quote = sentence.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !quote.isEmpty && quote.count <= 1500 && hasPoliticalTerm(quote, terms: terms) {
+            return quote
+        }
+    }
+    // Long unpunctuated lines may place the term far past the beginning.
+    for term in terms {
+        let pattern = "\\b" + NSRegularExpression.escapedPattern(for: term) + "\\b"
+        if let range = body.range(of: pattern, options: [.regularExpression, .caseInsensitive]) {
+            let start = body.index(range.lowerBound, offsetBy: -200, limitedBy: body.startIndex) ?? body.startIndex
+            let end = body.index(range.upperBound, offsetBy: 200, limitedBy: body.endIndex) ?? body.endIndex
+            let quote = String(body[start..<end]).trimmingCharacters(in: .whitespacesAndNewlines)
+            if quote.count <= 1500 && hasPoliticalTerm(quote, terms: terms) { return quote }
+        }
     }
     throw ToolError("Positive classification lacks verifiable political evidence in the message; left for review")
 }

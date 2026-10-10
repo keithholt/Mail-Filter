@@ -53,7 +53,7 @@ Edit `prompts/filter.txt`. Political terms used to verify positive evidence are 
 
 Model classifications are `political` / `not-political`. Operational failures are reported as `review` and leave the message untouched; that status is not a political classification. Marketing links, social media links, unsubscribe notices and urgent donation language alone do not establish politics.
 
-A positive requires verifiable political evidence from the supplied subject/body. Quotes tolerate whitespace, capitalization, invisible formatting, and smart-quote differences. If the model's quote is missing or incorrect but the actual subject contains a configured political term, the subject can serve as evidence. A term alone never triggers moving: the model must also classify the message as political. Positive reports include the evidence. This conservative check can miss euphemisms or names absent from the term list and does not guarantee perfect classification.
+A positive requires verifiable political evidence from the supplied subject/body. Quotes tolerate whitespace, capitalization, invisible formatting, and smart-quote differences. If the model's quote is missing or incorrect but the actual subject contains a configured political term, the subject can serve as evidence. Otherwise the tool searches the supplied body excerpt for an exact sentence or bounded passage containing a configured political term. This fallback still requires a positive model classification; it cannot turn a negative classification into a positive or use text beyond the first 6,000 characters. A term alone never triggers moving: the model must also classify the message as political. Positive reports include the evidence. This conservative check can miss euphemisms or names absent from the term list and does not guarantee perfect classification.
 
 The classifier uses Apple's documented `permissiveContentTransformations` mode with plain-text responses and strict JSON validation. Structured generation would still use default guardrails. Refusals, unknown decisions/fields, malformed output and model errors leave messages in place. A single enclosing Markdown JSON fence is accepted. Each email gets a fresh session; email fields are treated as untrusted data.
 
@@ -163,3 +163,12 @@ A status of `not running` with last exit code `0` is normal between batches. Exi
 Private output/error logs are in `~/.local/state/mail-filter/logs/`. They can contain message subjects and reasons; they are not committed. Logs append without automatic rotation. Deleting `processed.json` removes both kept-message state and returned-message protection; preserve it if you have restored false positives. Corrupt or inaccessible state stops processing with an error before any move. Manual runs without `--skip-processed` reclassify kept messages in the current batch, but still protect previously selected Junk messages returned to Inbox.
 
 The political-merchandise fixture checks a synthetic PAC-sponsored solicitation against ordinary patriotic retail marketing and a completed-purchase receipt. Expected classifications are political, not-political, not-political; actual model results require verification on your Mac. Prompt changes invalidate remembered kept results on the next scheduled run, while returned-message protection remains in effect.
+
+
+## Classify one specific message
+
+```sh
+mail-filter --account 'example.org' --message-id 123456 --dry-run
+```
+
+`--message-id` reads exactly one message by its numeric Mail ID from that account’s Inbox, independent of the recent-message batch limit. It shows the result and bypasses remembered kept classifications, but preserves protection for returned Junk messages. Remove `--dry-run` to permit a verified positive to move to Junk. A missing or ambiguous message/account returns an error without scanning other messages. `--inspect-message` remains a separate read-only inspection command without AI classification.

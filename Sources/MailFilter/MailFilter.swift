@@ -11,6 +11,7 @@ struct MailFilter {
       --check                     Check model availability; does not access Mail
       --check-scripts              Compile automation scripts without executing them
       --list-accounts              List Mail account IDs and names (read-only)
+      --message-id ID             Classify one Inbox message; requires --account
       --inspect-message ID        Inspect one Inbox message; requires --account; no AI or moves
       --prompt PATH               Editable rules (default: prompts/filter.txt)
       --evidence-terms PATH       Political evidence words (default: prompts/political-evidence.txt)
@@ -88,6 +89,8 @@ struct MailFilter {
             let messages: [MailMessage]
             if let fixture = options.fixture {
                 messages = Array(try JSONDecoder().decode([MailMessage].self, from: Data(contentsOf: URL(fileURLWithPath: fixture))).filter { options.account == nil || $0.account == options.account }.prefix(options.limit))
+            } else if let id = options.messageID {
+                messages = [try MailAutomation.readMessage(account: options.account!, id: id)]
             } else {
                 if options.verbose { FileHandle.standardError.write(Data("Reading up to \(options.limit) Inbox messages from \(options.scanAccounts.joined(separator: ", ")) (hard maximum: 50; Mail request timeout: 20 seconds)...\n".utf8)) }
                 messages = try MailAutomation.read(options)

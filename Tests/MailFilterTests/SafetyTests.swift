@@ -166,6 +166,33 @@ struct SafetyTests {
         #expect(throws: (any Error).self) { try ProcessedMessages(path: path.path, rules: "rules") }
     }
 
+    @Test func testSingleMessageSelection() throws {
+        let preview = try Options(["--account", "Example", "--message-id", "123", "--dry-run", "--skip-processed"])
+        #expect(preview.messageID == 123)
+        #expect(!preview.apply && preview.verbose && !preview.skipProcessed)
+        #expect(try Options(["--account", "Example", "--message-id", "123"]).apply)
+        for args in [["--message-id", "123"], ["--account", "A", "--message-id", "0"], ["--account", "A", "--message-id", "123", "--fixture", "sample.json"]] {
+            #expect(throws: (any Error).self) { try Options(args) }
+        }
+    }
+
+    @Test func testBodyEvidenceFallbackRequiresPositiveAndSeenText() throws {
+        var m = MailMessage(accountID: "a", account: "A", id: 1, messageID: "id", subject: "Offer ends", sender: "Shop", body: "Claim your pin.\nPaid for by Example Political Action Committee (ExamplePAC).\nSupport our candidates.", truncated: false)
+        let positive = Classification(decision: .political, reason: "Political solicitation", evidence: "An invented political quote")
+        let quote = try validatePoliticalEvidence(positive, message: m, terms: ["political action committee"])
+        #expect(quote == "Paid for by Example Political Action Committee (ExamplePAC)")
+        #expect(m.body.contains(quote!))
+        let negative = Classification(decision: .notPolitical, reason: "Not political", evidence: nil)
+        #expect(try validatePoliticalEvidence(negative, message: m, terms: ["political action committee"]) == nil)
+        m.body = "Buy a pin and unsubscribe."
+        #expect(throws: (any Error).self) { try validatePoliticalEvidence(positive, message: m, terms: ["political action committee"]) }
+        m.body = String(repeating: "x", count: 6000) + " Political action committee"
+        #expect(throws: (any Error).self) { try validatePoliticalEvidence(positive, message: m, terms: ["political action committee"]) }
+        m.body = String(repeating: "x ", count: 2000) + "Political action committee" + String(repeating: " y", count: 800)
+        let longQuote = try validatePoliticalEvidence(positive, message: m, terms: ["political action committee"])
+        #expect(longQuote != nil && m.body.contains(longQuote!))
+    }
+
     @Test func testPrivateAccountFileDefault() throws {
         let expected = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".config/mail-filter/accounts.txt").path
         #expect(try Options([]).accountsFile == expected)
@@ -237,7 +264,9 @@ struct SafetyTests {
         let formatted = Classification(decision: .political, reason: "Political poll", evidence: "Do you approve of Trump's policies?")
         #expect(try validatePoliticalEvidence(formatted, message: m, terms: ["Trump"]) == formatted.evidence)
         let invented = Classification(decision: .political, reason: "Political", evidence: "Donate to Biden")
-        #expect(throws: (any Error).self) { try validatePoliticalEvidence(invented, message: m, terms: ["Trump", "Biden"]) }
+        let recovered = try validatePoliticalEvidence(invented, message: m, terms: ["Trump", "Biden"])
+        #expect(recovered != nil && m.body.contains(recovered!))
+        #expect(hasPoliticalTerm(recovered!, terms: ["Trump"]))
     }
     @Test func testLongEmailClassifiedFromPrefix() throws {
         let prefix = "Donate to our Republican election campaign. "
