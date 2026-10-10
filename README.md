@@ -100,4 +100,4 @@ Exit codes: `0` completed, `1` setup/argument/automation failure, `2` one or mor
 
 There is no processed-message database: each run revisits the current batch. No launchd or scheduling setup is included. Swift Package Manager and embedded AppleScript via `NSAppleScript` are used, without third-party dependencies. Build output is ignored under `.build/`.
 
-The private [GitHub repository](https://github.com/keithholt/Mail-Filter) hosts this project. Apple documentation: [Foundation Models](https://developer.apple.com/documentation/foundationmodels) and [content transformation guardrails](https://developer.apple.com/documentation/foundationmodels/improving-the-safety-of-generative-model-output).
+The public [GitHub repository](https://github.com/keithholt/Mail-Filter) hosts this project. Apple documentation: [Foundation Models](https://developer.apple.com/documentation/foundationmodels) and [content transformation guardrails](https://developer.apple.com/documentation/foundationmodels/improving-the-safety-of-generative-model-output).
