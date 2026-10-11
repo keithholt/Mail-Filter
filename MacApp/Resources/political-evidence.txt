@@ -1,0 +1,23 @@
+# A positive result must quote actual message text containing one of these terms.
+# Conservative vocabulary: do not add generic marketing words such as unsubscribe.
+political
+politics
+election
+elections
+electoral
+Democrat
+Democrats
+Democratic Party
+Republican
+Republicans
+Republican Party
+Congress
+congressional
+Senate
+senator
+Trump
+Biden
+political action committee
+PAC
+partisan
+ballot

@@ -1,0 +1,13 @@
+#!/bin/sh
+set -eu
+entry='/Applications/Mail-Filter.app/Contents/Resources/DeveloperTools/bin'
+path="${3%/}/etc/paths.d/org.mail-filter.command-line"
+
+# Deselecting the option removes only the exact entry owned by this installer.
+if [ -L "$path" ] || [ -e "$path" ]; then
+    if [ -L "$path" ] || [ ! -f "$path" ] || ! printf '%s\n' "$entry" | /usr/bin/cmp -s - "$path"; then
+        printf '%s\n' 'Mail-Filter left an unrelated command-line PATH entry unchanged.' >&2
+        exit 1
+    fi
+    /bin/rm "$path"
+fi
