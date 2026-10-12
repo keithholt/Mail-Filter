@@ -266,12 +266,8 @@ struct SettingsView: View {
     private var help: some View {
         VStack(alignment: .leading, spacing: 18) {
             helpItem("1. Choose accounts and save", "Read Mail accounts on the Filtering page. Allow access to Mail account settings when macOS asks. Select inboxes and save.")
-            helpItem("2. Enable the Mail extension", "Open Mail → Settings → Extensions, then check Mail-Filter. Leave any earlier filtering extension disabled and keep the old timer agent stopped.")
+            helpItem("2. Enable the Mail extension", "Open Mail → Settings → Extensions, then check Mail-Filter.")
             Button("Open Mail", action: model.openMail)
-            if model.legacyTimerInstalled {
-                Button("Remove Old Timer Schedule", action: model.removeLegacyTimer)
-                Text("This stops the old timer and removes its login schedule. The CLI, source checkout and its protection records are kept.").font(.caption).foregroundStyle(.secondary)
-            }
             helpItem("3. Keep Mail running", "Mail-Filter's settings window can be closed, and this app can quit. Incoming mail is handled by the extension while Mail is running and your Mac is awake.")
             helpItem("Pause filtering", "Turn the Enable filtering switch off to leave new messages in place. Turn it on to resume. This switch is saved immediately; it does not require Save Settings. Keep Mail-Filter enabled in Mail's Extensions settings.")
             helpItem("Recover a false positive", "Move it from Junk back to Inbox. Its saved identity prevents another Junk move, including after restarts and settings changes. Junk moves already requested cannot be recalled by turning filtering off.")

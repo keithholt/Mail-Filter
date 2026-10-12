@@ -7,7 +7,7 @@ import OSLog
 final class MailFilterExtension: NSObject, MEExtension {
     override init() {
         super.init()
-        Logger(subsystem: "org.mail-filter.app", category: "Lifecycle").notice("Mail-Filter extension initialized (build 9)")
+        Logger(subsystem: "org.mail-filter.app", category: "Lifecycle").notice("Mail-Filter extension initialized (build 10)")
     }
     func handlerForMessageActions() -> any MEMessageActionHandler { NativeMessageHandler() }
 }

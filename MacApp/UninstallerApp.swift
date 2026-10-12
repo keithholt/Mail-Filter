@@ -1,11 +1,9 @@
 import SwiftUI
 import AppKit
-import Darwin
 
 @MainActor
 final class UninstallerModel: ObservableObject {
     @Published var eraseData = false
-    @Published var removeTimer = false
     @Published var busy = false
     @Published var result: String?
     @Published var completed = false
@@ -31,19 +29,6 @@ final class UninstallerModel: ObservableObject {
                 }
                 guard targets.allSatisfy({ recycled[$0] != nil }) else { throw UninstallError.unexpectedApplication }
             }
-            if removeTimer {
-                try UninstallPlan.removeLegacyTimer(home: FileManager.default.homeDirectoryForCurrentUser) {
-                    let process = Process()
-                    process.executableURL = URL(fileURLWithPath: "/bin/launchctl")
-                    process.arguments = ["bootout", "gui/\(getuid())/org.mail-filter.agent"]
-                    process.standardOutput = FileHandle.nullDevice; process.standardError = FileHandle.nullDevice
-                    try process.run(); process.waitUntilExit()
-                    // A missing service is normal; remove only the verified plist.
-                    guard process.terminationStatus == 0 || process.terminationStatus == 3 || process.terminationStatus == 113 else {
-                        throw ToolError("The timer could not be stopped; its installation file was preserved.")
-                    }
-                }
-            }
             if eraseData { try store.eraseApplicationData() }
             completed = true
             result = "Mail-Filter moved to Trash. Its installer-managed command-line access was removed; open a new Terminal window to refresh PATH. \(eraseData ? "Its private settings, activity and protection records were erased." : "Private settings and restored-message protection were kept for reinstalling.") Your messages and Mail accounts were not changed. Restart Mail if the extension remains listed."
@@ -63,8 +48,7 @@ struct MailFilterUninstaller: App {
                 Text("Remove Mail-Filter and its Mail extension from Applications. No email messages or Mail accounts will be changed.")
                 Toggle("Erase private settings, activity and restored-message protection", isOn: $model.eraseData)
                 Text("Leave this unchecked to preserve protection if you reinstall.").font(.caption).foregroundStyle(.secondary)
-                Toggle("Also remove the old timer agent installation", isOn: $model.removeTimer)
-                Text("Installer-managed command-line access is removed too. The previous probe, your development checkout, its launcher and their private data are kept.").font(.caption).foregroundStyle(.secondary)
+                Text("Command-line access installed with this app is removed too.").font(.caption).foregroundStyle(.secondary)
                 if let result = model.result { Text(result).font(.callout).textSelection(.enabled) }
                 HStack {
                     Button(model.completed ? "Close" : "Cancel") { NSApplication.shared.terminate(nil) }.disabled(model.busy)

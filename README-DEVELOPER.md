@@ -32,7 +32,7 @@ An independently configured development launcher such as `~/.local/bin/mail-filt
 '/Applications/Mail-Filter.app/Contents/Resources/DeveloperTools/bin/mail-filter' --dry-run --verbose
 ```
 
-The bundled example account list is in `DeveloperTools/config/accounts.example.txt`; copy it to the private account path and edit it before using the installed CLI. Timer management still requires the development checkout; no timer is installed or enabled by the clickable installer. Developer documentation is also bundled in `DeveloperTools/README-DEVELOPER.md`.
+The bundled example account list is in `DeveloperTools/config/accounts.example.txt`; copy it to the private account path and edit it before using the installed CLI. Manage the development timer from the checkout using `./scripts/agent.sh`. The app and uninstaller have no timer controls; the clickable installer does not install or enable a timer. Developer documentation is also bundled in `DeveloperTools/README-DEVELOPER.md`.
 
 ## Command-line setup
 

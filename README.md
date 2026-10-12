@@ -69,8 +69,7 @@ The former **Mail-Filter Probe** testing app is retired and is not needed. Keep 
 2. In Mail-Filter, choose **Import Previous Setup...** and select your previous **configuration.json** or **settings.json**. An old configured app bundle can also be imported if you still have one. This imports settings and available restored-message protection.
 3. If the app reports missing protection records and you previously restored incorrectly filtered messages, use **Setup & help**, then **Import Protection File...**, before enabling the new extension.
 4. Read/refresh accounts, confirm your selections and save.
-5. Use **Remove Old Timer Schedule** under **Setup & help**, if available, to retire the earlier scheduled filter.
-6. Enable only **Mail-Filter** in Mail's Extensions settings. Verify incoming filtering and restored-message protection before removing the old app or its data.
+5. Enable only **Mail-Filter** in Mail's Extensions settings. Verify incoming filtering and restored-message protection before removing the old app or its data.
 
 Reinstalling or updating this app retains compatible account selections, custom rules, Preview, the saved ON/OFF choice, activity and protection records. A new setup defaults **Enable filtering** to ON. An incompatible or damaged settings file produces an error without overwriting it. If a future version changes where settings are stored, import the previous setup before enabling filtering.
 

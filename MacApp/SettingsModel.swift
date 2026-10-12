@@ -20,7 +20,6 @@ final class SettingsModel: ObservableObject {
     @Published var activity = NativeActivityLog()
     @Published var modelStatus = "Checking Apple Intelligence…"
     @Published var mailRunning = false
-    @Published var legacyTimerInstalled = false
     @Published var analyzingSelectedMessage = false
     @Published var selectedAnalysis: String?
     @Published var diagnosticMessage: String?
@@ -61,7 +60,6 @@ final class SettingsModel: ObservableObject {
 
     func reloadStatus() {
         mailRunning = !NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.mail").isEmpty
-        legacyTimerInstalled = FileManager.default.fileExists(atPath: FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/LaunchAgents/org.mail-filter.agent.plist").path)
         switch SystemLanguageModel(guardrails: .permissiveContentTransformations).availability {
         case .available: modelStatus = "Ready"
         case .unavailable(.appleIntelligenceNotEnabled): modelStatus = "Enable Apple Intelligence in System Settings."
@@ -241,20 +239,6 @@ final class SettingsModel: ObservableObject {
     }
 
     func openMail() { NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Applications/Mail.app")) }
-    func removeLegacyTimer() {
-        do {
-            try UninstallPlan.removeLegacyTimer(home: FileManager.default.homeDirectoryForCurrentUser) {
-                let process = Process()
-                process.executableURL = URL(fileURLWithPath: "/bin/launchctl")
-                process.arguments = ["bootout", "gui/\(getuid())/org.mail-filter.agent"]
-                process.standardOutput = FileHandle.nullDevice; process.standardError = FileHandle.nullDevice
-                try process.run(); process.waitUntilExit()
-                guard [0, 3, 113].contains(process.terminationStatus) else { throw ToolError("The old timer couldn't be stopped. Its file was preserved.") }
-            }
-            legacyTimerInstalled = false; error = nil
-            message = "The old timer schedule was removed. Its CLI and protection records were kept."
-        } catch { self.error = error.localizedDescription }
-    }
     func openUninstaller() {
         let sibling = Bundle.main.bundleURL.deletingLastPathComponent().appendingPathComponent("Uninstall Mail-Filter.app")
         guard FileManager.default.fileExists(atPath: sibling.path) else { error = "Open Uninstall Mail-Filter from the installer download or Applications."; return }
