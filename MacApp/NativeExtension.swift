@@ -7,7 +7,7 @@ import OSLog
 final class MailFilterExtension: NSObject, MEExtension {
     override init() {
         super.init()
-        Logger(subsystem: "org.mail-filter.app", category: "Lifecycle").notice("Mail-Filter extension initialized (build 10)")
+        Logger(subsystem: "org.mail-filter.app", category: "Lifecycle").notice("Mail-Filter extension initialized (build 11)")
     }
     func handlerForMessageActions() -> any MEMessageActionHandler { NativeMessageHandler() }
 }
@@ -33,7 +33,8 @@ final class NativeMessageHandler: NSObject, MEMessageActionHandler {
         }
         do {
             let body = try MIMEBodyDecoder.decode(raw)
-            let sender = message.fromAddress.addressString ?? message.fromAddress.rawString
+            // Preserve the display name, matching selected-email diagnostics.
+            let sender = message.fromAddress.rawString
             let subject = message.subject
             let deliveries = (message.headers ?? [:]).filter { ["delivered-to", "x-original-to"].contains($0.key.lowercased()) }.flatMap(\.value)
             let recipients = deliveries.isEmpty ? message.allRecipientAddresses.compactMap(\.addressString)

@@ -1,5 +1,6 @@
 import Foundation
 import Darwin
+import CryptoKit
 
 enum NativeStoreError: LocalizedError {
     case unavailable, invalidSettings, busy, invalidActivity
@@ -50,6 +51,7 @@ struct NativeActivity: Codable, Identifiable {
 }
 
 struct NativeActivityLog: Codable {
+    static let maximumRecent = 500
     var schemaVersion = 1
     var processed = 0
     var junkRequested = 0
@@ -121,12 +123,35 @@ final class SharedStore {
     func updateStandardVerificationWords() throws -> Bool {
         try locked {
             var settings = try loadSettings()
-            guard let original = settings.configuration,
-                  Set(original.evidenceTerms.map { $0.lowercased() }) == Set(PoliticalVerificationWords.previousDefaults.map { $0.lowercased() }) else { return false }
+            guard let original = settings.configuration else { return false }
+            let saved = Set(original.evidenceTerms.map { $0.lowercased() })
+            let previous = Set(PoliticalVerificationWords.previousDefaults.map { $0.lowercased() })
+            let version9 = Set((PoliticalVerificationWords.previousDefaults + PoliticalVerificationWords.firstAdditions).map { $0.lowercased() })
+            guard saved == previous || saved == version9 else { return false }
+            let additions = PoliticalVerificationWords.additions.filter { !saved.contains($0.lowercased()) }
             settings.configuration = FilteringConfiguration(schemaVersion: original.schemaVersion, mode: original.mode,
                 selectedRecipientAddresses: original.selectedRecipientAddresses, ownAddresses: original.ownAddresses,
-                rules: original.rules, evidenceTerms: original.evidenceTerms + PoliticalVerificationWords.additions,
+                rules: original.rules, evidenceTerms: original.evidenceTerms + additions,
                 legacyAccountIDs: original.legacyAccountIDs, protectedCLIIdentities: original.protectedCLIIdentities)
+            settings.revision = UUID().uuidString
+            try settings.validate()
+            try write(settings, to: settingsURL)
+            return true
+        }
+    }
+
+    /// Refresh only the prior untouched standard prompt. Edited policies survive
+    /// upgrades, as do all accounts, pause/preview and restored-mail protection.
+    func updateStandardPrompt(_ rules: String, replacingDigest: String = "818fba6fb1f6c4fc2ae6869b24ba55e50bf356ee28d86eb07c161ce912264968") throws -> Bool {
+        try locked {
+            var settings = try loadSettings()
+            guard let original = settings.configuration else { return false }
+            let digest = SHA256.hash(data: Data(original.rules.trimmingCharacters(in: .whitespacesAndNewlines).utf8)).map { String(format: "%02x", $0) }.joined()
+            guard digest == replacingDigest, original.rules != rules else { return false }
+            settings.configuration = FilteringConfiguration(schemaVersion: original.schemaVersion, mode: original.mode,
+                selectedRecipientAddresses: original.selectedRecipientAddresses, ownAddresses: original.ownAddresses,
+                rules: rules, evidenceTerms: original.evidenceTerms, legacyAccountIDs: original.legacyAccountIDs,
+                protectedCLIIdentities: original.protectedCLIIdentities)
             settings.revision = UUID().uuidString
             try settings.validate()
             try write(settings, to: settingsURL)
@@ -206,7 +231,7 @@ final class SharedStore {
             }
             activity.recent.insert(NativeActivity(outcome: outcome, category: category, traceID: traceID,
                                                  attempt: attempt, failureDomain: failureDomain, failureCode: failureCode), at: 0)
-            activity.recent = Array(activity.recent.prefix(100))
+            activity.recent = Array(activity.recent.prefix(NativeActivityLog.maximumRecent))
             try write(activity, to: activityURL)
         }
     }
@@ -232,8 +257,8 @@ final class SharedStore {
     private func loadActivity() throws -> NativeActivityLog {
         guard FileManager.default.fileExists(atPath: activityURL.path) else { return NativeActivityLog() }
         do {
-            let activity = try JSONDecoder().decode(NativeActivityLog.self, from: boundedData(activityURL, maximum: 256 * 1_024))
-            guard activity.schemaVersion == 1, activity.processed >= 0, activity.junkRequested >= 0, activity.recent.count <= 100,
+            let activity = try JSONDecoder().decode(NativeActivityLog.self, from: boundedData(activityURL, maximum: 1_024 * 1_024))
+            guard activity.schemaVersion == 1, activity.processed >= 0, activity.junkRequested >= 0, activity.recent.count <= NativeActivityLog.maximumRecent,
                   (activity.receivedCallbacks ?? 0) >= 0,
                   activity.recent.allSatisfy({
                       $0.outcome.count <= 80 && $0.category.count <= 100

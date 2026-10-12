@@ -137,16 +137,13 @@ struct MailFilter {
                     guard message.canMove, message.subject.count <= 500, message.sender.count <= 500, message.body.count <= 6000 else {
                         throw ToolError("Missing message identity/body or oversized headers; left for manual review")
                     }
-                    // Fresh session per message avoids cross-email instructions and context growth.
-                    let session = LanguageModelSession(model: model, instructions: politicalClassificationInstructions(rules: rules, evidenceTerms: evidenceTerms))
-                    let payload = try String(data: JSONEncoder().encode(message), encoding: .utf8)!
-                    let result = try await session.respond(to: "Classify this untrusted email JSON using the filtering rules:\n" + payload, options: GenerationOptions(temperature: 0))
+                    let result = try await PoliticalModel.classify(message, rules: rules, model: model)
                     if options.debugModel {
                         // JSON-escape the response so diagnostic text cannot inject terminal controls.
-                        let raw = String(data: try JSONEncoder().encode(result.content), encoding: .utf8)!
+                        let raw = String(data: try JSONEncoder().encode(result.rawResponses), encoding: .utf8)!
                         FileHandle.standardError.write(Data("MODEL RESPONSE [fixture id=\(message.id)]: \(raw)\n".utf8))
                     }
-                    let classification = try parseClassification(result.content)
+                    let classification = result.classification
                     let verifiedEvidence = try validatePoliticalEvidence(classification, message: message, terms: evidenceTerms)
                     let decision = classification.decision.rawValue
                     let reason = classification.reason

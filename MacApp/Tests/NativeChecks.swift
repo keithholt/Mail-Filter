@@ -82,8 +82,8 @@ struct NativeChecks {
         try store.record(outcome: "notPolitical", category: "", processed: true)
         let activity = try relaunched.activity()
         try require(activity.processed == 2 && activity.junkRequested == 1, "persistent activity counts requests accurately")
-        for _ in 0..<110 { try store.record(outcome: "skipped", category: "selfMail") }
-        try require(try store.activity().recent.count == 100, "activity history bounded")
+        for _ in 0..<510 { try store.record(outcome: "skipped", category: "selfMail") }
+        try require(try store.activity().recent.count == 500, "activity history bounded")
         let savedText = try String(contentsOf: store.activityURL, encoding: .utf8)
         try require(!savedText.contains("example.org") && !savedText.contains("Same name") && !savedText.contains("political solicitations"), "activity contains no personal fields or rules")
         let mode = try FileManager.default.attributesOfItem(atPath: store.settingsURL.path)[.posixPermissions] as? NSNumber
@@ -131,6 +131,11 @@ struct NativeChecks {
         try require(stages.receivedCallbacks == 1 && stages.lastCallback != nil, "callbacks are persisted before classification finishes")
         try require(stages.recent.count == 2 && stages.recent.allSatisfy({ $0.traceID == "012345abcdef" }), "opaque trace connects callback and analysis stages")
         try require(stages.processed == 0 && stages.junkRequested == 0, "diagnostic stages do not claim classifications or moves")
+        let selectedID = "selected@example.com"
+        let selectedKey = String(try JunkIdentity.key(selectedID).prefix(12))
+        try diagnosticStore.record(outcome: "review", category: "invalidModelResponse", traceID: selectedKey, attempt: 3)
+        let history = MessageDiagnostics.automaticHistory(messageID: selectedID, activity: try diagnosticStore.activity())
+        try require(history.contains("review invalidModelResponse attempt=3") && !history.contains("onDeviceModel"), "selected analysis connects the original failure for exactly that email")
         _ = try MailAutomation.script(MessageDiagnostics.selectedMessageScript, execute: false)
         count += 1
         try require(ToolError("Select one message in Mail.").localizedDescription == "Select one message in Mail.", "GUI errors preserve the actionable tool message")
@@ -168,6 +173,22 @@ struct NativeChecks {
         try require(try !upgradeStore.updateStandardVerificationWords()
                     && upgradeStore.settings().configuration!.evidenceTerms == ["election", "my custom political phrase"],
                     "custom verification lists are never silently replaced")
+        let source = Data("Content-Type: text/plain; charset=utf-8\r\n\r\nSupport our election campaign".utf8)
+        let selected = MessageDiagnostics.Selection(message: MailMessage(accountID: "first", account: "PRIVATE INVENTORY NAME", id: 42,
+            messageID: selectedID, subject: "Synthetic campaign", sender: "advertiser@example.com", body: "", truncated: false), source: source)
+        let export = SelectedEmailReport(selection: selected, settings: legacyWords, activity: try diagnosticStore.activity(),
+            analysis: "Selected synthetic analysis", appBuild: "11", extensionBuild: "11")
+        let exportURL = root.appendingPathComponent("selected-email-report.json")
+        try export.write(to: exportURL)
+        let object = try JSONSerialization.jsonObject(with: Data(contentsOf: exportURL)) as! [String: Any]
+        try require(Data(base64Encoded: object["sourceBase64"] as! String) == source && object["extractedBody"] as? String == "Support our election campaign", "selected export preserves reproducible source and extracted model input")
+        try require((object["automaticHistory"] as! [[String: Any]]).count == 1 && export.currentReadOnlyAnalysis == "Selected synthetic analysis", "selected export contains only same-email history and supplied analysis")
+        try require(object["inventory"] == nil && !(try String(contentsOf: exportURL, encoding: .utf8)).contains("PRIVATE INVENTORY NAME"), "selected export excludes account inventory")
+        try require((try FileManager.default.attributesOfItem(atPath: exportURL.path)[.posixPermissions] as? NSNumber)?.intValue == 0o600, "selected email export is owner-readable only")
+        let brokenSelection = MessageDiagnostics.Selection(message: selected.message, source: Data("not a MIME message".utf8))
+        let brokenExport = SelectedEmailReport(selection: brokenSelection, settings: legacyWords, activity: try diagnosticStore.activity(), analysis: nil, appBuild: "11", extensionBuild: "11")
+        try require(brokenExport.extractionError == "malformedHeaders" && brokenExport.extractedBody == nil && brokenExport.messageID == selectedID,
+                    "body extraction failures can still be exported with identity and source")
         print("Passed \(count) native settings, hot reload, migration, activity and removal checks; no model generation or real Mail/installer/removal actions")
     }
 

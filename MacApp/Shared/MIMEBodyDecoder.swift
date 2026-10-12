@@ -64,11 +64,23 @@ enum MIMEBodyDecoder {
                 }
                 if type.name == "multipart/signed" { return try entity(children[0], depth: depth + 1) }
                 var parts: [Part] = []
-                for child in children { parts.append(try entity(child, depth: depth + 1)) }
                 if type.name == "multipart/alternative" {
+                    var failure: Error?
+                    for child in children {
+                        do { parts.append(try entity(child, depth: depth + 1)) }
+                        catch {
+                            // A broken optional representation must not discard
+                            // a readable sibling. Resource limits remain fatal.
+                            if let limit = error as? MIMEBodyError,
+                               [.nestingLimit, .partLimit, .oversizedText, .oversizedMessage].contains(limit) { throw error }
+                            failure = failure ?? error
+                        }
+                    }
+                    if parts.allSatisfy({ $0.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }), let failure { throw failure }
                     return parts.first(where: { $0.plain && !$0.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty })
                         ?? parts.first(where: { !$0.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }) ?? Part()
                 }
+                for child in children { parts.append(try entity(child, depth: depth + 1)) }
                 return Part(text: parts.map(\.text).filter { !$0.isEmpty }.joined(separator: "\n"))
             }
             // Embedded messages, images, calendar data and all other attachments stay out.

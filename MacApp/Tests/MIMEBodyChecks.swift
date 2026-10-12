@@ -41,6 +41,12 @@ struct DecoderChecks {
         try require(alternative.text == "Dinner Saturday?", "prefer plain alternative without duplicates")
         let htmlOnly = "--b\nContent-Type: text/plain\n\n \n--b\nContent-Type: text/html\n\n<p>Hello HTML</p>\n--b--"
         try require(try MIMEBodyDecoder.decode(message("Content-Type: multipart/alternative; boundary=b", htmlOnly)).text == "Hello HTML", "empty plain alternative falls back to HTML")
+        let brokenHTML = "--b\nContent-Type: text/plain\n\nSupport the election campaign\n--b\nContent-Type: text/html\n\n<p title='broken>\n--b--"
+        try require(try MIMEBodyDecoder.decode(message("Content-Type: multipart/alternative; boundary=b", brokenHTML)).text == "Support the election campaign", "malformed HTML does not discard valid plain alternative")
+        let brokenPlain = "--b\nContent-Type: text/plain\nContent-Transfer-Encoding: base64\n\nnot@base64\n--b\nContent-Type: text/html\n\n<p>Campaign for the Second Amendment</p>\n--b--"
+        try require(try MIMEBodyDecoder.decode(message("Content-Type: multipart/alternative; boundary=b", brokenPlain)).text == "Campaign for the Second Amendment", "malformed plain alternative falls back to valid HTML")
+        let allBroken = brokenPlain.replacingOccurrences(of: "<p>Campaign for the Second Amendment</p>", with: "<p title='broken>")
+        try rejects(message("Content-Type: multipart/alternative; boundary=b", allBroken), .malformedEncoding)
         let mixed = "--outer\nContent-Type: multipart/alternative; boundary=body\n\n" + alternatives + "\n--outer\nContent-Type: text/plain; name=policy.txt\nContent-Disposition: attachment; filename=policy.txt\n\nPolitical attachment must be omitted\n--outer\nContent-Type: application/pdf\n\nPolitical PDF must be omitted\n--outer--"
         try require(try MIMEBodyDecoder.decode(message("Content-Type: multipart/mixed; boundary=outer", mixed)).text == "Dinner Saturday?", "nested body with attachments excluded")
         let related = "--r\nContent-Type: text/plain\nContent-ID: <resource>\n\nUnrelated resource text\n--r\nContent-Type: text/html\nContent-ID: <root>\n\n<p>Root document</p>\n--r--"
@@ -73,6 +79,6 @@ struct DecoderChecks {
         try require(request.shouldRequestBody(messageID: "<other@example.com>", hasRawData: false), "body tracker continues past capacity")
         try require(!request.shouldRequestBody(messageID: "<other@example.com>", hasRawData: false), "newest retry identity stays protected")
         try require(request.shouldRequestBody(messageID: "<sample@example.com>", hasRawData: false), "oldest request evicted within memory bound")
-        print("Passed 30 MIME extraction and body-request checks (synthetic messages only)")
+        print("Passed 33 MIME extraction and body-request checks (synthetic messages only)")
     }
 }

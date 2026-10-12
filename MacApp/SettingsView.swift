@@ -150,28 +150,48 @@ struct SettingsView: View {
             if let date = model.activity.lastCallback {
                 Text("Last incoming callback: \(date.formatted(date: .abbreviated, time: .standard))").font(.caption)
             }
-            HStack {
-                Button(model.analyzingSelectedMessage ? "Analyzing selected email…" : "Analyze selected email", action: model.analyzeSelectedMessage)
-                    .disabled(model.analyzingSelectedMessage)
-                Button(model.collectingDiagnostics ? "Collecting logs…" : "Copy diagnostic report", action: model.copyDiagnostics)
-                    .disabled(model.collectingDiagnostics)
-            }
-            Text("Select one message in Mail, then analyze it here. This test uses your current rules and never moves messages. Its reason and evidence are shown only here.")
-                .font(.caption).foregroundStyle(.secondary)
-            if let result = model.selectedAnalysis { Text(result).font(.callout).textSelection(.enabled) }
-            if let note = model.diagnosticMessage { Text(note).font(.caption).foregroundStyle(.secondary) }
-            if let report = model.diagnosticReport {
-                VStack(alignment: .leading, spacing: 10) {
+            GroupBox("Selected email analysis") {
+                VStack(alignment: .leading, spacing: 12) {
                     HStack {
-                        Text("Diagnostic report").font(.headline)
-                        Spacer()
-                        Button("Copy displayed report", action: model.copyDisplayedDiagnostics)
+                        Button(model.analyzingSelectedMessage ? "Analyzing selected email…" : "Analyze selected email", action: model.analyzeSelectedMessage)
+                            .disabled(model.analyzingSelectedMessage || model.exportingSelectedMessage)
+                        Button(model.exportingSelectedMessage ? "Exporting…" : "Export selected email report…", action: model.exportSelectedEmailReport)
+                            .disabled(model.exportingSelectedMessage || model.analyzingSelectedMessage)
                     }
-                    ScrollView {
-                        Text(report).font(.system(.caption, design: .monospaced)).textSelection(.enabled)
-                            .frame(maxWidth: .infinity, alignment: .leading).padding(12)
-                    }.frame(height: 260).background(.quaternary.opacity(0.3), in: RoundedRectangle(cornerRadius: 8))
-                }
+                    Text("Select one message in Mail, then analyze it here. No messages are moved. Results may include quotes or the analyzed body excerpt.")
+                        .font(.caption).foregroundStyle(.secondary)
+                    if let result = model.selectedAnalysis {
+                        ScrollView {
+                            Text(result).font(.callout).textSelection(.enabled)
+                                .frame(maxWidth: .infinity, alignment: .leading).padding(8)
+                        }.frame(height: 240)
+                        Button("Copy analysis result", action: model.copySelectedAnalysis)
+                    }
+                    if let note = model.analysisCopyMessage { Text(note).font(.caption).foregroundStyle(.secondary) }
+                }.frame(maxWidth: .infinity, alignment: .leading).padding(8)
+            }
+            Divider()
+            GroupBox("Application diagnostics") {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("App status, processing history and extension logs. This report excludes the selected email's analysis and content.")
+                        .font(.caption).foregroundStyle(.secondary)
+                    Button(model.collectingDiagnostics ? "Collecting logs…" : "Copy diagnostic report", action: model.copyDiagnostics)
+                        .disabled(model.collectingDiagnostics)
+                    if let note = model.diagnosticMessage { Text(note).font(.caption).foregroundStyle(.secondary) }
+                    if let report = model.diagnosticReport {
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack {
+                                Text("Diagnostic report").font(.headline)
+                                Spacer()
+                                Button("Copy displayed report", action: model.copyDisplayedDiagnostics)
+                            }
+                            ScrollView {
+                                Text(report).font(.system(.caption, design: .monospaced)).textSelection(.enabled)
+                                    .frame(maxWidth: .infinity, alignment: .leading).padding(12)
+                            }.frame(height: 260).background(.quaternary.opacity(0.3), in: RoundedRectangle(cornerRadius: 8))
+                        }
+                    }
+                }.frame(maxWidth: .infinity, alignment: .leading).padding(8)
             }
             Divider()
             if model.activity.recent.isEmpty {
@@ -216,6 +236,7 @@ struct SettingsView: View {
         case "callbackReceived": return "Mail delivered a callback"
         case "queued": return "Waiting for analysis"
         case "analysisStarted": return "Analysis started"
+        case "analysisSection": return "Analyzing a section of the email"
         case "retryScheduled": return "Classification failed — retry scheduled"
         case "modelPolitical": return "Model classified the message as political"
         case "modelNotPolitical": return "Model classified the message as not political"
@@ -243,7 +264,9 @@ struct SettingsView: View {
         case "modelUnsupportedCapability": return "Apple's model reported an unsupported capability."
         case "modelUnsupportedInput": return "Apple's model reported unsupported input content."
         case "modelSessionMutation": return "The model session changed while generating its response."
-        case "modelContextLimit": return "The message and instructions exceed the model's context limit."
+        case "modelContextLimit": return "The model context was exceeded. A retry uses smaller email sections."
+        case "promptContextLimit": return "Saved filtering instructions leave too little room in the model. Shorten them."
+        case "emailSectionContextLimit", "emailSectionLimit": return "Email sections could not fit within the analysis limits."
         case "modelRefusal": return "The model refused to classify the message."
         case "modelRateLimited": return "Apple's model service limited the request."
         case "analysisCancelled": return "Analysis was cancelled."
@@ -259,7 +282,7 @@ struct SettingsView: View {
         case "queueFull": return "Too many messages arrived at once."
         case "protectionState", "protectionWriteOrSettingsChanged": return "Recovery records couldn't be used, or settings changed."
         case "bodyUnavailable": return "Mail did not supply the message body."
-        default: return "Message could not be processed safely."
+        default: return category.hasPrefix("section") ? category : "Message could not be processed safely."
         }
     }
 

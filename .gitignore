@@ -9,3 +9,7 @@ local-prompts/
 # Private account configurations must never be committed.
 config/accounts.txt
 config/accounts.local.txt
+
+# Selected-email diagnostics contain private message content.
+Mail-Filter Diagnostic *.json
+*.eml

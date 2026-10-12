@@ -22,20 +22,25 @@ final class SettingsModel: ObservableObject {
     @Published var mailRunning = false
     @Published var analyzingSelectedMessage = false
     @Published var selectedAnalysis: String?
+    @Published var analysisCopyMessage: String?
+    @Published var exportingSelectedMessage = false
     @Published var diagnosticMessage: String?
     @Published var diagnosticReport: String?
     @Published var collectingDiagnostics = false
     private var store: SharedStore?
     private var loaded = NativeSettings()
+    private var analyzedMessageID: String?
+    private var analyzedPolicyRevision: String?
     init() {
         rules = resource("filter")
         evidenceText = resource("political-evidence")
         do {
             store = try SharedStore.production()
             let wordsUpdated = try store!.updateStandardVerificationWords()
+            let promptUpdated = try store!.updateStandardPrompt(rules)
             loaded = try store!.settings()
             applyLoadedSettings()
-            if wordsUpdated { message = "Added MAGA, candidate/candidates and donation/donations to the standard verification list. Your other saved settings were preserved." }
+            if wordsUpdated || promptUpdated { message = "Updated the standard policy for Second Amendment and abortion advocacy. Your accounts, filtering mode and recovery protection were preserved; custom policies remain unchanged." }
         } catch { self.error = error.localizedDescription }
         reloadStatus()
     }
@@ -135,7 +140,7 @@ final class SettingsModel: ObservableObject {
 
     func analyzeSelectedMessage() {
         guard !analyzingSelectedMessage else { return }
-        selectedAnalysis = nil; analyzingSelectedMessage = true
+        selectedAnalysis = nil; analyzedMessageID = nil; analysisCopyMessage = nil; analyzingSelectedMessage = true
         Task { @MainActor in
             defer { analyzingSelectedMessage = false }
             var stage = "loading saved filtering settings"
@@ -145,7 +150,9 @@ final class SettingsModel: ObservableObject {
                 stage = "reading the selected email from Mail"
                 let message = try MessageDiagnostics.selectedMessage()
                 stage = "classifying the selected email"
-                selectedAnalysis = try await MessageDiagnostics.analyze(message, settings: settings)
+                selectedAnalysis = try await MessageDiagnostics.analyze(message, settings: settings, activity: store.activity())
+                analyzedMessageID = message.message.messageID
+                analyzedPolicyRevision = settings.revision
             } catch is AnalysisDeadlineError {
                 selectedAnalysis = "Read-only test: no messages were moved. The model did not finish within 60 seconds."
             } catch {
@@ -172,6 +179,45 @@ final class SettingsModel: ObservableObject {
             diagnosticReport = report + logs.reportSection
             collectingDiagnostics = false
             copyDisplayedDiagnostics()
+        }
+    }
+
+    func copySelectedAnalysis() {
+        guard let selectedAnalysis else { return }
+        NSPasteboard.general.clearContents()
+        analysisCopyMessage = NSPasteboard.general.setString(selectedAnalysis, forType: .string)
+            ? "Analysis result copied. It may contain quotes from the selected email."
+            : "Couldn't copy the analysis result. Select its text and copy manually."
+    }
+
+    func exportSelectedEmailReport() {
+        guard !exportingSelectedMessage && !analyzingSelectedMessage else { return }
+        exportingSelectedMessage = true
+        Task { @MainActor in
+            defer { exportingSelectedMessage = false }
+            do {
+                guard let store else { throw NativeStoreError.unavailable }
+                let selection = try MessageDiagnostics.selectedMessage()
+                let settings = try store.settings()
+                let extensionURL = Bundle.main.builtInPlugInsURL?.appendingPathComponent("Mail-Filter.appex")
+                let report = SelectedEmailReport(selection: selection, settings: settings, activity: try store.activity(),
+                    analysis: analyzedMessageID == selection.message.messageID && analyzedPolicyRevision == settings.revision ? selectedAnalysis : nil,
+                    appBuild: Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "unknown",
+                    extensionBuild: extensionURL.flatMap { Bundle(url: $0) }?.object(forInfoDictionaryKey: "CFBundleVersion") as? String)
+                let panel = NSSavePanel()
+                panel.title = "Export selected email report"
+                panel.message = "This file contains the selected email's full source, extracted text, current filtering rules and processing history. Share it only with someone you want to inspect this email. No messages will be moved."
+                panel.nameFieldStringValue = "Mail-Filter Diagnostic \(report.diagnosticKey ?? "selected-email").json"
+                panel.directoryURL = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Desktop")
+                panel.allowedContentTypes = [.json]
+                panel.canCreateDirectories = true
+                let response = await withCheckedContinuation { continuation in
+                    panel.begin { continuation.resume(returning: $0) }
+                }
+                guard response == .OK, let url = panel.url else { return }
+                try report.write(to: url)
+                analysisCopyMessage = "Email report exported to \(url.lastPathComponent). Attach that file when reporting this email."
+            } catch { analysisCopyMessage = "Couldn't export the selected email: \(error.localizedDescription)" }
         }
     }
 

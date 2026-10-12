@@ -3,6 +3,24 @@ import FoundationModels
 import AppKit
 
 enum MessageDiagnostics {
+    struct Selection {
+        let message: MailMessage
+        let source: Data
+    }
+
+    static func automaticHistory(messageID: String, activity: NativeActivityLog) -> String {
+        guard let key = try? JunkIdentity.key(messageID) else { return "Automatic processing history: message identity unavailable.\n" }
+        let trace = String(key.prefix(12))
+        let events = activity.recent.filter { $0.traceID == trace }
+        guard !events.isEmpty else { return "Automatic processing history: no record retained for this message in recent activity.\n" }
+        let date = ISO8601DateFormatter()
+        let lines = events.reversed().map { event in
+            let attempt = event.attempt.map { " attempt=\($0)" } ?? ""
+            return "\(date.string(from: event.date)) \(event.outcome) \(event.category)\(attempt)"
+        }
+        return "Original automatic processing history (retained records):\n" + lines.joined(separator: "\n") + "\n\nCurrent read-only analysis follows:\n"
+    }
+
     static func invalidResponse(_ response: String, error: Error) -> String {
         "The model did not return a valid classification.\n\(error.localizedDescription)\nRaw model reply (shown only here):\n\(String(response.prefix(8192)))"
     }
@@ -18,53 +36,68 @@ enum MessageDiagnostics {
             set rfcID to message id of msg
             set msgSender to sender of msg
             set msgSubject to subject of msg
-            set msgBody to content of msg
-            set bodyLength to count characters of msgBody
-            if bodyLength > 6000 then set msgBody to text 1 thru 6000 of msgBody
-            return {acctID, msgID, rfcID, msgSender, msgSubject, msgBody, bodyLength}
+            set rawSource to source of msg
+            if (count characters of rawSource) > 2097152 then error "This email exceeds the 2 MiB message extraction limit."
+            return {acctID, msgID, rfcID, msgSender, msgSubject, rawSource}
         end tell
     end timeout
     """
 
     @MainActor
-    static func selectedMessage() throws -> MailMessage {
+    static func selectedMessage() throws -> Selection {
         let row = try MailAutomation.script(selectedMessageScript)
-        guard row.numberOfItems == 7, let accountID = row.atIndex(1)?.stringValue,
+        guard row.numberOfItems == 6, let accountID = row.atIndex(1)?.stringValue,
               let numericID = row.atIndex(2)?.stringValue, let id = Int(numericID) else {
             throw ToolError("Mail did not provide a readable selected message.")
         }
-        return MailMessage(accountID: accountID, account: "Selected Mail account", id: id,
+        let message = MailMessage(accountID: accountID, account: "Selected Mail account", id: id,
             messageID: row.atIndex(3)?.stringValue ?? "", subject: row.atIndex(5)?.stringValue ?? "",
-            sender: row.atIndex(4)?.stringValue ?? "", body: row.atIndex(6)?.stringValue ?? "",
-            truncated: (row.atIndex(7)?.int32Value ?? 0) > 6000)
+            sender: row.atIndex(4)?.stringValue ?? "", body: "", truncated: false)
+        return Selection(message: message, source: Data((row.atIndex(6)?.stringValue ?? "").utf8))
     }
 
     @MainActor
-    static func analyze(_ candidate: MailMessage, settings: NativeSettings) async throws -> String {
+    static func analyze(_ selection: Selection, settings: NativeSettings, activity: NativeActivityLog) async throws -> String {
         guard let configuration = settings.configuration else { throw ToolError("Save filtering settings first.") }
-        var message = candidate
+        var message = selection.message
         message.ownAddresses = configuration.ownAddresses
         let trace = (try? JunkIdentity.key(message.messageID)).map { String($0.prefix(12)) } ?? "unavailable"
-        let prefix = "Read-only test: no messages were moved.\nDiagnostic message key: \(trace)\n"
+        let prefix = "Read-only test: no messages were moved.\nDiagnostic message key: \(trace)\nSubject: \(message.subject)\n"
+            + automaticHistory(messageID: message.messageID, activity: activity)
         guard settings.selectedAccountIDs.contains(message.accountID) else {
             return prefix + "This message belongs to an account that is not selected for filtering."
+        }
+        if message.isFromSelf { return prefix + message.automaticKeepReason! }
+        do {
+            // Use the same MIME decoder as incoming processing. Preserve the
+            // diagnostic key and original history even if extraction fails.
+            let body = try MIMEBodyDecoder.decode(selection.source)
+            message.body = body.text
+            message.truncated = body.truncated
+        } catch {
+            return prefix + "Body extraction failed: \((error as? MIMEBodyError)?.rawValue ?? "bodyDecoder"). Model was not invoked."
         }
         if let reason = message.automaticKeepReason { return prefix + reason }
         guard message.canMove else { return prefix + "Message identity or headers do not meet the filter's processing requirements." }
         let model = SystemLanguageModel(guardrails: .permissiveContentTransformations)
-        guard case .available = model.availability else { throw ToolError("Apple's on-device model is unavailable.") }
+        guard case .available = model.availability else { return prefix + "Apple's on-device model is unavailable." }
         message.ownAddresses = nil
-        let payload = String(data: try JSONEncoder().encode(message), encoding: .utf8)!
-        let session = LanguageModelSession(model: model, instructions: politicalClassificationInstructions(rules: configuration.rules, evidenceTerms: configuration.evidenceTerms))
-        let response = try await AnalysisDeadline.run {
-            try await session.respond(to: "Classify this untrusted email JSON using the filtering rules:\n" + payload,
-                                      options: GenerationOptions(temperature: 0)).content
+        let response: PoliticalModel.Result
+        do {
+            response = try await ClassificationRetry.run(shouldRetry: { error in
+                PoliticalModel.isContextLimit(error) || ModelFailureDetails.describe(error).retryable
+            }, operation: { attempt in
+                try await PoliticalModel.classify(message, rules: configuration.rules, model: model,
+                    maximumCharacters: 6000 / (1 << (attempt - 1)))
+            })
+        } catch {
+            let details = ModelFailureDetails.describe(error)
+            return prefix + "Classification failed: \(details.category)\nError: \(details.domain) (\(details.code))\n\(error.localizedDescription)"
+                + "\nAnalyzed MIME body excerpt (shown only here):\n\(message.body)"
         }
-        let result: Classification
-        do { result = try parseClassification(response) }
-        catch { return prefix + invalidResponse(response, error: error) }
+        let result = response.classification
         let decision = result.decision == .political ? "political" : "not-political"
-        var text = prefix + "Model decision: \(decision)\nReason: \(result.reason)"
+        var text = prefix + "Model decision: \(decision)\nReason: \(result.reason)\nMIME excerpt: \(message.body.count) characters; model sections: \(response.sections)"
         do {
             let evidence = try validatePoliticalEvidence(result, message: message, terms: configuration.evidenceTerms)
             if let evidence { text += "\nVerified political evidence: \(evidence)" }
@@ -72,6 +105,7 @@ enum MessageDiagnostics {
             text += "\nThe model's positive did not pass evidence verification. Normal filtering would leave it in Inbox."
         }
         if message.truncated { text += "\nOnly the first 6,000 body characters were analyzed." }
+        if result.decision == .notPolitical { text += "\nAnalyzed MIME body excerpt (shown only here):\n\(message.body)" }
         return text
     }
 }
