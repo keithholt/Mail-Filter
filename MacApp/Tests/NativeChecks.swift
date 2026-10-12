@@ -122,6 +122,52 @@ struct NativeChecks {
         try store.eraseApplicationData()
         try require(try store.settings().configuration == nil, "erasing chosen app data leaves setup inactive")
         try require(try store.activity().recent.isEmpty, "chosen data erase removes private activity")
+        let oldActivity = try JSONDecoder().decode(NativeActivityLog.self, from: Data("{\"schemaVersion\":1,\"processed\":1,\"junkRequested\":1,\"recent\":[]}".utf8))
+        try require(oldActivity.processed == 1 && oldActivity.receivedCallbacks == nil, "version-5 activity remains readable without resetting totals")
+        let diagnosticStore = SharedStore(directory: root.appendingPathComponent("diagnostic-stages"))
+        try diagnosticStore.record(outcome: "callbackReceived", category: "bodyReady", traceID: "012345abcdef", receivedCallback: true)
+        try diagnosticStore.record(outcome: "analysisStarted", category: "onDeviceModel", traceID: "012345abcdef")
+        let stages = try diagnosticStore.activity()
+        try require(stages.receivedCallbacks == 1 && stages.lastCallback != nil, "callbacks are persisted before classification finishes")
+        try require(stages.recent.count == 2 && stages.recent.allSatisfy({ $0.traceID == "012345abcdef" }), "opaque trace connects callback and analysis stages")
+        try require(stages.processed == 0 && stages.junkRequested == 0, "diagnostic stages do not claim classifications or moves")
+        _ = try MailAutomation.script(MessageDiagnostics.selectedMessageScript, execute: false)
+        count += 1
+        try require(ToolError("Select one message in Mail.").localizedDescription == "Select one message in Mail.", "GUI errors preserve the actionable tool message")
+        let diagnosticReply = MessageDiagnostics.invalidResponse("I cannot classify this email.", error: ToolError("Invalid classification JSON"))
+        try require(diagnosticReply.contains("Invalid classification JSON") && diagnosticReply.contains("I cannot classify this email."), "read-only model failure shows its actual reply and parsing error")
+        try diagnosticStore.record(outcome: "retryScheduled", category: "modelDecodingFailure", traceID: "012345abcdef",
+                                   attempt: 2, failureDomain: "FoundationModels.Test", failureCode: 1008)
+        let failure = try diagnosticStore.activity().recent[0]
+        try require(failure.attempt == 2 && failure.failureDomain == "FoundationModels.Test" && failure.failureCode == 1008,
+                    "attempt and specific error metadata survive persistence without message text")
+        let upgradeStore = SharedStore(directory: root.appendingPathComponent("word-upgrade"))
+        var legacyWords = NativeSettings()
+        legacyWords.inventory = accounts.map { NativeAccount(id: $0.id, name: $0.name, addresses: $0.addresses) }
+        legacyWords.selectedAccountIDs = ["first"]
+        legacyWords.paused = true
+        legacyWords.configuration = try FilteringConfiguration.make(selectedNames: ["first"], inventory: accounts,
+            rules: "Preserve my custom filtering instructions.", evidenceTerms: PoliticalVerificationWords.previousDefaults, mode: "dry-run")
+        try upgradeStore.save(legacyWords)
+        _ = try upgradeStore.protection.reserve(messageID: "restored@example.org")
+        try require(try upgradeStore.updateStandardVerificationWords(), "original standard word list receives requested additions")
+        let upgradedWords = try upgradeStore.settings()
+        try require(upgradedWords.configuration!.evidenceTerms == PoliticalVerificationWords.previousDefaults + PoliticalVerificationWords.additions,
+                    "MAGA, candidate/donation and plurals are appended without removing old vocabulary")
+        try require(upgradedWords.configuration!.rules == legacyWords.configuration!.rules
+                    && upgradedWords.configuration!.mode == "dry-run" && upgradedWords.paused
+                    && upgradedWords.inventory == legacyWords.inventory && upgradedWords.selectedAccountIDs == legacyWords.selectedAccountIDs,
+                    "word update preserves custom rules, accounts, preview and pause")
+        try require(try upgradeStore.protection.contains(messageID: "restored@example.org"), "word update preserves recovery protection")
+        try require(upgradedWords.revision != legacyWords.revision, "updated words invalidate in-flight old-policy results")
+        try require(try !upgradeStore.updateStandardVerificationWords(), "word update is idempotent")
+        var customWords = upgradedWords
+        customWords.configuration = try FilteringConfiguration.make(selectedNames: ["first"], inventory: accounts,
+            rules: "Custom", evidenceTerms: ["election", "my custom political phrase"])
+        try upgradeStore.save(customWords)
+        try require(try !upgradeStore.updateStandardVerificationWords()
+                    && upgradeStore.settings().configuration!.evidenceTerms == ["election", "my custom political phrase"],
+                    "custom verification lists are never silently replaced")
         print("Passed \(count) native settings, hot reload, migration, activity and removal checks; no model generation or real Mail/installer/removal actions")
     }
 

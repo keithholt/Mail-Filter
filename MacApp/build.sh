@@ -24,10 +24,10 @@ uninstaller="$out/Uninstall Mail-Filter.app"
 rm -rf "$app" "$uninstaller"
 mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources" "$ext/Contents/MacOS" "$uninstaller/Contents/MacOS" "$uninstaller/Contents/Resources"
 export CLANG_MODULE_CACHE_PATH="${TMPDIR:-/tmp}/mail-filter-native-clang"
-shared=("$root/Sources/MailFilter/Core.swift" "$root/MacApp/Shared/MIMEBodyDecoder.swift" "$root/MacApp/Shared/FilteringConfiguration.swift" "$root/MacApp/Shared/JunkProtection.swift" "$root/MacApp/SharedStore.swift")
+shared=("$root/Sources/MailFilter/Core.swift" "$root/MacApp/Shared/MIMEBodyDecoder.swift" "$root/MacApp/Shared/FilteringConfiguration.swift" "$root/MacApp/Shared/JunkProtection.swift" "$root/MacApp/Shared/AnalysisDeadline.swift" "$root/MacApp/Shared/ClassificationRetry.swift" "$root/MacApp/SharedStore.swift")
 xcrun swiftc -O -swift-version 5 -parse-as-library -target arm64-apple-macos26.0 \
     "${shared[@]}" "$root/Sources/MailFilter/MailAutomation.swift" \
-    "$root/MacApp/AccountInventory.swift" "$root/MacApp/UninstallPlan.swift" "$root/MacApp/SettingsModel.swift" "$root/MacApp/SettingsView.swift" "$root/MacApp/MailFilterApp.swift" \
+    "$root/MacApp/AccountInventory.swift" "$root/MacApp/UninstallPlan.swift" "$root/MacApp/MessageDiagnostics.swift" "$root/MacApp/DiagnosticReport.swift" "$root/MacApp/SettingsModel.swift" "$root/MacApp/SettingsView.swift" "$root/MacApp/MailFilterApp.swift" \
     -framework AppKit -framework SwiftUI -o "$app/Contents/MacOS/MailFilter"
 xcrun swiftc -O -swift-version 5 -parse-as-library -target arm64-apple-macos26.0 -application-extension -module-name MailFilterExtension \
     "${shared[@]}" "$root/MacApp/Shared/InspectionScheduler.swift" "$root/MacApp/Shared/BodyRequestTracker.swift" \
@@ -58,10 +58,10 @@ cp "$app/Contents/Resources/AppIcon.icns" "$uninstaller/Contents/Resources/"
 python3 - "$app" "$ext" "$uninstaller" "$group" "$out" "$mode" <<'PY'
 import plistlib, pathlib, sys
 app, ext, uninstaller, group, out, mode = sys.argv[1:]
-base = {'CFBundleDevelopmentRegion':'en','CFBundleShortVersionString':'2.0.0','CFBundleVersion':'5','LSMinimumSystemVersion':'26.0','MailFilterStorageMode':'app-group' if mode == 'release' else 'local-development','NSHighResolutionCapable':True}
+base = {'CFBundleDevelopmentRegion':'en','CFBundleShortVersionString':'2.0.0','CFBundleVersion':'9','LSMinimumSystemVersion':'26.0','MailFilterStorageMode':'app-group' if mode == 'release' else 'local-development','NSHighResolutionCapable':True}
 if mode == 'release': base['MailFilterAppGroup'] = group
 products = [
-    (app, {'CFBundleIdentifier':'org.mail-filter.app','CFBundleName':'Mail-Filter','CFBundleExecutable':'MailFilter','CFBundlePackageType':'APPL','CFBundleIconFile':'AppIcon','NSAppleEventsUsageDescription':'Mail-Filter reads Mail account names and addresses so you can choose which inboxes to filter. It does not read messages during setup.'}),
+    (app, {'CFBundleIdentifier':'org.mail-filter.app','CFBundleName':'Mail-Filter','CFBundleExecutable':'MailFilter','CFBundlePackageType':'APPL','CFBundleIconFile':'AppIcon','NSAppleEventsUsageDescription':'Mail-Filter reads Mail account settings during setup, and reads one selected email when you request a read-only diagnostic test.'}),
     (ext, {'CFBundleIdentifier':'org.mail-filter.app.extension','CFBundleName':'Mail-Filter','CFBundleExecutable':'MailFilterExtension','CFBundlePackageType':'XPC!','NSExtension':{'NSExtensionPointIdentifier':'com.apple.email.extension','NSExtensionPrincipalClass':'MailFilterExtension','NSExtensionAttributes':{'MEExtensionCapabilities':['MEMessageActionHandler']}}}),
     (uninstaller, {'CFBundleIdentifier':'org.mail-filter.uninstaller','CFBundleName':'Uninstall Mail-Filter','CFBundleExecutable':'MailFilterUninstaller','CFBundlePackageType':'APPL','CFBundleIconFile':'AppIcon'})]
 for path, extra in products:

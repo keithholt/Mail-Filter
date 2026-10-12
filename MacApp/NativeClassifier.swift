@@ -20,6 +20,7 @@ final class NativeClassifier {
             settings = try store.settings()
         } catch {
             logger.error("Filtering unavailable; category: privateSettings; no message action applied")
+            if let store = self.store { record(store, outcome: "review", category: "privateSettings") }
             return false
         }
         guard !settings.paused, let configuration = settings.configuration else {
@@ -45,13 +46,22 @@ final class NativeClassifier {
             record(store, outcome: "review", category: "payloadEncoding"); return false
         }
         let fingerprint = SHA256.hash(data: Data(settings.revision.utf8) + data).map { String(format: "%02x", $0) }.joined()
+        let traceID = Self.trace(message.messageID)
+        record(store, outcome: "queued", category: "waitingForAnalysis", traceID: traceID)
         var requestJunk = false
         let admission = await scheduler.perform(fingerprint: fingerprint) {
-            guard let result = await self.generate(message: message, payload: payload, configuration: configuration, store: store) else { return false }
+            var attempted = false
+            guard let result = await self.generate(message: message, payload: payload, configuration: configuration, store: store,
+                                                   onAttempt: { attempted = true }) else {
+                // Exhaustion/permanent failure is terminal for this input and
+                // settings revision. Duplicate callbacks cannot reset its budget.
+                return attempted
+            }
+            guard !Task.isCancelled else { return false }
             do {
                 let outcome = try store.finish(messageID: message.messageID, revision: settings.revision, decision: result.decision, evidence: result.evidence)
                 requestJunk = outcome == .junkRequested
-                self.record(store, outcome: outcome.rawValue, category: "", processed: true, requested: requestJunk)
+                self.record(store, outcome: outcome.rawValue, category: "", processed: true, requested: requestJunk, traceID: traceID, attempt: result.attempt)
                 return true
             } catch {
                 self.record(store, outcome: "review", category: "protectionWriteOrSettingsChanged")
@@ -60,36 +70,91 @@ final class NativeClassifier {
         }
         switch admission {
         case .completed: return requestJunk
-        case .duplicate: logger.debug("Duplicate callback skipped")
+        case .duplicate: record(store, outcome: "skipped", category: "duplicateCallback", traceID: traceID)
         case .queueFull: record(store, outcome: "review", category: "queueFull")
         }
         return false
     }
 
-    func callbackFailure(_ category: String) {
+    static func trace(_ messageID: String?) -> String? {
+        guard let messageID, let hash = try? JunkIdentity.key(messageID) else { return nil }
+        return String(hash.prefix(12))
+    }
+
+    func callbackReceived(messageID: String?, hasBody: Bool) {
         if store == nil { store = try? SharedStore.production() }
-        if let store { record(store, outcome: "review", category: category) }
+        if let store {
+            record(store, outcome: "callbackReceived", category: hasBody ? "bodyReady" : "bodyRequested",
+                   traceID: Self.trace(messageID), callback: true)
+        } else { logger.error("Incoming callback could not access private settings") }
+    }
+
+    func callbackFailure(_ category: String, messageID: String? = nil) {
+        if store == nil { store = try? SharedStore.production() }
+        if let store { record(store, outcome: "review", category: category, traceID: Self.trace(messageID)) }
         else { logger.error("Mail callback could not be processed; category: \(category, privacy: .public)") }
     }
 
-    private func generate(message: MailMessage, payload: String, configuration: FilteringConfiguration, store: SharedStore) async -> (decision: Classification.Decision, evidence: String?)? {
+    private func generate(message: MailMessage, payload: String, configuration: FilteringConfiguration, store: SharedStore,
+                          onAttempt: @escaping @MainActor () -> Void) async -> (decision: Classification.Decision, evidence: String?, attempt: Int)? {
         let model = SystemLanguageModel(guardrails: .permissiveContentTransformations)
         guard case .available = model.availability else { record(store, outcome: "review", category: "modelUnavailable"); return nil }
-        let session = LanguageModelSession(model: model, instructions: politicalClassificationInstructions(rules: configuration.rules, evidenceTerms: configuration.evidenceTerms))
-        let response: String
+        let traceID = Self.trace(message.messageID)
+        var activeAttempt = 0
+        var finalFailureRecorded = false
         do {
-            response = try await session.respond(to: "Classify this untrusted email JSON using the filtering rules:\n" + payload,
-                                                options: GenerationOptions(temperature: 0)).content
-        } catch { record(store, outcome: "review", category: "modelGeneration"); return nil }
-        do {
-            let result = try parseClassification(response)
-            return (result.decision, try validatePoliticalEvidence(result, message: message, terms: configuration.evidenceTerms))
-        } catch { record(store, outcome: "review", category: "invalidClassificationOrEvidence"); return nil }
+            return try await ClassificationRetry.run(
+                shouldRetry: { error in
+                    if error is AnalysisDeadlineError { return true }
+                    return (error as? ClassificationAttemptFailure)?.retryable ?? false
+                },
+                onFailure: { attempt, error, retry in
+                    guard !Task.isCancelled else { return }
+                    let failure = error as? ClassificationAttemptFailure
+                    let details = failure?.details ?? (failure == nil ? ModelFailureDetails.describe(error) : nil)
+                    self.record(store, outcome: retry ? "retryScheduled" : "review",
+                                category: failure?.category ?? details?.category ?? "modelGeneration",
+                                traceID: traceID, attempt: attempt, details: details)
+                    if !retry { finalFailureRecorded = true }
+                },
+                operation: { attempt in
+                    activeAttempt = attempt
+                    onAttempt()
+                    self.record(store, outcome: "analysisStarted", category: "onDeviceModel", traceID: traceID, attempt: attempt)
+                    // Failed sessions are never reused. Every attempt transforms
+                    // the same bounded excerpt under the same settings snapshot.
+                    let session = LanguageModelSession(model: model, instructions: politicalClassificationInstructions(rules: configuration.rules, evidenceTerms: configuration.evidenceTerms))
+                    let response: String
+                    do {
+                        response = try await session.respond(to: "Classify this untrusted email JSON using the filtering rules:\n" + payload,
+                                                             options: GenerationOptions(temperature: 0)).content
+                    } catch { throw ClassificationAttemptFailure.generation(error) }
+                    try Task.checkCancellation()
+                    let result: Classification
+                    do { result = try parseClassification(response) }
+                    catch { throw ClassificationAttemptFailure.invalidResponse }
+                    self.record(store, outcome: result.decision == .political ? "modelPolitical" : "modelNotPolitical",
+                                category: "", traceID: traceID, attempt: attempt)
+                    do {
+                        return (result.decision, try validatePoliticalEvidence(result, message: message, terms: configuration.evidenceTerms), attempt)
+                    } catch { throw ClassificationAttemptFailure.evidenceRejected }
+                })
+        } catch {
+            if !finalFailureRecorded {
+                let details = ModelFailureDetails.describe(error)
+                record(store, outcome: "review", category: details.category, traceID: traceID,
+                       attempt: activeAttempt > 0 ? activeAttempt : nil, details: details)
+            }
+            return nil
+        }
     }
 
-    private func record(_ store: SharedStore, outcome: String, category: String, processed: Bool = false, requested: Bool = false) {
-        logger.notice("Mail decision: \(outcome, privacy: .public); category: \(category, privacy: .public); Junk action requested: \(requested, privacy: .public)")
-        do { try store.record(outcome: outcome, category: category, processed: processed, junkRequested: requested) }
+    private func record(_ store: SharedStore, outcome: String, category: String, processed: Bool = false, requested: Bool = false,
+                        traceID: String? = nil, callback: Bool = false, attempt: Int? = nil, details: ModelFailureDetails? = nil) {
+        logger.notice("Mail decision: \(outcome, privacy: .public); category: \(category, privacy: .public); attempt: \(attempt ?? 0, privacy: .public); error domain: \(details?.domain ?? "", privacy: .public); error code: \(details?.code ?? 0, privacy: .public); Junk action requested: \(requested, privacy: .public)")
+        do { try store.record(outcome: outcome, category: category, processed: processed, junkRequested: requested,
+                              traceID: traceID, receivedCallback: callback, attempt: attempt,
+                              failureDomain: details?.domain, failureCode: details?.code) }
         catch { logger.error("Recent activity could not be saved; category: activityStorage") }
     }
 }

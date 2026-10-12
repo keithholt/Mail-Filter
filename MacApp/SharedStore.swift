@@ -43,6 +43,10 @@ struct NativeActivity: Codable, Identifiable {
     var date = Date()
     let outcome: String
     let category: String
+    var traceID: String? = nil
+    var attempt: Int? = nil
+    var failureDomain: String? = nil
+    var failureCode: Int? = nil
 }
 
 struct NativeActivityLog: Codable {
@@ -50,6 +54,9 @@ struct NativeActivityLog: Codable {
     var processed = 0
     var junkRequested = 0
     var recent: [NativeActivity] = []
+    // Optional fields keep existing version-5 activity files compatible.
+    var receivedCallbacks: Int? = nil
+    var lastCallback: Date? = nil
 }
 
 enum NativeOutcome: String {
@@ -108,6 +115,24 @@ final class SharedStore {
     }
 
     func settings() throws -> NativeSettings { try locked { try loadSettings() } }
+
+    /// Upgrade only the untouched shipped word list. Preserve custom vocabulary,
+    /// account selections, rules, mode, pause state, activity and protection.
+    func updateStandardVerificationWords() throws -> Bool {
+        try locked {
+            var settings = try loadSettings()
+            guard let original = settings.configuration,
+                  Set(original.evidenceTerms.map { $0.lowercased() }) == Set(PoliticalVerificationWords.previousDefaults.map { $0.lowercased() }) else { return false }
+            settings.configuration = FilteringConfiguration(schemaVersion: original.schemaVersion, mode: original.mode,
+                selectedRecipientAddresses: original.selectedRecipientAddresses, ownAddresses: original.ownAddresses,
+                rules: original.rules, evidenceTerms: original.evidenceTerms + PoliticalVerificationWords.additions,
+                legacyAccountIDs: original.legacyAccountIDs, protectedCLIIdentities: original.protectedCLIIdentities)
+            settings.revision = UUID().uuidString
+            try settings.validate()
+            try write(settings, to: settingsURL)
+            return true
+        }
+    }
 
     func save(_ settings: NativeSettings) throws {
         try settings.validate()
@@ -168,12 +193,19 @@ final class SharedStore {
 
     func activity() throws -> NativeActivityLog { try locked { try loadActivity() } }
 
-    func record(outcome: String, category: String, processed: Bool = false, junkRequested: Bool = false) throws {
+    func record(outcome: String, category: String, processed: Bool = false, junkRequested: Bool = false,
+                traceID: String? = nil, receivedCallback: Bool = false, attempt: Int? = nil,
+                failureDomain: String? = nil, failureCode: Int? = nil) throws {
         try locked {
             var activity = try loadActivity()
             if processed { activity.processed += 1 }
             if junkRequested { activity.junkRequested += 1 }
-            activity.recent.insert(NativeActivity(outcome: outcome, category: category), at: 0)
+            if receivedCallback {
+                activity.receivedCallbacks = (activity.receivedCallbacks ?? 0) + 1
+                activity.lastCallback = Date()
+            }
+            activity.recent.insert(NativeActivity(outcome: outcome, category: category, traceID: traceID,
+                                                 attempt: attempt, failureDomain: failureDomain, failureCode: failureCode), at: 0)
             activity.recent = Array(activity.recent.prefix(100))
             try write(activity, to: activityURL)
         }
@@ -202,7 +234,14 @@ final class SharedStore {
         do {
             let activity = try JSONDecoder().decode(NativeActivityLog.self, from: boundedData(activityURL, maximum: 256 * 1_024))
             guard activity.schemaVersion == 1, activity.processed >= 0, activity.junkRequested >= 0, activity.recent.count <= 100,
-                  activity.recent.allSatisfy({ $0.outcome.count <= 80 && $0.category.count <= 100 }) else { throw NativeStoreError.invalidActivity }
+                  (activity.receivedCallbacks ?? 0) >= 0,
+                  activity.recent.allSatisfy({
+                      $0.outcome.count <= 80 && $0.category.count <= 100
+                      && ($0.traceID == nil || ($0.traceID!.count == 12 && $0.traceID!.utf8.allSatisfy({ (48...57).contains($0) || (97...102).contains($0) })))
+                      && ($0.attempt == nil || (1...10).contains($0.attempt!))
+                      && (($0.failureDomain == nil) == ($0.failureCode == nil))
+                      && ($0.failureDomain == nil || ($0.failureDomain!.count <= 200 && $0.failureDomain!.range(of: "^[A-Za-z0-9._-]+$", options: .regularExpression) != nil))
+                  }) else { throw NativeStoreError.invalidActivity }
             return activity
         } catch { throw NativeStoreError.invalidActivity }
     }

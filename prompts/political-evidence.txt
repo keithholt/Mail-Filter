@@ -1,5 +1,6 @@
 # A positive result must quote actual message text containing one of these terms.
-# Conservative vocabulary: do not add generic marketing words such as unsubscribe.
+# These words verify an AI political positive; they never trigger classification.
+# Candidate and donation require political context, not jobs or charitable giving.
 political
 politics
 election
@@ -21,3 +22,8 @@ political action committee
 PAC
 partisan
 ballot
+MAGA
+candidate
+candidates
+donation
+donations

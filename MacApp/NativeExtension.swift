@@ -7,7 +7,7 @@ import OSLog
 final class MailFilterExtension: NSObject, MEExtension {
     override init() {
         super.init()
-        Logger(subsystem: "org.mail-filter.app", category: "Lifecycle").notice("Mail-Filter extension initialized (2.0.0)")
+        Logger(subsystem: "org.mail-filter.app", category: "Lifecycle").notice("Mail-Filter extension initialized (build 9)")
     }
     func handlerForMessageActions() -> any MEMessageActionHandler { NativeMessageHandler() }
 }
@@ -21,12 +21,14 @@ final class NativeMessageHandler: NSObject, MEMessageActionHandler {
         guard message.state == .received else { completionHandler(nil); return }
         logger.notice("Mail received-message callback")
         let messageID = message.headers?.first { $0.key.lowercased() == "message-id" }?.value.first
+        let hasBody = message.rawData != nil
+        Task { @MainActor in NativeClassifier.shared.callbackReceived(messageID: messageID, hasBody: hasBody) }
         if tracker.shouldRequestBody(messageID: messageID, hasRawData: message.rawData != nil) {
             completionHandler(.invokeAgainWithBody)
             return
         }
         guard let raw = message.rawData else {
-            Task { @MainActor in NativeClassifier.shared.callbackFailure("bodyUnavailable") }
+            Task { @MainActor in NativeClassifier.shared.callbackFailure("bodyUnavailable", messageID: messageID) }
             completionHandler(nil); return
         }
         do {
@@ -42,7 +44,7 @@ final class NativeMessageHandler: NSObject, MEMessageActionHandler {
             }
         } catch {
             let category = (error as? MIMEBodyError)?.rawValue ?? "bodyDecoder"
-            Task { @MainActor in NativeClassifier.shared.callbackFailure(category) }
+            Task { @MainActor in NativeClassifier.shared.callbackFailure(category, messageID: messageID) }
             completionHandler(nil)
         }
     }

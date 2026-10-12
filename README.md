@@ -39,7 +39,21 @@ Use the account checkboxes to choose which inboxes to filter. Messages from your
 
 You can edit the filtering instructions and political evidence terms under **Filtering instructions**. Click **Save Settings** afterward. Saved changes apply to subsequent incoming messages without rebuilding or restarting Mail. Changes do not automatically reanalyze older Inbox messages.
 
+Verification words support a positive AI decision; they do not flag messages by themselves. The standard list includes **MAGA**, **candidate/candidates**, and **donation/donations**. Job candidates, charitable donations and other nonpolitical messages remain outside the filter's purpose. Opening the updated app adds these words to an unchanged original standard list; customized verification lists are preserved and can be edited here.
+
 The **Activity** page shows recent decisions, errors, and totals. Its Junk count records actions requested from Mail; check your Junk mailbox to confirm delivery. Activity contains no email subjects, addresses or bodies. If there is no activity, confirm that Mail is running, the extension's checkbox is checked, your account is selected, and **Enable filtering** is ON.
+
+## Diagnose a missed message
+
+On **Activity**, check **Incoming callbacks**, the last callback time, and the sequence from **Mail delivered a callback** through **Analysis started**, the model's decision, and the final action. Callbacks can occur more than once per email while Mail downloads its body. These stages distinguish a missing Mail callback from a model refusal, timeout, nonpolitical decision, or rejected evidence.
+
+For a read-only test, select exactly one email in Mail, open Mail-Filter's **Activity** page, and click **Analyze selected email**. The test uses Mail's displayed message text and your current filtering rules. It shows the model's decision, reason and verified evidence without moving the message or changing its recovery protection. If the test fails, it shows the failing stage and error. An invalid model reply is displayed only in the app, so refusals and formatting failures can be distinguished from Mail-access errors. MailKit's incoming MIME extraction can differ from Mail's displayed text, so this tests model behavior separately from automatic delivery.
+
+Use **Copy diagnostic report** to share the processing stages and recent extension logs. The report appears in the window immediately, while logs are collected in the background for up to 10 seconds. It is copied when collection finishes; if clipboard copying fails, select the displayed report and press **Command-C**, or use **Copy displayed report**. A log-access error or timeout still leaves the activity report available. The report excludes message subjects, addresses and bodies; its opaque diagnostic key connects stages for the same message. The selected-email result appears only in the app and is not included in that report.
+
+Incoming classification gets **up to three total attempts** for temporary generation failures, timeouts or invalid replies. Each attempt uses a fresh model session with a 20-second limit. Retries wait one and then two seconds, within a **60-second overall limit**. Activity shows attempt numbers and error categories/codes. A valid not-political answer finishes immediately. Unsupported language/context, model refusals and unverified positives stay in Inbox without further attempts. After exhaustion or the total deadline, the message stays in place and the queue continues; late results cannot move it. These retries apply to incoming processing, not the separate read-only selected-message test, which has a single 60-second deadline.
+
+After an app update, quit and reopen Mail-Filter and Mail so both run the new build. Open Mail-Filter to load any standard-word-list update, and keep its extension checked in Mail's settings. Existing missed Inbox messages are not automatically reanalyzed by installing an update.
 
 ## Recover an incorrectly filtered email
 

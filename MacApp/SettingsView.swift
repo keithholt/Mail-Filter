@@ -139,6 +139,7 @@ struct SettingsView: View {
     private var activity: some View {
         VStack(alignment: .leading, spacing: 18) {
             HStack(spacing: 40) {
+                metric("Incoming callbacks", count: model.activity.receivedCallbacks ?? 0)
                 metric("Classified", count: model.activity.processed)
                 metric("Junk actions requested", count: model.activity.junkRequested)
                 Spacer()
@@ -146,6 +147,32 @@ struct SettingsView: View {
             }
             Text("Mail handles the move after an action is requested. Check the Junk mailbox to confirm. Counts persist between launches.")
                 .font(.callout).foregroundStyle(.secondary)
+            if let date = model.activity.lastCallback {
+                Text("Last incoming callback: \(date.formatted(date: .abbreviated, time: .standard))").font(.caption)
+            }
+            HStack {
+                Button(model.analyzingSelectedMessage ? "Analyzing selected email…" : "Analyze selected email", action: model.analyzeSelectedMessage)
+                    .disabled(model.analyzingSelectedMessage)
+                Button(model.collectingDiagnostics ? "Collecting logs…" : "Copy diagnostic report", action: model.copyDiagnostics)
+                    .disabled(model.collectingDiagnostics)
+            }
+            Text("Select one message in Mail, then analyze it here. This test uses your current rules and never moves messages. Its reason and evidence are shown only here.")
+                .font(.caption).foregroundStyle(.secondary)
+            if let result = model.selectedAnalysis { Text(result).font(.callout).textSelection(.enabled) }
+            if let note = model.diagnosticMessage { Text(note).font(.caption).foregroundStyle(.secondary) }
+            if let report = model.diagnosticReport {
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        Text("Diagnostic report").font(.headline)
+                        Spacer()
+                        Button("Copy displayed report", action: model.copyDisplayedDiagnostics)
+                    }
+                    ScrollView {
+                        Text(report).font(.system(.caption, design: .monospaced)).textSelection(.enabled)
+                            .frame(maxWidth: .infinity, alignment: .leading).padding(12)
+                    }.frame(height: 260).background(.quaternary.opacity(0.3), in: RoundedRectangle(cornerRadius: 8))
+                }
+            }
             Divider()
             if model.activity.recent.isEmpty {
                 ContentUnavailableView("Waiting for new mail", systemImage: "envelope", description: Text("Enable the extension in Mail. New callbacks will appear here; this app does not scan existing Inbox messages."))
@@ -156,6 +183,10 @@ struct SettingsView: View {
                         VStack(alignment: .leading, spacing: 3) {
                             Text(activityTitle(event.outcome))
                             if !event.category.isEmpty { Text(categoryDescription(event.category)).font(.caption).foregroundStyle(.secondary) }
+                            if let attempt = event.attempt { Text("Classification attempt \(attempt) of 3").font(.caption).foregroundStyle(.secondary) }
+                            if let domain = event.failureDomain, let code = event.failureCode {
+                                Text("Error: \(domain) (\(code))").font(.caption).foregroundStyle(.secondary).textSelection(.enabled)
+                            }
                         }
                         Spacer()
                         Text(event.date, style: .time).font(.caption).foregroundStyle(.secondary)
@@ -182,6 +213,12 @@ struct SettingsView: View {
         case "settingsChanged": return "Settings changed during classification — kept"
         case "review": return "Processing failed — kept"
         case "skipped": return "Skipped — kept"
+        case "callbackReceived": return "Mail delivered a callback"
+        case "queued": return "Waiting for analysis"
+        case "analysisStarted": return "Analysis started"
+        case "retryScheduled": return "Classification failed — retry scheduled"
+        case "modelPolitical": return "Model classified the message as political"
+        case "modelNotPolitical": return "Model classified the message as not political"
         default: return "Mail callback received"
         }
     }
@@ -198,7 +235,27 @@ struct SettingsView: View {
         case "setupRequired": return "Save settings to begin filtering."
         case "modelUnavailable": return "Apple Intelligence is unavailable."
         case "modelGeneration": return "The on-device model couldn't complete analysis."
+        case "modelTimedOut": return "The model reached a time limit. Retries share a 60-second total limit; after that the message stays in Inbox."
+        case "modelDecodingFailure": return "Apple's model couldn't decode its generated content."
+        case "modelConcurrentRequests": return "Apple's model rejected an overlapping request."
+        case "modelUnsupportedLanguage": return "Apple's model reported an unsupported language or locale."
+        case "modelUnsupportedGuide": return "Apple's model reported an unsupported generation guide."
+        case "modelUnsupportedCapability": return "Apple's model reported an unsupported capability."
+        case "modelUnsupportedInput": return "Apple's model reported unsupported input content."
+        case "modelSessionMutation": return "The model session changed while generating its response."
+        case "modelContextLimit": return "The message and instructions exceed the model's context limit."
+        case "modelRefusal": return "The model refused to classify the message."
+        case "modelRateLimited": return "Apple's model service limited the request."
+        case "analysisCancelled": return "Analysis was cancelled."
+        case "privateSettings": return "The extension couldn't access filtering settings."
+        case "bodyReady": return "Mail supplied the message body."
+        case "bodyRequested": return "Waiting for Mail to supply the body."
+        case "waitingForAnalysis": return "A previous message is still being analyzed."
+        case "onDeviceModel": return "The message reached Apple's on-device model."
+        case "duplicateCallback": return "This callback was already processed or queued."
         case "invalidClassificationOrEvidence": return "A political decision couldn't be verified."
+        case "invalidModelResponse": return "The model did not return a valid classification."
+        case "evidenceRejected": return "The model said political, but its evidence could not be verified."
         case "queueFull": return "Too many messages arrived at once."
         case "protectionState", "protectionWriteOrSettingsChanged": return "Recovery records couldn't be used, or settings changed."
         case "bodyUnavailable": return "Mail did not supply the message body."

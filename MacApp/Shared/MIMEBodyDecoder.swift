@@ -12,7 +12,7 @@ enum MIMEBodyError: String, Error {
     case unsupportedCharset, unsupportedMultipart, nestingLimit, partLimit, oversizedText, malformedHTML
 }
 
-/// A bounded text extractor for the diagnostic probe, not a full MIME/HTML renderer.
+/// A bounded text extractor for on-device mail classification.
 /// It never opens links, loads images, examines attachments, or writes message data.
 enum MIMEBodyDecoder {
     static func decode(_ data: Data) throws -> DecodedMailBody {
