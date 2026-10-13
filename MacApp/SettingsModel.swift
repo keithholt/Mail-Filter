@@ -40,7 +40,7 @@ final class SettingsModel: ObservableObject {
             let promptUpdated = try store!.updateStandardPrompt(rules)
             loaded = try store!.settings()
             applyLoadedSettings()
-            if wordsUpdated || promptUpdated { message = "Updated the standard policy for Second Amendment and abortion advocacy. Your accounts, filtering mode and recovery protection were preserved; custom policies remain unchanged." }
+            if wordsUpdated || promptUpdated { message = "Updated the standard political policy and verification words, including campaign and Vice President. Your accounts, filtering mode and recovery protection were preserved; custom policies remain unchanged." }
         } catch { self.error = error.localizedDescription }
         reloadStatus()
     }

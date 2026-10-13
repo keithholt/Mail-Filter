@@ -282,3 +282,15 @@ The unchanged standard prompt and the standard 21- or 26-word lists are upgraded
 
 
 Selected-email JSON exports are explicit support artifacts, written atomically with owner-only permissions to the user’s chosen location. They contain base64 RFC source, the decoded excerpt or extraction failure, current policy (not the complete account inventory), same-identity activity and a matching cached analysis. They do not run inference or make Mail actions. Decode `sourceBase64` to reproduce the MIME extractor; the policy snapshot is current, not necessarily the policy used at original receipt. Shared activity retains 500 bounded events within a 1 MiB file limit; older activity stays readable. Do not commit reports or extracted real emails to this public repository.
+
+## Compare model methods on exported emails
+
+If exported reports show model refusals, run this read-only experiment from a normal Terminal session:
+
+```sh
+~/Documents/GitHub/Mail-Filter/MacApp/probe-model.sh
+```
+
+It reads `Mail-Filter Diagnostic *.json` exports from Desktop and tests the saved excerpt and policy with the production decision/reason interface, general decision-only generation, content-tagging decision-only generation, and content-tagging topic/action extraction. You can pass explicit export paths instead. Each trial has a 30-second deadline and a fresh session. It never accesses Mail, moves messages, or changes filtering settings. The owner-only Desktop output is `Mail-Filter Model Probe.json`; share that file to compare actual results. Topics/actions are diagnostic experiments, not production decision categories. `--check-schemas` compiles/validates the experiment schemas without inference.
+
+Campaign and Vice President were added to the standard verification vocabulary after exported examples exposed missing campaign/office evidence. Standard 21-, 26- and 28-word lists can upgrade; custom vocabularies remain untouched. Verification terms still require a positive model result. A tracking parameter such as `utm_campaign` does not count as the standalone word campaign.

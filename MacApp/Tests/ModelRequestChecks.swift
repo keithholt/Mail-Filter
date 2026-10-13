@@ -23,6 +23,12 @@ struct ModelRequestChecks {
         try require(positive.decision == .political && positive.reason == "Campaign advertising", "guided result is read directly without string JSON cleanup")
         let negative = try PoliticalModel.decode(GeneratedContent(json: "{\"decision\":\"not-political\",\"reason\":\"A receipt\"}"))
         try require(negative.decision == .notPolitical, "guided negative stays negative")
+        let campaignMessage = message("Support our campaign to elect a senator.")
+        try require(try validatePoliticalEvidence(positive, message: campaignMessage, terms: ["campaign"]) != nil, "campaign is accepted as evidence for a positive model decision")
+        let officeMessage = message("A mass appeal from the Vice President to support the party.")
+        try require(try validatePoliticalEvidence(positive, message: officeMessage, terms: ["Vice President"]) != nil, "political office can verify a positive without a politician-name allowlist")
+        try require(try validatePoliticalEvidence(negative, message: campaignMessage, terms: ["campaign"]) == nil, "campaign vocabulary cannot promote a negative")
+        try require(!hasPoliticalTerm("utm_campaign=retail", terms: ["campaign"]), "tracking parameter names are not mistaken for campaign text")
         let noReason = try PoliticalModel.decode(GeneratedContent(json: "{\"decision\":\"political\",\"reason\":\"\"}"))
         try require(noReason.decision == .political && !noReason.reason.isEmpty, "empty explanation does not discard a valid positive")
         var invalidRejected = false
@@ -78,6 +84,16 @@ struct ModelRequestChecks {
         try require(upgraded.paused && upgraded.configuration!.mode == "dry-run" && upgraded.inventory == settings.inventory && upgraded.selectedAccountIDs == settings.selectedAccountIDs, "policy upgrade retains all operational settings")
         try require(try store.protection.contains(messageID: "returned@example.com"), "policy upgrade retains restored-message protection")
         try require(try !store.updateStandardPrompt("Other standard") && !store.updateStandardVerificationWords(), "custom prompts and repeated upgrades remain unchanged")
+        let version11Store = SharedStore(directory: storeURL.appendingPathComponent("version11"))
+        var version11Settings = settings
+        version11Settings.configuration = try FilteringConfiguration.make(selectedNames: ["Sample"], inventory: [.init(id: "sample", name: "Sample", addresses: ["me@example.com"])],
+            rules: "Custom retained policy", evidenceTerms: PoliticalVerificationWords.previousDefaults + PoliticalVerificationWords.version11Additions, mode: "dry-run")
+        try version11Store.save(version11Settings)
+        try require(try version11Store.updateStandardVerificationWords(), "existing version-11 standard list receives campaign and office terms")
+        let version11Updated = try version11Store.settings()
+        try require(version11Updated.configuration!.evidenceTerms.suffix(2) == ["campaign", "Vice President"] && version11Updated.configuration!.rules == "Custom retained policy",
+                    "campaign upgrade preserves saved filtering instructions and appends only missing words")
+        try require(try !version11Store.updateStandardVerificationWords(), "campaign upgrade does not duplicate words on reopen")
         print("Passed \(count) guided schema, token budgeting, excerpt coverage and policy-upgrade checks; no model generation or real Mail actions")
     }
 }
