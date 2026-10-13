@@ -13,4 +13,5 @@ config/accounts.local.txt
 # Selected-email diagnostics contain private message content.
 Mail-Filter Diagnostic *.json
 Mail-Filter Model Probe*.json
+Mail-Filter Supported Path*.json
 *.eml

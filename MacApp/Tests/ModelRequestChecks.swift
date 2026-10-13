@@ -16,26 +16,32 @@ struct ModelRequestChecks {
     }
     @MainActor
     static func main() async throws {
-        let schema = try PoliticalModel.schema()
-        let encodedSchema = String(decoding: try JSONEncoder().encode(schema), as: UTF8.self)
-        try require(encodedSchema.contains("political") && encodedSchema.contains("not-political"), "guided schema includes both classification choices")
-        let positive = try PoliticalModel.decode(GeneratedContent(json: "{\"decision\":\"political\",\"reason\":\"Campaign advertising\"}"))
-        try require(positive.decision == .political && positive.reason == "Campaign advertising", "guided result is read directly without string JSON cleanup")
-        let negative = try PoliticalModel.decode(GeneratedContent(json: "{\"decision\":\"not-political\",\"reason\":\"A receipt\"}"))
-        try require(negative.decision == .notPolitical, "guided negative stays negative")
+        try require(try parsePoliticalLabel("POLITICAL") == .political && parsePoliticalLabel("NOT-POLITICAL") == .notPolitical, "string labels tolerate harmless capitalization")
+        let positive = Classification(decision: try parsePoliticalLabel("political"), reason: "Campaign advertising", evidence: nil)
+        try require(positive.decision == .political && positive.reason == "Campaign advertising", "political label parses without JSON generation")
+        let negative = Classification(decision: try parsePoliticalLabel("not-political"), reason: "A receipt", evidence: nil)
+        try require(negative.decision == .notPolitical, "negative label stays negative")
         let campaignMessage = message("Support our campaign to elect a senator.")
         try require(try validatePoliticalEvidence(positive, message: campaignMessage, terms: ["campaign"]) != nil, "campaign is accepted as evidence for a positive model decision")
         let officeMessage = message("A mass appeal from the Vice President to support the party.")
         try require(try validatePoliticalEvidence(positive, message: officeMessage, terms: ["Vice President"]) != nil, "political office can verify a positive without a politician-name allowlist")
         try require(try validatePoliticalEvidence(negative, message: campaignMessage, terms: ["campaign"]) == nil, "campaign vocabulary cannot promote a negative")
         try require(!hasPoliticalTerm("utm_campaign=retail", terms: ["campaign"]), "tracking parameter names are not mistaken for campaign text")
-        let noReason = try PoliticalModel.decode(GeneratedContent(json: "{\"decision\":\"political\",\"reason\":\"\"}"))
-        try require(noReason.decision == .political && !noReason.reason.isEmpty, "empty explanation does not discard a valid positive")
+        try require(try parsePoliticalLabel("```text\npolitical\n```") == .political && parsePoliticalLabel("not political") == .notPolitical, "harmless label formatting is accepted")
         var invalidRejected = false
         do {
-            _ = try PoliticalModel.decode(GeneratedContent(json: "{\"decision\":\"junk\",\"reason\":\"Marketing\"}"))
+            _ = try parsePoliticalLabel("junk")
         } catch { invalidRejected = true }
         try require(invalidRejected, "unsupported decision fails safely")
+        for text in ["political\nnot-political", "This might be political.", "{\"decision\":\"political\"}"] {
+            var rejected = false
+            do { _ = try parsePoliticalLabel(text) } catch { rejected = true }
+            try require(rejected, "conflicting, speculative or non-label responses cannot reach a move")
+        }
+        do {
+            _ = try parsePoliticalLabel("Sorry, I can't help with political content.")
+            throw ToolError("refusal was accepted")
+        } catch let failure as ModelLabelError { try require(failure.kind == .refusal && !failure.localizedDescription.contains("political content"), "refusal text stays out of routine error output") }
         let request = ClassificationRequest(message: message("Please support our election campaign."))
         let prompt = try request.prompt(body: request.message.body, divided: false)
         try require(!prompt.contains("private-account") && !prompt.contains("Private account") && !prompt.contains("private-recovery") && !prompt.contains("private-address"), "model input excludes account, recovery identity and own addresses")
@@ -94,6 +100,6 @@ struct ModelRequestChecks {
         try require(version11Updated.configuration!.evidenceTerms.suffix(2) == ["campaign", "Vice President"] && version11Updated.configuration!.rules == "Custom retained policy",
                     "campaign upgrade preserves saved filtering instructions and appends only missing words")
         try require(try !version11Store.updateStandardVerificationWords(), "campaign upgrade does not duplicate words on reopen")
-        print("Passed \(count) guided schema, token budgeting, excerpt coverage and policy-upgrade checks; no model generation or real Mail actions")
+        print("Passed \(count) label validation, token budgeting, excerpt coverage and policy-upgrade checks; no model generation or real Mail actions")
     }
 }

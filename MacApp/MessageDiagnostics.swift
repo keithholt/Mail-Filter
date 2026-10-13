@@ -92,7 +92,8 @@ enum MessageDiagnostics {
             })
         } catch {
             let details = ModelFailureDetails.describe(error)
-            return prefix + "Classification failed: \(details.category)\nError: \(details.domain) (\(details.code))\n\(error.localizedDescription)"
+            let reply = (error as? ModelLabelError).map { "\nModel reply (shown only here):\n\($0.response)" } ?? ""
+            return prefix + "Classification failed: \(details.category)\nError: \(details.domain) (\(details.code))\n\(error.localizedDescription)" + reply
                 + "\nAnalyzed MIME body excerpt (shown only here):\n\(message.body)"
         }
         let result = response.classification

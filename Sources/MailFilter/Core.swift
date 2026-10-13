@@ -173,6 +173,29 @@ struct Classification: Decodable {
     let evidence: String?
 }
 
+struct ModelLabelError: LocalizedError {
+    enum Kind { case refusal, invalidLabel }
+    let kind: Kind
+    let response: String
+    var errorDescription: String? {
+        kind == .refusal ? "The model refused to classify the email; left in place." : "The model did not return one valid classification label; left in place."
+    }
+}
+
+func parsePoliticalLabel(_ response: String) throws -> Classification.Decision {
+    var label = response.trimmingCharacters(in: .whitespacesAndNewlines)
+    if label.hasPrefix("```") {
+        let lines = label.components(separatedBy: "\n")
+        if lines.count == 3, ["```", "```text"].contains(lines[0].lowercased()), lines[2] == "```" { label = lines[1] }
+    }
+    label = label.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    if label.hasPrefix("\""), label.hasSuffix("\""), label.count >= 2 { label = String(label.dropFirst().dropLast()) }
+    if label == "not political" || label == "not_political" { label = "not-political" }
+    if let decision = Classification.Decision(rawValue: label) { return decision }
+    let refusal = ["sorry", "i cannot", "i can't", "i can’t", "i am unable", "i'm unable", "i’m unable", "i'm sorry", "i’m sorry"].contains { label.hasPrefix($0) }
+    throw ModelLabelError(kind: refusal ? .refusal : .invalidLabel, response: String(response.prefix(2048)))
+}
+
 func parseClassification(_ response: String) throws -> Classification {
     guard response.utf8.count <= 8192 else {
         throw ToolError("Oversized model response; left for review")

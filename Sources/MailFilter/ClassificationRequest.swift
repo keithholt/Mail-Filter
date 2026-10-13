@@ -14,7 +14,7 @@ enum ClassificationRequestError: LocalizedError {
 /// Only classification data goes to the model. Account names, addresses owned by
 /// the user, Mail IDs and recovery identities never consume the model context.
 struct ClassificationRequest {
-    static let responseTokens = 256
+    static let responseTokens = 64
     static let framingTokens = 512
     static let maximumSections = 12
     let message: MailMessage
