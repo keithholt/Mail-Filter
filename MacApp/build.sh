@@ -18,6 +18,8 @@ else
     group=''
 fi
 out="$root/.build/mac-app"
+print 'Regenerating Word docs from Markdown...'
+python3 "$root/docs/build-docx.py"
 app="$out/Mail-Filter.app"
 ext="$app/Contents/PlugIns/Mail-Filter.appex"
 uninstaller="$out/Uninstall Mail-Filter.app"

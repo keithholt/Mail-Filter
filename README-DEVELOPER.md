@@ -2,6 +2,8 @@
 
 The native settings app and MailKit extension are the user-facing product. The Swift command-line tool is still maintained for engineering, diagnostics and fixture testing; its timer-based baseline is tagged `v1.0.0`. The native build and installer do not replace or remove it.
 
+For a source-code introduction, start with the [developer getting-started guide](docs/dev/getting-started.md) and [architecture and source map](docs/dev/architecture.md). Both have generated Word copies in `docs/dev/`; see the [documentation workflow](docs/README.md). This file retains the detailed CLI reference and engineering notes. These additional guides are in the source checkout, rather than the installed DeveloperTools folder.
+
 ## Native app development
 
 Full Xcode with first-launch setup completed, macOS 26+, Apple silicon and Python 3 are required. Build and verify from the checkout:
@@ -14,6 +16,8 @@ Full Xcode with first-launch setup completed, macOS 26+, Apple silicon and Pytho
 Packaging builds the settings app, extension and uninstaller, verifies the installer, and writes `outputs/Mail-Filter Installer.pkg`. It then creates `~/Desktop/Mail-Filter Installer.pkg` as a symbolic-link shortcut to that package. Rebuilding replaces the package at the same location, so the shortcut opens the latest build without retaining a stale copy. An existing unrelated Desktop item is preserved; a warning reports conflicts or denied Desktop access without failing a successfully verified package. If macOS asks, allow the build's Terminal application access to Desktop. The package remains available in `outputs/` if the shortcut cannot be created.
 
 `./MacApp/build.sh` builds the application bundles in `.build/mac-app/`, including a separately compiled CLI and generic developer resources. It creates no installer or Desktop shortcut. `./build.sh` builds the standalone CLI independently. Neither build command installs apps, enables extensions, moves mail, or changes private settings. `outputs/` and `.build/` are excluded from Git.
+
+Both build scripts regenerate the registered Word documents from Markdown before compilation. Python 3 and successful conversion are required. Packaging inherits document generation through `./MacApp/build.sh`; use `python3 docs/build-docx.py` directly for documentation-only updates.
 
 See [native app engineering notes](MacApp/README.md) for architecture, storage, migration, tests, Developer ID signing and notarization. Local builds require no developer membership; they are not notarized public releases. Use temporary fixtures for automated checks and verify real installation, Mail callbacks, restoration, compatible upgrades and removal in a normal macOS session before distribution. The retired Probe app is not required; keep any earlier filtering extension and timer disabled when testing the native extension. The shared MIME, configuration, queue and recovery helpers now live in `MacApp/Shared/`, with all their synthetic checks included in `./MacApp/test.sh`.
 

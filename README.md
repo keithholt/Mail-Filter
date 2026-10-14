@@ -10,7 +10,7 @@ To build from source, use macOS 26 or later on an Apple silicon Mac, full Xcode 
 ./MacApp/package.sh
 ```
 
-This builds the app and uninstaller, verifies the package, and creates **outputs/Mail-Filter Installer.pkg** plus a Desktop shortcut to it. Each rebuild updates the same installer. Build products are excluded from Git; the installer is generated locally rather than included in the source repository. For checks and release signing, see [README-DEVELOPER.md](README-DEVELOPER.md).
+This regenerates the Word documentation from Markdown, builds the app and uninstaller, verifies the package, and creates **outputs/Mail-Filter Installer.pkg** plus a Desktop shortcut to it. Each rebuild updates the same installer. Build products are excluded from Git; the installer is generated locally rather than included in the source repository. For checks and release signing, see [README-DEVELOPER.md](README-DEVELOPER.md).
 
 ## Install
 
@@ -83,4 +83,4 @@ Turn **Enable filtering** OFF to pause and ON to resume. To disable the extensio
 
 Open **Uninstall Mail-Filter** from Applications or from Mail-Filter's menu/Setup & help. It pauses filtering and moves the installed apps to Trash. macOS may ask for permission. Settings and restored-message protection are preserved by default; select **Erase private settings...** only if you want to remove them too. Erasing protection records removes that protection if you reinstall. Email messages and Mail accounts are never removed. Restart Mail if an uninstalled extension still appears.
 
-For build, testing and contributor instructions, see [README-DEVELOPER.md](README-DEVELOPER.md).
+For build, testing and contributor instructions, see [README-DEVELOPER.md](README-DEVELOPER.md). The [developer documentation](docs/README.md) includes architecture and getting-started guides in Markdown and Word.
