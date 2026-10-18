@@ -13,10 +13,17 @@ Republican
 Republicans
 Republican Party
 Congress
+House of Representatives
 congressional
+congressman
+congresswoman
+representative
 Senate
 senator
-Trump
+governor
+Supreme Court
+justice
+President
 Biden
 political action committee
 PAC
@@ -29,6 +36,8 @@ donation
 donations
 Second Amendment
 abortion
+Constitution
 campaign
-Vice President
+freedom
+rights
 Paid for by
