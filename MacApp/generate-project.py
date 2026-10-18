@@ -101,6 +101,8 @@ def configs(name, role=None):
                 LD_RUNPATH_SEARCH_PATHS=['$(inherited)', '@executable_path/../Frameworks'])
             settings['PRODUCT_BUNDLE_IDENTIFIER'] = ('org.mail-filter.uninstaller' if role == 'Uninstaller'
                 else '$(MAIL_FILTER_BUNDLE_ID)' + ('.extension' if role == 'Extension' else ''))
+            if role in ('Host', 'Extension'):
+                settings['REGISTER_APP_GROUPS'] = 'YES'
             if role == 'Extension':
                 settings.update(APPLICATION_EXTENSION_API_ONLY='YES', SKIP_INSTALL='YES',
                                 OTHER_LDFLAGS=['$(inherited)', '-e', '_NSExtensionMain'])
@@ -180,7 +182,12 @@ for path in inventory:
     if any(part.endswith(('.xcodeproj', '.xcworkspace', '.xcassets')) for part in Path(path).parts):
         continue
     if (ROOT / path).is_file() and path not in navigation:
-        navigation[path] = ref(path, types.get(Path(path).suffix, 'file'))
+        kind = types.get(Path(path).suffix, 'file')
+        if Path(path).name in ('preinstall', 'postinstall'):
+            kind = 'text.script.sh'
+        elif Path(path).name == '.gitignore':
+            kind = 'text'
+        navigation[path] = ref(path, kind)
 tree = {}
 for path, key in sorted(navigation.items()):
     branch = tree
@@ -198,7 +205,7 @@ def groups(branch, parts=()):
                path=parts[-1], sourceTree='<group>')
 
 
-add('project', 'PBXProject', attributes={'LastUpgradeCheck': '2700'},
+add('project', 'PBXProject', attributes={'LastUpgradeCheck': '2710', 'BuildIndependentTargetsInParallel': 'YES'},
     buildConfigurationList=project_configs, compatibilityVersion='Xcode 14.0',
     developmentRegion='en', knownRegions=['en', 'Base'], mainGroup=groups(tree),
     productRefGroup=product_group, projectDirPath='', projectRoot='', targets=list(target_ids.values()))
@@ -230,7 +237,7 @@ def scheme(configuration, targets, runnable=None, archive=None):
     run = f'<BuildableProductRunnable runnableDebuggingMode="0">{buildable(runnable)}</BuildableProductRunnable>' if runnable else ''
     arguments = '<CommandLineArguments><CommandLineArgument argument="--help" isEnabled="YES"/></CommandLineArguments>' if runnable == 'cli' else ''
     return f'''<?xml version="1.0" encoding="UTF-8"?>
-<Scheme LastUpgradeVersion="2700" version="1.7">
+<Scheme LastUpgradeVersion="2710" version="1.7">
  <BuildAction parallelizeBuildables="YES" buildImplicitDependencies="YES"><BuildActionEntries>{actions}</BuildActionEntries></BuildAction>
  <TestAction buildConfiguration="{configuration}" selectedDebuggerIdentifier="Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier="Xcode.IDEFoundation.Launcher.LLDB" shouldUseLaunchSchemeArgsEnv="YES" shouldAutocreateTestPlan="YES"/>
  <LaunchAction buildConfiguration="{configuration}" selectedDebuggerIdentifier="Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier="Xcode.IDEFoundation.Launcher.LLDB" launchStyle="0" useCustomWorkingDirectory="NO" ignoresPersistentStateOnLaunch="NO" debugDocumentVersioning="YES" debugServiceExtension="internal" allowLocationSimulation="NO">{run}{arguments}</LaunchAction>
@@ -251,14 +258,43 @@ for name, value in {
     'mail-filter CLI': scheme('Local', ['cli'], runnable='cli'),
 }.items():
     outputs[PROJECT / 'xcshareddata/xcschemes' / (name + '.xcscheme')] = value
+
+
+def project_matches(actual, expected):
+    """Ignore Xcode formatting and redundant labels, but check build semantics."""
+    def parse(source):
+        value = json.loads(subprocess.check_output(
+            ['/usr/bin/plutil', '-convert', 'json', '-o', '-', '-'], input=source.encode(), stderr=subprocess.DEVNULL))
+        for obj in value.get('objects', {}).values():
+            if obj.get('isa') == 'PBXFileReference' and obj.get('name') == Path(obj.get('path', '')).name:
+                obj.pop('name', None)
+            if obj.get('isa') == 'PBXProject':
+                obj.get('attributes', {}).pop('LastUpgradeCheck', None)
+        return value
+    try:
+        return parse(actual) == parse(expected)
+    except (subprocess.CalledProcessError, ValueError):
+        return False
+
+
+def scheme_matches(actual, expected):
+    def normalized(source):
+        value = ET.fromstring(source)
+        value.attrib.pop('LastUpgradeVersion', None)
+        return ET.canonicalize(ET.tostring(value, encoding='unicode'), strip_text=True)
+    try:
+        return normalized(actual) == normalized(expected)
+    except ET.ParseError:
+        return False
+
+
 for path, value in outputs.items():
     if '--check' in sys.argv:
         actual = path.read_text() if path.exists() else None
         if actual is not None and path.suffix == '.xcscheme':
-            try:
-                matches = ET.canonicalize(actual, strip_text=True) == ET.canonicalize(value, strip_text=True)
-            except ET.ParseError:
-                matches = False
+            matches = scheme_matches(actual, value)
+        elif actual is not None and path.name == 'project.pbxproj':
+            matches = project_matches(actual, value)
         else:
             matches = actual == value
         if not matches:

@@ -2,6 +2,8 @@
 
 These helpers exercise synthetic configuration, migration and activity plus isolated ad-hoc signed app variants. They do not install a Mail extension, send or move mail, or read production Mail-Filter settings.
 
+Production app builds use the root `Mail-Filter.xcodeproj` and its shared targets. These isolated helpers remain separate experiments; they do not replace the Local, Build Check or Store schemes. See [Developer Getting Started](../../docs/dev/getting-started.md) for the native build workflow.
+
 From the repository root:
 
 ```sh

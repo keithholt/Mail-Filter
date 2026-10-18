@@ -6,6 +6,8 @@ Use **Mail-Filter Local** for normal development, **Mail-Filter Local Installer*
 
 `Common.xcconfig` holds shared defaults; the five named configurations define signing, identifiers, storage and compilation conditions. Local preserves the installed direct app's identity and private settings path. DeveloperID preserves the direct release group. Development and Store use their separate sandboxed groups. BuildCheck disables signing and never launches an app.
 
+Keep build-setting changes in these configuration files or the project generator so regeneration preserves them. Xcode's recommended compiler warnings are recorded in `Common.xcconfig`. Do not let a recommended-settings update replace Developer ID signing with an Apple Development identity. The generator's `--check` compares project and scheme structure using macOS's built-in `plutil` and Python's XML parser; Xcode formatting, redundant file labels and upgrade-version metadata do not count as build changes. Changes to targets, dependencies, signing settings and scheme actions still require reconciliation.
+
 Copy `Signing.example.xcconfig` to the ignored `Signing.local.xcconfig` to set a private developer team for signed configurations. Local and BuildCheck do not use it. An existing file under the former Store directory belongs here now. Never commit certificates, profiles or personal signing overrides.
 
 Native builds regenerate Word documentation. Direct packaging stages the native app, CLI and uninstaller, embeds engineering resources only in the staged direct app, and reseals the signature before verification. Store schemes exclude these engineering products.

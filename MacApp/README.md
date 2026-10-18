@@ -22,7 +22,7 @@ Only installation for all users into `/Applications` is supported by this packag
 ## First launch
 
 1. Open **Mail-Filter** from Applications.
-2. Click **Read Mail Accounts**. Keep Mail open and allow Mail-Filter to control Mail when macOS asks. This reads account names, IDs and addresses only, not messages.
+2. Click **Read Mail Accounts**, or choose **Enter Addresses…** and enter all your own account addresses and aliases. Automatic discovery requires Mail to be open and Automation permission; it reads account metadata, not messages.
 3. Select the accounts to filter and click **Save Settings**. The default permits verified political messages to move to Junk. Enable Preview before saving to leave messages in place instead.
 4. In **Mail → Settings → Extensions**, check **Mail-Filter**. This is a manual user choice; the installer does not enable it silently. Restart Mail after installing/updating if the extension is not listed.
 5. Leave Mail running and the Mac awake. You can close Mail-Filter's settings window; closing its last window quits the settings app without stopping the extension.
@@ -33,24 +33,19 @@ The Activity page shows recent decisions, processing errors, the number classifi
 
 If account discovery is denied, allow **Mail-Filter** under **System Settings → Privacy & Security → Automation → Mail**, then retry. This permission belongs to the app and is separate from a Terminal permission used by the prototype/CLI. The app reports model availability rather than silently attempting classification without a model.
 
-## Import an earlier setup and retire the timer
+## Import an earlier setup
 
-The earlier Probe app is retired. Preserve its saved configuration and protection records until migration is verified; its executable is not required for import.
+Use **Export Setup…** in the source installation, then **Import Setup…** in the destination. The current UI accepts a complete setup archive or a selected data folder containing both `settings.json` and `junk-protection.json`. It preserves accounts, aliases, policy, pause/Preview choices and recovery records, merges destination protection, and creates a private destination backup. Review the result and choose **Confirm Imported Setup** before filtering can resume. Confirmation retains the imported ON/OFF preference.
 
-1. Disable **Mail-Filter Probe** in Mail's Extensions settings and restart Mail so the old process stops accepting new messages.
-2. In the new app, click **Import Previous Setup…** and choose the previous private `configuration.json` or `settings.json`. An old configured app bundle is also supported if still available. The usual old protection file is read and merged before the new settings are committed. A damaged or inaccessible protection file aborts import without replacing the settings.
-3. If no protection file is found, the app says so. If you previously restored false positives, use **Setup & help → Import Protection File…** and choose the old `junk-protection.json` before enabling the new extension. Preserve the old files until those records are imported.
-4. Read/refresh accounts, confirm selections, and save. Account checkboxes use stable IDs, so identical display names remain distinguishable.
-5. If you installed the development timer, retire it from the checkout with ./scripts/agent.sh uninstall. Timer management is documented in README-DEVELOPER.md and is not part of the end-user app or uninstaller.
-6. Enable **Mail-Filter** in Mail. Leave the probe disabled and the old timer removed. Verify new messages and a restored false positive in Mail before removing old build files.
+A missing or damaged protection file prevents folder import; preserve the original files and repair or export a complete setup. Raw prototype `configuration.json` files and old app bundles are not current UI import formats. The policy-only compatibility helper remains an engineering API, separate from this complete setup flow. Use **Setup & help → Import Protection File…** for an explicitly selected compatible recovery file.
 
-The prototype protection path is normally:
+Keep older extensions disabled during migration. If a development timer was installed, stop it with `./scripts/agent.sh uninstall` from the checkout; the end-user app has no timer controls. The retired prototype's recovery file normally lived at:
 
 ```text
 ~/Library/Containers/org.mail-filter.prototype.extension/Data/Library/Application Support/Mail-Filter/junk-protection.json
 ```
 
-CLI Junk-protection hashes from `~/.local/state/mail-filter/processed.json` are merged when settings are saved. Native extension protection is not written back to the old CLI's state. Avoid running the old CLI in apply mode on a message restored from the native extension. The two implementations do not share a live database.
+Settings saves preserve inherited CLI protection already in the native configuration; they do not read the CLI state file implicitly. Native protection is not written back to the CLI. Avoid simultaneous apply-mode CLI/timer runs and native filtering because their live state stores are separate.
 
 ## Settings, privacy and recovery
 
@@ -78,9 +73,9 @@ Developer ID release builds instead share an entitled private App Group, `YOURTE
     activity.json
 ```
 
-Both modes use files with permissions 600 and a directory with permissions 700. Private account names/addresses are saved only in that build's private store, never embedded in the distributed app. Activity stores fixed decisions/categories and timestamps, not subjects, addresses, reasons, evidence quotes or bodies. It retains the most recent 100 events plus persistent counts. Logs use subsystem `org.mail-filter.app` with the same restrictions. Mail continues its normal provider synchronization; AI analysis is on-device. A denied or invalid release App Group stops filtering; it never falls back to the local-development folder.
+Both modes use files with permissions 600 and a directory with permissions 700. Private account names/addresses are saved only in that build's private store, never embedded in the distributed app. Activity stores fixed decisions/categories and timestamps, not subjects, addresses, reasons, evidence quotes or bodies. It retains up to 500 recent events plus persistent counts. Supplemental private history is bounded to three 1 MiB files and a seven-day reporting window; recovery protection does not expire with diagnostic history. Logs use subsystem `org.mail-filter.app` with the same restrictions. Mail continues its normal provider synchronization; AI analysis is on-device. A denied or invalid release App Group stops filtering; it never falls back to the local-development folder.
 
-Before requesting a Junk move, a hash of the RFC Message-ID is saved atomically. Restoring that message to Inbox protects it after restarts, changes to Mail's numeric ID and rule changes. Corrupt, busy, inaccessible or full protection state prevents a Junk action. Failed/unconfirmed requests stay protected. Preserve this file across upgrades and reinstalls. Changing the storage mode or signing team/group changes the storage location; use **Import Previous Setup…** with the previous `settings.json` and its adjacent protection file to migrate before enabling the new build.
+Before requesting a Junk move, a hash of the RFC Message-ID is saved atomically. Restoring that message to Inbox protects it after restarts, changes to Mail's numeric ID and rule changes. Corrupt, busy, inaccessible or full protection state prevents a Junk action. Failed/unconfirmed requests stay protected. Preserve this file across upgrades and reinstalls. Changing the storage mode or signing team/group changes the storage location; use **Import Setup…** with a complete export or the previous data folder containing settings and protection, then confirm the imported setup before enabling the new build.
 
 Recipient matching uses delivery headers when available, otherwise MailKit's visible recipient information. This approximates account selection; aliases, redirects, shared addresses, Bcc or copies delivered to multiple accounts can be ambiguous. MailKit does not expose the CLI's account identity in this action handler. Senders from every collected own address are protected. Empty bodies, invalid identity, unreadable/unsupported MIME, model errors and unverified political positives stay in place.
 
@@ -100,7 +95,7 @@ Reinstalling the same build or installing an update replaces only the applicatio
 
 ## Build and package locally
 
-Open the root `Mail-Filter.xcodeproj` for native development. **Mail-Filter Local** builds the direct app, **Mail-Filter Local Installer** packages the native products, and **Mail-Filter Store** selects signed sandboxed development or Store archiving. **Mail-Filter Build Check** compiles the sandboxed product unsigned. All use the same app and extension targets. See the developer getting-started guide for the configuration and signing workflow.
+Open the root `Mail-Filter.xcodeproj` for native development. **Mail-Filter Local** builds the direct app, **Mail-Filter Local Installer** packages the native products, and **Mail-Filter Store** selects signed sandboxed development or Store archiving. **Mail-Filter Build Check** compiles the sandboxed product unsigned. All use the same app and extension targets. The separate **mail-filter CLI** scheme runs the engineering executable with `--help` by default. See [Developer Getting Started](../docs/dev/getting-started.md) for the configuration and signing workflow.
 
 Developer requirements: full Xcode selected with first-launch setup completed, macOS 26+, Apple silicon and Python 3. No third-party libraries are used.
 
@@ -109,6 +104,8 @@ cd ~/Documents/GitHub/Mail-Filter
 ./MacApp/test.sh
 ./MacApp/package.sh
 ```
+
+In Xcode, choose **Mail-Filter Local Installer**, **My Mac**, then **Product > Build** (Command-B). The Terminal commands above invoke the same root project and packaging steps. Native builds regenerate the Markdown guides as Word documents before compiling.
 
 The package is `outputs/Mail-Filter Installer.pkg` in the project folder. After package verification, the build creates a Desktop shortcut named `Mail-Filter Installer.pkg` pointing to that file, so it opens the latest package after each rebuild. Existing unrelated Desktop items are preserved; a conflict or denied Desktop access produces a warning while leaving the verified package available in `outputs/`. The `outputs/` directory is excluded from Git. Standalone apps and intermediate files are in `.build/`, which is also ignored. `./MacApp/build.sh` invokes the root `Mail-Filter.xcodeproj` targets and stages the apps with the bundled engineering CLI; it does not install/open/enable them or enable the retired extension. The package verification expands the payload into temporary files and checks identities, signatures, public application permissions, fixed destinations, mutually exclusive command-line choices, narrowly scoped PATH scripts and absence of personal settings/state. No test installs a package or moves real mail. Read-only Installer choice queries require a normal macOS session; the execution sandbox may not expose the target volume.
 
@@ -125,7 +122,7 @@ export MAIL_FILTER_INSTALLER_IDENTITY='Developer ID Installer: Example Company (
 ./MacApp/package.sh release
 ```
 
-Release app, extension and uninstaller use the same team-prefixed group entitlement, without the local-development file exception. The extension is sandboxed; the settings app is not sandboxed and requests Apple Events access only for account discovery. All executables use Hardened Runtime. Release signing includes secure timestamps. The package is signed with Developer ID Installer.
+Release app, extension and uninstaller use the same team-prefixed group entitlement, without the local-development file exception. The extension is sandboxed; the settings app is not sandboxed and requests Apple Events access for explicit account discovery and selected-email diagnostics. All executables use Hardened Runtime. Release signing includes secure timestamps. The package is signed with Developer ID Installer.
 
 Set up an existing notarytool Keychain profile interactively rather than storing credentials in the repository:
 

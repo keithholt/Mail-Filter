@@ -12,7 +12,7 @@ Implementation update: build 15 uses one root Xcode project for local and Store 
 
 Apple explicitly supports distributing MailKit extensions through the Mac App Store. Our incoming handler already obtains message data and requests Junk actions through that public API. The settings application, packaging and supporting diagnostics require the larger changes. See [Apple MailKit presentation](https://developer.apple.com/videos/play/wwdc2021/10168/) and [App Sandbox guidance](https://developer.apple.com/documentation/security/protecting-user-data-with-app-sandbox).
 
-The current native settings application is not sandboxed. Its embedded extension is sandboxed and uses a narrow local-development filesystem exception. The existing release script supports Developer ID distribution with an App Group, but still leaves the host application unsandboxed. Neither configuration is a complete App Store configuration.
+At the build-13 assessment baseline, the native settings application was unsandboxed and its embedded extension used a narrow local-development filesystem exception. The direct Local and DeveloperID configurations retain that intended host behavior. The current root Xcode project additionally provides sandboxed Development and Store configurations with shared-group entitlements; signed runtime qualification remains outstanding.
 
 | Check | Result | Evidence and limit |
 |---|---|---|
@@ -150,9 +150,9 @@ Owner: account holder with engineering support. Decide individual or organizatio
 
 ### 6.2 Add a Store build pipeline
 
-Owner: engineering. Add an Xcode project or equivalent reproducible Xcode archive setup for the host and embedded extension. Preserve the current shell entry points and document the mapping to the new targets. Add sandboxed development and Store Release configurations, explicit feature capabilities, privacy resources, version metadata and archive validation. Leave standalone CLI compilation intact.
+Implemented in build 15. The root `Mail-Filter.xcodeproj` owns the shared app and extension targets, plus separate engineering CLI and uninstaller targets. Its Local, DeveloperID, BuildCheck, Development and Store configurations select the channel's identity, storage, entitlements and signing. `MacApp/generate-project.py` is the native source-list authority; shell build entry points invoke the same project. The developer guide documents all five schemes and their Build/Run/Archive behavior.
 
-Primary files are the new project/configuration files, `MacApp/build.sh`, `MacApp/package.sh` and the bundle-verification scripts. Keep direct packaging separate from Store archiving. Verify that the Store payload contains only the intended application and extension, then upload a validation build before investing in final listing materials.
+The Local Installer scheme packages native dependencies without recursively compiling them. Store schemes and payload checks exclude engineering tools, the uninstaller, PATH components and Desktop shortcuts. A shared target regenerates the Word documentation for native builds. Configuration files live in `MacApp/Build/`; private team settings belong in the ignored `Signing.local.xcconfig`. The remaining gate is a provisioned archive that passes runtime qualification and App Store Connect validation before final listing preparation.
 
 ### 6.3 Complete shared storage and migration
 

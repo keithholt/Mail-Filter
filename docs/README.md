@@ -19,4 +19,6 @@ The converter is adapted from Photo-Archival's dependency-free Python OOXML gene
 
 The root [README](../README.md) remains the end-user guide. [README-DEVELOPER](../README-DEVELOPER.md) retains detailed engineering CLI, timer and release notes. Reports, real email fixtures and private configuration are not documentation sources to publish.
 
+Native development starts with `Mail-Filter.xcodeproj` at the repository root. The [build configuration guide](../MacApp/Build/README.md) maps its local, installer, sandboxed check, Store and CLI workflows; the getting-started guide above provides the detailed Xcode steps. The CLI's separate Swift package remains available for standalone engineering builds.
+
 The [Store build workflow](../MacApp/Store/README.md) covers unsigned checks, isolated signing configurations, archiving and local export. [Store review preparation](store-review-preparation.md) is a Markdown publisher worksheet with privacy and entitlement drafts; it remains separate from the generated engineering guides. `./MacApp/store-build.sh` also regenerates the registered Word documents before compilation.

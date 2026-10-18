@@ -2,6 +2,8 @@
 
 This checklist prepares the publisher and engineering team for the first submission. The application is not ready for submission while signing and runtime qualification are outstanding. Complete the deployment plan's release gates before uploading a candidate.
 
+Create the review candidate from the root `Mail-Filter.xcodeproj` using **Mail-Filter Store → Product → Archive**, or `./MacApp/store-build.sh archive`. Both use the same Store configuration and exclude engineering tools. The Local Installer scheme creates a direct-install test package; use the provisioned Store archive for App Store validation. See [Store build workflow](../MacApp/Store/README.md) for signing and export.
+
 ## Publisher information
 
 Apple enrollment is processing. Once approved, confirm the legal seller identity, team identifier, app and group identifier availability, App Store Connect roles and signing assets. The publisher must choose the app's price, territories and EU trader status, accept the required agreements, and supply any applicable tax/banking information. These decisions have not been made by the build scripts.

@@ -11,3 +11,5 @@ CODE_SIGN_STYLE = Automatic
 CODE_SIGN_IDENTITY = Apple Development
 // Keep the team outside generated project files and version control.
 #include? "Signing.local.xcconfig"
+ENABLE_TESTABILITY = YES
+ONLY_ACTIVE_ARCH = YES

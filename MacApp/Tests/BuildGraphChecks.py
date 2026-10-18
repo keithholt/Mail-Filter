@@ -1,9 +1,12 @@
 """Check native build graph boundaries without compiling or running a product."""
 from pathlib import Path
+import copy
 import json
 import importlib.util
 import plistlib
 import subprocess
+import runpy
+import sys
 import tempfile
 import xml.etree.ElementTree as ET
 
@@ -59,6 +62,28 @@ for role in ('Host', 'Extension', 'Uninstaller'):
     assert 'MailFilterAppGroup' not in info, 'Local storage must not acquire a group dependency'
 local_extension = plistlib.loads((root / 'MacApp/Build/Extension-Local.entitlements').read_bytes())
 assert local_extension['com.apple.security.temporary-exception.files.home-relative-path.read-write'] == ['/Library/Application Support/Mail-Filter Local/']
+# Xcode rewrites project syntax and upgrade metadata during ordinary editing.
+# Those edits must pass --check, while a changed configuration must still fail.
+previous_arguments = sys.argv
+try:
+    sys.argv = [str(root / 'MacApp/generate-project.py'), '--check']
+    generated = runpy.run_path(sys.argv[0])
+finally:
+    sys.argv = previous_arguments
+project_text = (project / 'project.pbxproj').read_text()
+reformatted = copy.deepcopy(payload)
+reformatted['objects'][reformatted['rootObject']]['attributes']['LastUpgradeCheck'] = '9999'
+assert generated['project_matches'](project_text, plistlib.dumps(reformatted).decode())
+local_config = next(key for key in objects[objects[targets['MailFilter']]['buildConfigurationList']]['buildConfigurations']
+                    if objects[key]['name'] == 'Local')
+reformatted['objects'][local_config]['buildSettings']['CODE_SIGNING_ALLOWED'] = 'NO'
+assert not generated['project_matches'](project_text, plistlib.dumps(reformatted).decode())
+check_scheme = project / 'xcshareddata/xcschemes/Mail-Filter Build Check.xcscheme'
+reformatted_scheme = ET.fromstring(check_scheme.read_text())
+reformatted_scheme.attrib['LastUpgradeVersion'] = '9999'
+assert generated['scheme_matches'](check_scheme.read_text(), ET.tostring(reformatted_scheme, encoding='unicode'))
+reformatted_scheme.find('LaunchAction').attrib['buildConfiguration'] = 'Store'
+assert not generated['scheme_matches'](check_scheme.read_text(), ET.tostring(reformatted_scheme, encoding='unicode'))
 spec = importlib.util.spec_from_file_location('direct_staging', root / 'MacApp/prepare-direct-products.py')
 staging = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(staging)
