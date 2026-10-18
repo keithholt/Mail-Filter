@@ -8,7 +8,7 @@ import sys
 app = Path(sys.argv[1])
 unsigned = '--unsigned' in sys.argv
 development = '--development' in sys.argv
-root = Path(__file__).resolve().parent
+root = Path(__file__).resolve().parents[1] / 'Build'
 identifier = 'org.mail-filter.development' if development else 'org.mail-filter.app'
 group = 'group.org.mail-filter.development.shared' if development else 'group.org.mail-filter.shared'
 extension = app / 'Contents/PlugIns/Mail-Filter.appex'

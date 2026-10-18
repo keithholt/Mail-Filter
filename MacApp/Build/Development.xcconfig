@@ -1,7 +1,13 @@
+#include "Common.xcconfig"
 // Isolated from both the installed app and production Store data.
 MAIL_FILTER_BUNDLE_ID = org.mail-filter.development
 MAIL_FILTER_APP_GROUP = group.org.mail-filter.development.shared
 MAIL_FILTER_DISPLAY_NAME = Mail-Filter Development
+MAIL_FILTER_DISTRIBUTION = app-store
+MAIL_FILTER_STORAGE_MODE = app-group
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) APP_STORE
+SWIFT_OPTIMIZATION_LEVEL = -Onone
+CODE_SIGN_STYLE = Automatic
 CODE_SIGN_IDENTITY = Apple Development
 // Keep the team outside generated project files and version control.
 #include? "Signing.local.xcconfig"

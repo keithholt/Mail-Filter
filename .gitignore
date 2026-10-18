@@ -2,6 +2,7 @@
 .build/
 outputs/
 .swiftpm/
+__pycache__/
 *.log
 reports/
 local-prompts/
@@ -17,5 +18,6 @@ Mail-Filter Supported Path*.json
 *.eml
 xcuserdata/
 MacApp/Store/Signing.local.xcconfig
+MacApp/Build/Signing.local.xcconfig
 # Xcode may create tool caches beside the project in restricted environments.
 com.apple.DeveloperTools/

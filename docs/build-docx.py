@@ -221,7 +221,8 @@ def table(rows):
             shd = ('<w:shd w:val="clear" w:color="auto" w:fill="D9E2F3"/>'
                    if ri == 0 else "")
             body = runs_xml(cell, force_bold=(ri == 0))
-            para = f'<w:p><w:pPr><w:spacing w:after="0"/></w:pPr>{body}</w:p>'
+            keep = '<w:keepNext/>' if ri == 0 else ''
+            para = f'<w:p><w:pPr>{keep}<w:spacing w:after="0"/></w:pPr>{body}</w:p>'
             width = widths[min(ci, count - 1)]
             out.append(f'<w:tc><w:tcPr><w:tcW w:w="{width}" w:type="dxa"/><w:vAlign w:val="center"/>{shd}</w:tcPr>{para}</w:tc>')
         out.append("</w:tr>")

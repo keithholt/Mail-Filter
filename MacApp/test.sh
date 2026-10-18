@@ -11,6 +11,7 @@ xcrun swiftc -swift-version 5 -parse-as-library \
     "$root/MacApp/Tests/NativeChecks.swift" -framework AppKit -o "$out/native-checks"
 "$out/native-checks"
 python3 "$root/MacApp/Tests/PackagingChecks.py"
+python3 "$root/MacApp/Tests/BuildGraphChecks.py"
 xcrun swiftc -swift-version 5 -parse-as-library \
     "$root/Sources/MailFilter/Core.swift" "$root/MacApp/Shared/MIMEBodyDecoder.swift" \
     "$root/MacApp/Shared/FilteringConfiguration.swift" "$root/MacApp/Shared/JunkProtection.swift" \

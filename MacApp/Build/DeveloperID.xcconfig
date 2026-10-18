@@ -1,0 +1,6 @@
+#include "Common.xcconfig"
+#include? "Signing.local.xcconfig"
+CODE_SIGN_STYLE = Manual
+CODE_SIGN_IDENTITY = Developer ID Application
+MAIL_FILTER_STORAGE_MODE = app-group
+MAIL_FILTER_APP_GROUP = $(DEVELOPMENT_TEAM).org.mail-filter.shared

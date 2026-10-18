@@ -8,32 +8,38 @@
 	<string>$(MAIL_FILTER_DISPLAY_NAME)</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
-	<key>CFBundleIconFile</key>
-	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleName</key>
 	<string>$(MAIL_FILTER_DISPLAY_NAME)</string>
 	<key>CFBundlePackageType</key>
-	<string>APPL</string>
+	<string>XPC!</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
-	<key>LSApplicationCategoryType</key>
-	<string>public.app-category.productivity</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>26.0</string>
 	<key>MailFilterAppGroup</key>
 	<string>$(MAIL_FILTER_APP_GROUP)</string>
 	<key>MailFilterDistribution</key>
-	<string>app-store</string>
+	<string>$(MAIL_FILTER_DISTRIBUTION)</string>
 	<key>MailFilterStorageMode</key>
-	<string>app-group</string>
-	<key>NSAppleEventsUsageDescription</key>
-	<string>Mail-Filter reads account addresses during setup and reads one selected email when you explicitly request a diagnostic test. You can also enter addresses and open an email file without Mail automation.</string>
+	<string>$(MAIL_FILTER_STORAGE_MODE)</string>
+	<key>NSExtension</key>
+	<dict>
+		<key>NSExtensionAttributes</key>
+		<dict>
+			<key>MEExtensionCapabilities</key>
+			<array>
+				<string>MEMessageActionHandler</string>
+			</array>
+		</dict>
+		<key>NSExtensionPointIdentifier</key>
+		<string>com.apple.email.extension</string>
+		<key>NSExtensionPrincipalClass</key>
+		<string>MailFilterExtension</string>
+	</dict>
 	<key>NSHighResolutionCapable</key>
 	<true/>
 </dict>

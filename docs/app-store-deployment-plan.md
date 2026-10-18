@@ -6,7 +6,7 @@ Desktop probes confirm that App Sandbox permits our synthetic model classificati
 
 Assessment date: October 17, 2026. Baseline: build 13, commit `2cee33b`. The checks used an Apple silicon Mac with macOS 27.0.1, Xcode 27.0 and SDK 27.0. This plan records completed checks separately from the desktop, provisioning and review gates that remain open.
 
-Implementation update: build 14 now includes a Store Xcode project, manual address setup, email-file diagnostics, complete setup archives and bounded private file history. An unsigned archive compiles and passes payload inspection. Apple enrollment is processing. Section 9 records the completed work and the tests that must wait for signing. The working installation has not been replaced.
+Implementation update: build 15 uses one root Xcode project for local and Store builds. Store preparation includes manual address setup, email-file diagnostics, complete setup archives and bounded private file history. An unsigned archive compiles and passes payload inspection. Apple enrollment is processing. Section 9 records the completed work and the tests that must wait for signing. The working installation has not been replaced.
 
 ## 1 Feasibility findings
 
@@ -221,7 +221,7 @@ No gate should be marked passed solely because an ad-hoc signature verifies or t
 
 ### 9.1 Build and capability separation
 
-`MacApp/Store/Mail-Filter.xcodeproj` builds the shared Swift sources as a sandboxed host and embedded extension. Development and Store configurations use separate bundle IDs and groups. `MacApp/store-build.sh check` creates an unsigned archive with development identities, exercising the Store configuration without colliding with the installed product's identity. Xcode records build products with Launch Services, so unsigned checking also uses the development identifiers.
+`Mail-Filter.xcodeproj` at the repository root builds the same host and embedded extension targets for every distribution channel. Its Development and Store configurations are sandboxed and use separate bundle IDs and groups; Local and DeveloperID retain direct-distribution behavior. The Store scheme excludes the separate engineering CLI, uninstaller and packaging targets. `MacApp/Build/` holds the shared configuration and signing templates, and `MacApp/generate-project.py` owns native source membership. `MacApp/store-build.sh check` creates an unsigned archive with development identities, exercising the Store configuration without colliding with the installed product's identity. Xcode records build products with Launch Services, so unsigned checking also uses the development identifiers.
 
 The Store payload excludes the CLI, PATH scripts, uninstaller and Desktop shortcuts. The direct scripts and standalone CLI remain available. The Store compilation excludes the unified-log subprocess collector. A verifier checks bundle metadata, payload exclusions, manifests and declared capabilities; signed modes additionally check signed entitlements and embedded group profiles. The unsigned archive passed these applicable checks. It has not been launched or submitted.
 

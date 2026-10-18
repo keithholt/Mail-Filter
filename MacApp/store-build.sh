@@ -5,9 +5,8 @@ mode=${1:-check}
 [[ "$mode" == check || "$mode" == development || "$mode" == archive || "$mode" == export ]] || {
     print -u2 'Usage: MacApp/store-build.sh [check|development|archive|export]'; exit 1
 }
-python3 "$root/docs/build-docx.py"
-python3 "$root/MacApp/Store/generate-project.py" --check
-args=(-project "$root/MacApp/Store/Mail-Filter.xcodeproj" -scheme Mail-Filter -destination 'generic/platform=macOS' -derivedDataPath "$root/.build/store-derived")
+python3 "$root/MacApp/generate-project.py" --check
+args=(-project "$root/Mail-Filter.xcodeproj" -scheme 'Mail-Filter Store' -destination 'generic/platform=macOS' -derivedDataPath "$root/.build/xcode-derived")
 if [[ "$mode" == check ]]; then
     # Compile the actual Store payload without claiming that it is signed or runnable.
     # Xcode records built apps with Launch Services. Use isolated development
@@ -21,7 +20,7 @@ else
     [[ "$team" =~ '^[A-Z0-9]{10}$' ]] || { print -u2 'Set MAIL_FILTER_TEAM_ID after developer enrollment.'; exit 1; }
     if [[ "$mode" == development ]]; then
         xcodebuild "${args[@]}" -configuration Development build DEVELOPMENT_TEAM="$team"
-        python3 "$root/MacApp/Store/verify.py" "$root/.build/store-derived/Build/Products/Development/Mail-Filter.app" --development
+        python3 "$root/MacApp/Store/verify.py" "$root/.build/xcode-derived/Build/Products/Development/Mail-Filter.app" --development
     elif [[ "$mode" == archive ]]; then
         archive="$root/outputs/store/Mail-Filter.xcarchive"
         [[ ! -e "$archive" ]] || { print -u2 'Preserve or move the existing outputs/store/Mail-Filter.xcarchive first.'; exit 1; }

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleDisplayName</key>
+	<string>$(MAIL_FILTER_DISPLAY_NAME)</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleName</key>
+	<string>$(MAIL_FILTER_DISPLAY_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.productivity</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>26.0</string>
+	<key>MailFilterAppGroup</key>
+	<string>$(MAIL_FILTER_APP_GROUP)</string>
+	<key>MailFilterDistribution</key>
+	<string>$(MAIL_FILTER_DISTRIBUTION)</string>
+	<key>MailFilterStorageMode</key>
+	<string>$(MAIL_FILTER_STORAGE_MODE)</string>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>Mail-Filter reads account addresses during setup and reads one selected email when you explicitly request a diagnostic test. You can also enter addresses and open an email file without Mail automation.</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+</dict>
+</plist>

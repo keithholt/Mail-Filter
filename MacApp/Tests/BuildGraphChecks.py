@@ -1,0 +1,82 @@
+"""Check native build graph boundaries without compiling or running a product."""
+from pathlib import Path
+import json
+import importlib.util
+import plistlib
+import subprocess
+import tempfile
+import xml.etree.ElementTree as ET
+
+root = Path(__file__).resolve().parents[2]
+project = root / 'Mail-Filter.xcodeproj'
+payload = json.loads(subprocess.check_output(
+    ['/usr/bin/plutil', '-convert', 'json', '-o', '-', str(project / 'project.pbxproj')]))
+objects = payload['objects']
+targets = {value['name']: key for key, value in objects.items() if value['isa'] in ('PBXNativeTarget', 'PBXAggregateTarget')}
+
+
+def closure(ids):
+    result = set(ids)
+    todo = list(ids)
+    while todo:
+        for dependency in objects[todo.pop()].get('dependencies', []):
+            target = objects[dependency]['target']
+            if target not in result:
+                result.add(target)
+                todo.append(target)
+    return result
+
+
+def scheme(name):
+    return ET.parse(project / 'xcshareddata/xcschemes' / (name + '.xcscheme')).getroot()
+
+
+def build_ids(xml):
+    return [item.attrib['BlueprintIdentifier'] for item in xml.findall('./BuildAction/BuildActionEntries/BuildActionEntry/BuildableReference')]
+
+
+store = scheme('Mail-Filter Store')
+store_graph = closure(build_ids(store))
+assert store_graph == {targets[name] for name in ('MailFilter', 'MailFilterExtension', 'MailFilterDocumentation')}
+assert store.find('LaunchAction').attrib['buildConfiguration'] == 'Development'
+assert store.find('ArchiveAction').attrib['buildConfiguration'] == 'Store'
+installer_graph = closure(build_ids(scheme('Mail-Filter Local Installer')))
+assert installer_graph == set(targets.values()), 'Installer must build every direct product before packaging'
+assert closure(build_ids(scheme('Mail-Filter Local'))) == installer_graph - {targets['MailFilterLocalInstaller']}
+assert scheme('Mail-Filter Build Check').find('./LaunchAction/BuildableProductRunnable') is None
+assert scheme('mail-filter CLI').find('./LaunchAction/CommandLineArguments/CommandLineArgument').attrib['argument'] == '--help'
+for value in objects.values():
+    if value['isa'] == 'PBXFileReference' and value.get('sourceTree') == 'SOURCE_ROOT':
+        assert (root / value['path']).exists(), value['path']
+        assert not value['path'].startswith('../'), value['path']
+        assert not any(name in value['path'] for name in ('Signing.local.xcconfig', 'xcuserdata/', '.build/', 'outputs/'))
+for name in ('MailFilter', 'MailFilterExtension', 'MailFilterCLI', 'MailFilterUninstaller'):
+    configurations = objects[objects[targets[name]]['buildConfigurationList']]['buildConfigurations']
+    assert {objects[key]['name'] for key in configurations} == {'Local', 'DeveloperID', 'BuildCheck', 'Development', 'Store'}
+    assert targets['MailFilterDocumentation'] in closure([targets[name]])
+for role in ('Host', 'Extension', 'Uninstaller'):
+    info = plistlib.loads((root / 'MacApp/Build' / (role + '-Local-Info.plist')).read_bytes())
+    assert 'MailFilterAppGroup' not in info, 'Local storage must not acquire a group dependency'
+local_extension = plistlib.loads((root / 'MacApp/Build/Extension-Local.entitlements').read_bytes())
+assert local_extension['com.apple.security.temporary-exception.files.home-relative-path.read-write'] == ['/Library/Application Support/Mail-Filter Local/']
+spec = importlib.util.spec_from_file_location('direct_staging', root / 'MacApp/prepare-direct-products.py')
+staging = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(staging)
+with tempfile.TemporaryDirectory(prefix='mail-filter-distribution-boundary-') as temp:
+    products = Path(temp) / 'products'
+    output = Path(temp) / 'stage'
+    output.mkdir()
+    sentinel = output / 'keep'
+    sentinel.write_text('existing staged product')
+    info_file = products / 'Mail-Filter.app/Contents/Info.plist'
+    info_file.parent.mkdir(parents=True)
+    for distribution, storage in [('app-store', 'app-group'), ('direct', 'app-group')]:
+        info_file.write_bytes(plistlib.dumps({'MailFilterDistribution': distribution, 'MailFilterStorageMode': storage}))
+        try:
+            staging.prepare(products, output, 'local', '-')
+        except ValueError:
+            pass
+        else:
+            raise AssertionError('Wrong distribution or storage accepted for a local package')
+        assert sentinel.read_text() == 'existing staged product'
+print('Passed native build graph boundaries: shared targets, Store exclusions, direct dependencies, local storage, CLI safety and repository references.')

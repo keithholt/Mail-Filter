@@ -4,17 +4,28 @@ umask 022
 root=${0:A:h:h}
 mode=${1:-local}
 [[ "$mode" == local || "$mode" == release ]] || { print -u2 'Usage: MacApp/package.sh [local|release]'; exit 1; }
+(( $# == 0 )) || shift
 if [[ "$mode" == release ]]; then
     [[ "${MAIL_FILTER_INSTALLER_IDENTITY:-}" == 'Developer ID Installer:'* ]] || {
         print -u2 'Release packaging requires MAIL_FILTER_INSTALLER_IDENTITY (Developer ID Installer).'
         exit 1
     }
 fi
-"$root/MacApp/build.sh" "$mode"
+if (( $# == 0 )); then
+    "$root/MacApp/build.sh" "$mode"
+elif (( $# == 2 )) && [[ "$1" == --built-products ]]; then
+    # Native dependencies are already built; do not recursively call xcodebuild.
+    [[ "$mode" == local ]] || { print -u2 '--built-products is for the Local installer scheme.'; exit 1; }
+    python3 "$root/MacApp/prepare-direct-products.py" "$2" "$root/.build/mac-app" local -
+else
+    print -u2 'Usage: MacApp/package.sh [local|release] [--built-products DIRECTORY]'
+    exit 1
+fi
 work="$root/.build/mac-package"
 out="$root/outputs"
 rm -rf "$work"
 mkdir -p "$work/Payload" "$work/Resources" "$out"
+version=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$root/.build/mac-app/Mail-Filter.app/Contents/Info.plist")
 mkdir -p "$work/CommandLinePayload/etc/paths.d"
 printf '%s\n' '/Applications/Mail-Filter.app/Contents/Resources/DeveloperTools/bin' > "$work/CommandLinePayload/etc/paths.d/org.mail-filter.command-line"
 ditto "$root/.build/mac-app/Mail-Filter.app" "$work/Payload/Mail-Filter.app"
@@ -35,13 +46,13 @@ path.write_bytes(plistlib.dumps(components))
 (work/'requirements.plist').write_bytes(plistlib.dumps({'os':['26.0'],'arch':['arm64']}))
 PY
 pkgbuild --root "$work/Payload" --component-plist "$work/components.plist" \
-    --identifier org.mail-filter.installer --version 2.0.0 --install-location /Applications \
+    --identifier org.mail-filter.installer --version "$version" --install-location /Applications \
     "$work/MailFilterComponents.pkg"
 pkgbuild --root "$work/CommandLinePayload" --ownership recommended --scripts "$root/MacApp/InstallerScripts/CommandLineOn" \
-    --identifier org.mail-filter.command-line.enabled --version 2.0.0 --install-location / \
+    --identifier org.mail-filter.command-line.enabled --version "$version" --install-location / \
     "$work/MailFilterCommandLineOn.pkg"
 pkgbuild --nopayload --scripts "$root/MacApp/InstallerScripts/CommandLineOff" \
-    --identifier org.mail-filter.command-line.disabled --version 2.0.0 \
+    --identifier org.mail-filter.command-line.disabled --version "$version" \
     "$work/MailFilterCommandLineOff.pkg"
 productbuild --synthesize --product "$work/requirements.plist" --package "$work/MailFilterComponents.pkg" \
     --package "$work/MailFilterCommandLineOn.pkg" --package "$work/MailFilterCommandLineOff.pkg" "$work/Distribution.xml"

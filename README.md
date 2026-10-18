@@ -10,7 +10,7 @@ To build from source, use macOS 26 or later on an Apple silicon Mac, full Xcode 
 ./MacApp/package.sh
 ```
 
-This regenerates the Word documentation from Markdown, builds the app and uninstaller, verifies the package, and creates **outputs/Mail-Filter Installer.pkg** plus a Desktop shortcut to it. Each rebuild updates the same installer. Build products are excluded from Git; the installer is generated locally rather than included in the source repository. For checks and release signing, see [README-DEVELOPER.md](README-DEVELOPER.md).
+You can also open **Mail-Filter.xcodeproj** at the project root, select **Mail-Filter Local Installer**, and choose **Product > Build** (Command-B). Both methods regenerate the Word documentation from Markdown, build the app and uninstaller, verify the package, and create **outputs/Mail-Filter Installer.pkg** plus a Desktop shortcut to it. Each rebuild updates the same installer. Build products are excluded from Git; the installer is generated locally rather than included in the source repository. For checks and release signing, see [README-DEVELOPER.md](README-DEVELOPER.md).
 
 ## Install
 
