@@ -24,8 +24,8 @@ final class NativeClassifier {
             if let store = self.store { record(store, outcome: "review", category: "privateSettings", traceID: traceID) }
             return false
         }
-        guard !settings.paused, let configuration = settings.configuration else {
-            record(store, outcome: "skipped", category: settings.paused ? "paused" : "setupRequired", traceID: traceID)
+        guard !settings.paused, settings.activationRequired != true, let configuration = settings.configuration else {
+            record(store, outcome: "skipped", category: settings.activationRequired == true ? "importConfirmationRequired" : (settings.paused ? "paused" : "setupRequired"), traceID: traceID)
             return false
         }
         let message: MailMessage

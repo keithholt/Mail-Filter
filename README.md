@@ -23,7 +23,7 @@ The package installs into Applications for all users. Each user's account select
 ## Set up filtering
 
 1. Open Mail and let your accounts finish syncing.
-2. Open **Mail-Filter** and click **Read Mail Accounts**. Allow it to control Mail if macOS asks. This reads account names and addresses, not messages.
+2. Open **Mail-Filter** and click **Read Mail Accounts**. Allow it to control Mail if macOS asks. This reads account names and addresses, not messages. Alternatively, choose **Enter Addresses…** and enter every account you own, including accounts you will not filter. Use one line per account and separate aliases with commas.
 3. Select the accounts you want filtered and click **Save Settings**. An account such as **example.org** is only an example; select your own accounts in the app.
 4. Leave **Preview** off to move verified political messages to Junk. Turn it on and save to test classifications while leaving messages in place.
 5. In Mail, open **Settings**, then **Extensions**, and check **Mail-Filter**. Restart Mail if the extension is missing after installation or an update.
@@ -31,7 +31,7 @@ The package installs into Applications for all users. Each user's account select
 
 Mail must remain running and your Mac must be awake to process incoming messages. The Mail-Filter settings app can quit; its window does not need to stay open. The extension analyzes new arrivals rather than scanning messages already in your Inbox. Keeping the Mac awake does not require keeping the display on.
 
-If account discovery is denied, open **System Settings**, then **Privacy & Security**, then **Automation**, and allow Mail-Filter to control Mail. The app also shows whether Apple's model is available.
+If account discovery is denied, you can use **Enter Addresses…**, or open **System Settings**, then **Privacy & Security**, then **Automation**, and allow Mail-Filter to control Mail. The app also shows whether Apple's model is available.
 
 ## Change settings and check activity
 
@@ -49,9 +49,11 @@ On **Activity**, check **Incoming callbacks**, the last callback time, and the s
 
 For a read-only test, select exactly one email in Mail, open Mail-Filter's **Activity** page, and click **Analyze selected email** in the **Selected email analysis** panel. It uses the same MIME body extractor and model interface as incoming filtering. It connects the original automatic processing history to the current decision, reason and verified evidence without moving the message or changing its recovery protection. Negative results and failures also show the extracted body excerpt so missing content can be identified. **Copy analysis result** copies this selected-email result, which can contain email content.
 
+You can also choose **Open Email File…** to analyze a saved `.eml` file without Mail automation. This never moves a message. Recipient matching may be incomplete for aliases or Bcc; it is shown only as a diagnostic. **Export opened email report…** saves the file's private source and analysis separately from the application support report.
+
 To report a problematic email, select it in Mail and click **Export selected email report…**. Save the JSON file and attach it to the support conversation. No analysis run is required first. It includes that one email’s full source, extracted body, current policy, diagnostic key, retained automatic history and any matching read-only result. This export contains email content; ordinary application reports do not. It does not move the email or include your account inventory. Activity retains up to 500 recent events; older history may no longer be available.
 
-The separate **Application diagnostics** panel has **Copy diagnostic report** for overall app status, processing stages and recent extension logs. This report excludes selected-email analysis, subjects, addresses and bodies. Collection runs in the background for up to 10 seconds; **Copy displayed report** copies the displayed status/history even if log access fails. Its opaque keys connect stages for the same message.
+The separate **Application diagnostics** panel has **Copy diagnostic report** for overall app status and private processing history. This report excludes selected-email analysis, subjects, addresses and bodies. Collection runs in the background; **Copy displayed report** copies the displayed status/history and **Save Report…** saves it to a location you choose. Its opaque keys connect stages for the same message. Supplemental history uses at most three 1 MiB files and reports events within seven days. The direct developer build may additionally collect recent extension logs, with a ten-second limit.
 
 Classification uses Apple's supported permissive **string-response** mode and requests only `political` or `not-political`. The application validates that label and separately verifies source evidence before moving a positive. Guided generation is unsuitable here because Apple applies its default guardrails to it even when permissive transformations are requested. The first **6,000 body characters** remain the input limit. On macOS 26.4 or later, actual token counting includes instructions and email, with room reserved for the label and framework overhead. Oversized excerpts use overlapping sections with opening/footer context. Older systems use smaller sections and estimated counts. A negative requires every section to complete; errors leave mail in place.
 
@@ -65,15 +67,13 @@ Move the message from Junk back to Inbox in Mail. Mail-Filter remembers messages
 
 Mail-Filter does not empty Junk or permanently delete messages. Mail and your provider retain their usual Junk-retention settings. Model errors and unverifiable classifications leave messages in place.
 
-## Upgrade from an earlier setup
+## Move settings between installations
 
-The former **Mail-Filter Probe** testing app is retired and is not needed. Keep any earlier saved settings and protection records until migration is verified.
+Use **Export Setup…** to save your account selections, aliases, custom policy, Preview and ON/OFF preferences, together with restored-message protection. This file contains private account information; keep it secure.
 
-1. Disable **Mail-Filter Probe** in Mail's Extensions settings and restart Mail.
-2. In Mail-Filter, choose **Import Previous Setup...** and select your previous **configuration.json** or **settings.json**. An old configured app bundle can also be imported if you still have one. This imports settings and available restored-message protection.
-3. If the app reports missing protection records and you previously restored incorrectly filtered messages, use **Setup & help**, then **Import Protection File...**, before enabling the new extension.
-4. Read/refresh accounts, confirm your selections and save.
-5. Enable only **Mail-Filter** in Mail's Extensions settings. Verify incoming filtering and restored-message protection before removing the old app or its data.
+In the destination installation, choose **Import Setup…** and select the export. You can also explicitly select an earlier data folder containing both **settings.json** and **junk-protection.json**. Missing or damaged protection prevents that folder import. Source files remain untouched, existing destination protection is retained, and a private destination backup is created.
+
+Review the imported preferences and click **Confirm Imported Setup** before filtering can resume. Confirmation preserves the imported ON/OFF choice. Keep original data and exports until incoming filtering and restored-message protection have been verified. Enable only one filtering extension during a transition.
 
 Reinstalling or updating this app retains compatible account selections, custom rules, Preview, the saved ON/OFF choice, activity and protection records. A new setup defaults **Enable filtering** to ON. An incompatible or damaged settings file produces an error without overwriting it. If a future version changes where settings are stored, import the previous setup before enabling filtering.
 

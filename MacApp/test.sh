@@ -41,6 +41,14 @@ xcrun swiftc -swift-version 5 -parse-as-library -application-extension \
 "$out/protection-checks"
 
 xcrun swiftc -swift-version 5 -parse-as-library -target arm64-apple-macos26.0 \
+    "${shared[@]}" "$root/Sources/MailFilter/MailAutomation.swift" \
+    "$root/Sources/MailFilter/ClassificationRequest.swift" "$root/Sources/MailFilter/PoliticalModel.swift" \
+    "$root/MacApp/Shared/AnalysisDeadline.swift" "$root/MacApp/Shared/ClassificationRetry.swift" \
+    "$root/MacApp/SharedStore.swift" "$root/MacApp/MessageDiagnostics.swift" "$root/MacApp/SelectedEmailReport.swift" "$root/MacApp/AccountInventory.swift" \
+    "$root/MacApp/Tests/StoreReadinessChecks.swift" -framework AppKit -o "$out/store-checks"
+"$out/store-checks"
+
+xcrun swiftc -swift-version 5 -parse-as-library -target arm64-apple-macos26.0 \
     "$root/Sources/MailFilter/Core.swift" "$root/Sources/MailFilter/ClassificationRequest.swift" "$root/Sources/MailFilter/PoliticalModel.swift" \
     "$root/MacApp/Shared/MIMEBodyDecoder.swift" "$root/MacApp/Shared/FilteringConfiguration.swift" "$root/MacApp/Shared/JunkProtection.swift" \
     "$root/MacApp/SharedStore.swift" "$root/MacApp/Tests/ModelRequestChecks.swift" -o "$out/model-request-checks"

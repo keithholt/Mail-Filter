@@ -6,6 +6,58 @@ enum MessageDiagnostics {
     struct Selection {
         let message: MailMessage
         let source: Data
+        var isEmailFile = false
+
+        func selectedAccount(in settings: NativeSettings) -> Bool {
+            if settings.selectedAccountIDs.contains(message.accountID) { return true }
+            guard let configuration = settings.configuration, let headers = try? MIMEBodyDecoder.headers(source) else { return false }
+            let recipients = ["to", "cc", "delivered-to", "x-original-to"].compactMap { headers[$0] }.joined(separator: ",")
+            let addresses = (try? NSRegularExpression(pattern: "[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9.-]+"))?.matches(in: recipients, range: NSRange(recipients.startIndex..., in: recipients)) ?? []
+            let found = Set(addresses.compactMap { Range($0.range, in: recipients).map { normalizedEmailAddress(String(recipients[$0])) } })
+            return !found.isDisjoint(with: configuration.selectedRecipientAddresses.map(normalizedEmailAddress))
+        }
+    }
+
+    static func emailFile(_ url: URL) throws -> Selection {
+        let size = try url.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0
+        guard size > 0, size <= 2 * 1_024 * 1_024 else { throw ToolError("Choose an email source file no larger than 2 MiB.") }
+        let source = try Data(contentsOf: url)
+        let headers = try MIMEBodyDecoder.headers(source)
+        let message = MailMessage(accountID: "email-file", account: "Opened email file", id: 0,
+            messageID: headers["message-id"] ?? "", subject: try decodedHeader(headers["subject"] ?? ""),
+            sender: try decodedHeader(headers["from"] ?? ""), body: "", truncated: false)
+        return Selection(message: message, source: source, isEmailFile: true)
+    }
+
+    private static func decodedHeader(_ value: String) throws -> String {
+        let expression = try NSRegularExpression(pattern: "=\\?([^?]+)\\?([bBqQ])\\?([^?]*)\\?=")
+        var result = value
+        for match in expression.matches(in: value, range: NSRange(value.startIndex..., in: value)).reversed() {
+            let parts = (0...3).map { String(value[Range(match.range(at: $0), in: value)!]) }
+            let data: Data
+            if parts[2].lowercased() == "b", let decoded = Data(base64Encoded: parts[3]) { data = decoded }
+            else if parts[2].lowercased() == "q" {
+                let input = Array(parts[3].replacingOccurrences(of: "_", with: " ").utf8)
+                var bytes: [UInt8] = []; var index = 0
+                while index < input.count {
+                    if input[index] == 61 {
+                        guard index + 2 < input.count, let byte = UInt8(String(decoding: input[(index + 1)...(index + 2)], as: UTF8.self), radix: 16) else { throw MIMEBodyError.malformedHeaders }
+                        bytes.append(byte); index += 3
+                    } else { bytes.append(input[index]); index += 1 }
+                }
+                data = Data(bytes)
+            } else { throw MIMEBodyError.malformedHeaders }
+            let encoding: String.Encoding
+            switch parts[1].lowercased() {
+            case "utf-8", "utf8", "us-ascii": encoding = .utf8
+            case "iso-8859-1": encoding = .isoLatin1
+            case "windows-1252": encoding = .windowsCP1252
+            default: throw MIMEBodyError.unsupportedCharset
+            }
+            guard let text = String(data: data, encoding: encoding), let range = Range(match.range, in: result) else { throw MIMEBodyError.malformedHeaders }
+            result.replaceSubrange(range, with: text)
+        }
+        return result
     }
 
     static func automaticHistory(messageID: String, activity: NativeActivityLog) -> String {
@@ -45,6 +97,7 @@ enum MessageDiagnostics {
 
     @MainActor
     static func selectedMessage() throws -> Selection {
+        try MailAccess.requirePermission()
         let row = try MailAutomation.script(selectedMessageScript)
         guard row.numberOfItems == 6, let accountID = row.atIndex(1)?.stringValue,
               let numericID = row.atIndex(2)?.stringValue, let id = Int(numericID) else {
@@ -64,7 +117,7 @@ enum MessageDiagnostics {
         let trace = (try? JunkIdentity.key(message.messageID)).map { String($0.prefix(12)) } ?? "unavailable"
         let prefix = "Read-only test: no messages were moved.\nDiagnostic message key: \(trace)\nSubject: \(message.subject)\n"
             + automaticHistory(messageID: message.messageID, activity: activity)
-        guard settings.selectedAccountIDs.contains(message.accountID) else {
+        guard selection.isEmailFile || selection.selectedAccount(in: settings) else {
             return prefix + "This message belongs to an account that is not selected for filtering."
         }
         if message.isFromSelf { return prefix + message.automaticKeepReason! }
@@ -78,7 +131,7 @@ enum MessageDiagnostics {
             return prefix + "Body extraction failed: \((error as? MIMEBodyError)?.rawValue ?? "bodyDecoder"). Model was not invoked."
         }
         if let reason = message.automaticKeepReason { return prefix + reason }
-        guard message.canMove else { return prefix + "Message identity or headers do not meet the filter's processing requirements." }
+        guard message.canMove || (selection.isEmailFile && message.subject.count <= 500 && message.sender.count <= 500) else { return prefix + "Message identity or headers do not meet the filter's processing requirements." }
         let model = SystemLanguageModel(guardrails: .permissiveContentTransformations)
         guard case .available = model.availability else { return prefix + "Apple's on-device model is unavailable." }
         message.ownAddresses = nil
@@ -98,7 +151,8 @@ enum MessageDiagnostics {
         }
         let result = response.classification
         let decision = result.decision == .political ? "political" : "not-political"
-        var text = prefix + "Model decision: \(decision)\nReason: \(result.reason)\nMIME excerpt: \(message.body.count) characters; model sections: \(response.sections)"
+        var text = prefix + (selection.isEmailFile ? "Email file analysis only. Account matching uses visible recipient headers and may be incomplete for aliases or Bcc. Selected recipient matched: \(selection.selectedAccount(in: settings)).\n" : "")
+            + "Model decision: \(decision)\nReason: \(result.reason)\nMIME excerpt: \(message.body.count) characters; model sections: \(response.sections)"
         do {
             let evidence = try validatePoliticalEvidence(result, message: message, terms: configuration.evidenceTerms)
             if let evidence { text += "\nVerified political evidence: \(evidence)" }

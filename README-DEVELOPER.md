@@ -4,6 +4,8 @@ The native settings app and MailKit extension are the user-facing product. The S
 
 For a source-code introduction, start with the [developer getting-started guide](docs/dev/getting-started.md) and [architecture and source map](docs/dev/architecture.md). Both have generated Word copies in `docs/dev/`; see the [documentation workflow](docs/README.md). This file retains the detailed CLI reference and engineering notes. These additional guides are in the source checkout, rather than the installed DeveloperTools folder.
 
+The [App Store deployment plan](docs/app-store-deployment-plan.md) records feasibility results, developer membership requirements, build configurations, logging and the remaining signing/desktop/review gates. Its isolated checks are documented in [MacApp/Feasibility](MacApp/Feasibility/README.md); they do not change the installed filtering app.
+
 ## Native app development
 
 Full Xcode with first-launch setup completed, macOS 26+, Apple silicon and Python 3 are required. Build and verify from the checkout:
@@ -257,7 +259,7 @@ This requests an immediate background run in the installed agent’s saved mode 
 
 The timer-based implementation is preserved as tag `v1.0.0`. The compatibility Probe app, its extension and its setup/build scripts have been retired. The current app and CLI build without that project. MIME extraction, filtering policy, callback admission, generation deadlines and recovery helpers are maintained under `MacApp/Shared/`; their checks are under `MacApp/Tests/`.
 
-Earlier private configuration snapshots and restored-message protection remain usable through **Import Previous Setup...** and **Import Protection File...** in the app. The usual earlier snapshot is `.build/mailkit-prototype/configuration.json`; its protection file is under `~/Library/Containers/org.mail-filter.prototype.extension/Data/Library/Application Support/Mail-Filter/junk-protection.json`. These are private data, not source or distribution inputs. Preserve them until migration is verified and never publish a configured older app bundle.
+Use **Export Setup…** and **Import Setup…** to move complete native settings and recovery protection. Import also accepts an explicitly selected data folder containing both `settings.json` and `junk-protection.json`. **Import Protection File…** merges a separately chosen native recovery file. Policy-only experimental snapshots require engineering conversion; the app no longer guesses sibling or retired-container paths. Preserve older private data until migration is verified, and never publish configured bundles or exports.
 
 ## Incoming-message diagnostics
 
@@ -307,3 +309,17 @@ Build 12 corrects the build-11 regression: Apple's `permissiveContentTransformat
 `MacApp/probe-model.sh --verify-supported-path` tests the supported string interface against Desktop exports plus synthetic receipt and campaign controls. It saves `Mail-Filter Supported Path.json` and makes no Mail or settings changes. These real model results must be checked before claiming a model behavior fix. The older guided experiments remain developer comparisons, not the production interface.
 
 The controlled Terminal comparison for build 12 classified an exported Second Amendment solicitation as political with verifiable source evidence, kept a synthetic receipt not political, and classified a synthetic campaign appeal as political. Hostname-only link cleanup did not change those results. Guided decision-only requests refused all three, while the minimal guided topic tagger refused both political inputs. This verifies the string interface on these examples, not the accuracy of every incoming message or Mail delivery. No mail was moved during the comparison.
+
+## Store preparation
+
+Open the `.xcodeproj` file explicitly. Opening the repository folder loads the CLI's Swift package, which has its own scheme list. Xcode's automatic **MailFilterExtension** scheme is a component development/debugging entry point that requires development signing and a configured team. Both the app scheme and the Local Installer scheme include the extension automatically.
+
+In the native project's navigator, expand **Repository** to browse source, tests, scripts, prompts and documentation in their normal folders. **Build Configuration** holds the configuration shortcuts. Regenerate after adding files; navigation comes from Git's public file inventory, while target membership remains in the generator's explicit compile lists.
+
+To compile inside Xcode before developer signing is available, open `MacApp/Store/Mail-Filter.xcodeproj`, select **Mail-Filter Build Check > My Mac**, and press Command-B. This unsigned scheme builds the shared app and embedded extension with isolated development identifiers and has no runnable. It does not qualify sandbox permissions or App Group access. The separate **Mail-Filter** scheme uses signed Development for Run and Store for Archive. Keep your team in the ignored `MacApp/Store/Signing.local.xcconfig` file using the supplied example, rather than modifying generated project settings. See `MacApp/Store/README.md` for the full Xcode workflow.
+
+To create the direct local installer inside Xcode, select **Mail-Filter Local Installer** and press Command-B. The helper target runs `MacApp/package.sh local`, including Word documentation generation, the app/extension/CLI/uninstaller build and package checks. It writes `outputs/Mail-Filter Installer.pkg` and maintains the Desktop shortcut. It does not open or install the package. Use the Build Check scheme for compilation without packaging.
+
+`./MacApp/store-build.sh check` compiles the Store configuration into an unsigned archive with isolated development identities and verifies its payload. It preserves the standalone CLI and direct installer workflow. Signed development and Store distribution use separate identifiers and App Groups; the Store payload excludes engineering tools and the uninstaller. See `MacApp/Store/README.md` for commands after developer enrollment, `docs/app-store-deployment-plan.md` for qualification gates, and `docs/store-review-preparation.md` for publisher/review drafts.
+
+Build 14 adds manual address groups, opened-email analysis, complete private setup archives and bounded supplemental JSON-lines history. Imported setups preserve pause/preview, account inventory and aliases, merge recovery digests and require explicit confirmation before filtering. Settings saves no longer read CLI state implicitly. Activity remains bounded to 500 events; supplemental history uses at most three 1 MiB files and a seven-day export window. The Store compilation excludes the unified-log subprocess collector. No source change or build installs a new extension or changes the working filter's settings.

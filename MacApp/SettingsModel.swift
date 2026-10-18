@@ -27,6 +27,12 @@ final class SettingsModel: ObservableObject {
     @Published var diagnosticMessage: String?
     @Published var diagnosticReport: String?
     @Published var collectingDiagnostics = false
+    @Published var manualAddresses = ""
+    @Published var editingAddresses = false
+    @Published var activationRequired = false
+    @Published var openedEmailName: String?
+    private var openedEmail: MessageDiagnostics.Selection?
+    var storeDistribution: Bool { Bundle.main.object(forInfoDictionaryKey: "MailFilterDistribution") as? String == "app-store" }
     private var store: SharedStore?
     private var loaded = NativeSettings()
     private var analyzedMessageID: String?
@@ -54,6 +60,7 @@ final class SettingsModel: ObservableObject {
         accounts = loaded.inventory
         selection = Set(loaded.selectedAccountIDs)
         paused = loaded.paused
+        activationRequired = loaded.activationRequired == true
         saved = loaded.configuration != nil
         if let configuration = loaded.configuration {
             rules = configuration.rules
@@ -77,6 +84,7 @@ final class SettingsModel: ObservableObject {
             if store == nil { store = try SharedStore.production() }
             activity = try store!.activity()
             paused = try store!.settings().paused
+            activationRequired = try store!.settings().activationRequired == true
         } catch { self.error = error.localizedDescription }
     }
 
@@ -84,30 +92,48 @@ final class SettingsModel: ObservableObject {
         busy = true; error = nil
         defer { busy = false }
         do {
-            accounts = try AccountInventory.read()
-            let valid = Set(accounts.map(\.id))
-            selection.formIntersection(valid)
-            if selection.isEmpty, let configuration = loaded.configuration {
-                let addresses = Set(configuration.selectedRecipientAddresses)
-                selection = Set(accounts.filter { !$0.addresses.map(normalizedEmailAddress).filter(addresses.contains).isEmpty }.map(\.id))
-            }
+            let selectedAddresses = accounts.isEmpty ? Set(loaded.configuration?.selectedRecipientAddresses ?? [])
+                : Set(accounts.filter { selection.contains($0.id) }.flatMap(\.addresses).map(normalizedEmailAddress))
+            let protectedAddresses = Set((loaded.configuration?.ownAddresses ?? []) + accounts.flatMap(\.addresses).map(normalizedEmailAddress))
+            let discovered = try AccountInventory.read()
+            let missing = protectedAddresses.subtracting(discovered.flatMap(\.addresses).map(normalizedEmailAddress)).sorted()
+            accounts = discovered + (missing.isEmpty ? [] : try NativeAccount.manualGroups(missing.joined(separator: "\n")))
+            selection = Set(accounts.filter { !selectedAddresses.isDisjoint(with: $0.addresses.map(normalizedEmailAddress)) }.map(\.id))
             message = "Mail accounts loaded. Choose the accounts to filter, then Save Settings. Messages were not read."
         } catch {
-            self.error = "Couldn't read Mail accounts. Open Mail and allow Mail-Filter under System Settings → Privacy & Security → Automation, then try again."
+            self.error = "Couldn't read Mail accounts. Open Mail and check Automation permission in System Settings, or use Enter Addresses to configure accounts manually."
         }
+    }
+
+    func beginManualAddresses() {
+        manualAddresses = accounts.map { $0.addresses.joined(separator: ", ") }.joined(separator: "\n")
+        editingAddresses = true
+    }
+
+    func useManualAddresses() {
+        do {
+            let previousSelected = Set(accounts.filter { selection.contains($0.id) }.flatMap(\.addresses).map(normalizedEmailAddress))
+            accounts = try NativeAccount.manualGroups(manualAddresses)
+            selection = Set(accounts.filter { !previousSelected.isDisjoint(with: $0.addresses) }.map(\.id))
+            editingAddresses = false; error = nil
+            message = "Address groups loaded. Include all your accounts and aliases, including those you leave unchecked. Choose groups to filter and save."
+        } catch { self.error = "Enter one account per line, with aliases separated by commas. Use complete, unique email addresses." }
     }
 
     func save() {
         error = nil
         do {
             guard let store else { throw NativeStoreError.unavailable }
-            let cli = try FilteringConfiguration.cliProtection(FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".local/state/mail-filter/processed.json"))
-            let inherited = Array(Set(cli + (loaded.configuration?.protectedCLIIdentities ?? []))).sorted()
+            let inherited = loaded.configuration?.protectedCLIIdentities ?? []
             // Select by stable IDs, so identically named accounts remain distinct.
             let inventory = accounts.map { FilteringAccount(id: $0.id, name: $0.id, addresses: $0.addresses) }
-            let configuration = try FilteringConfiguration.make(selectedNames: selection.sorted(), inventory: inventory, rules: rules,
+            let made = try FilteringConfiguration.make(selectedNames: selection.sorted(), inventory: inventory, rules: rules,
                 evidenceTerms: politicalEvidenceTerms(evidenceText), mode: preview ? "dry-run" : "apply", protectedCLIIdentities: inherited)
             let current = try store.settings()
+            let configuration = FilteringConfiguration(schemaVersion: 2, mode: made.mode, selectedRecipientAddresses: made.selectedRecipientAddresses,
+                ownAddresses: made.ownAddresses, rules: made.rules, evidenceTerms: made.evidenceTerms,
+                legacyAccountIDs: Array(Set(made.legacyAccountIDs + (current.configuration?.legacyAccountIDs ?? []))).sorted(),
+                protectedCLIIdentities: Array(Set(made.protectedCLIIdentities + (current.configuration?.protectedCLIIdentities ?? []))).sorted())
             var settings = current
             settings.revision = UUID().uuidString
             settings.configuration = configuration
@@ -139,6 +165,23 @@ final class SettingsModel: ObservableObject {
     }
 
     func analyzeSelectedMessage() {
+        openedEmail = nil; openedEmailName = nil
+        analyzeMessage(nil)
+    }
+
+    func analyzeEmailFile() {
+        let panel = NSOpenPanel()
+        panel.title = "Open email source for read-only analysis"
+        panel.allowedContentTypes = [UTType(filenameExtension: "eml") ?? .data]
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        do {
+            let selection = try withFileAccess(url) { try MessageDiagnostics.emailFile(url) }
+            openedEmail = selection; openedEmailName = url.lastPathComponent
+            analyzeMessage(selection)
+        } catch { selectedAnalysis = "Couldn't read this email file: \(error.localizedDescription)" }
+    }
+
+    private func analyzeMessage(_ supplied: MessageDiagnostics.Selection?) {
         guard !analyzingSelectedMessage else { return }
         selectedAnalysis = nil; analyzedMessageID = nil; analysisCopyMessage = nil; analyzingSelectedMessage = true
         Task { @MainActor in
@@ -148,7 +191,7 @@ final class SettingsModel: ObservableObject {
                 guard let store else { throw NativeStoreError.unavailable }
                 let settings = try store.settings()
                 stage = "reading the selected email from Mail"
-                let message = try MessageDiagnostics.selectedMessage()
+                let message = try supplied ?? MessageDiagnostics.selectedMessage()
                 stage = "classifying the selected email"
                 selectedAnalysis = try await MessageDiagnostics.analyze(message, settings: settings, activity: store.activity())
                 analyzedMessageID = message.message.messageID
@@ -171,12 +214,30 @@ final class SettingsModel: ObservableObject {
             modelStatus: modelStatus, settings: try? store?.settings(), activity: activity)
         // Show the saved activity immediately. Log collection never blocks UI or
         // prevents the user from selecting and copying the report manually.
-        diagnosticReport = report + "\nCollecting extension logs…\n"
-        diagnosticMessage = "The report is shown below. Collecting extension logs (up to 10 seconds)…"
+        diagnosticReport = report
+        diagnosticMessage = "Collecting private processing history…"
         collectingDiagnostics = true
+        let directory = store?.directory
         Task { @MainActor in
-            let logs = await DiagnosticLogCollector.collect()
-            diagnosticReport = report + logs.reportSection
+            let events = await Task.detached(priority: .utility) { () -> [NativeActivity]? in
+                directory.flatMap { try? SharedStore(directory: $0).diagnosticEvents() }
+            }.value
+            let formatter = ISO8601DateFormatter()
+            let records = (events ?? []).suffix(200).map { event in
+                var line = "\(formatter.string(from: event.date)) \(event.outcome) \(event.category) key=\(event.traceID ?? "unavailable") attempt=\(event.attempt ?? 0)"
+                if let build = event.build { line += " build=\(build)" }
+                if let channel = event.channel { line += " channel=\(channel)" }
+                if let domain = event.failureDomain, let code = event.failureCode { line += " error=\(domain):\(code)" }
+                return line
+            }.joined(separator: "\n")
+            let emptyHistory = events == nil ? "Private file history unavailable; saved activity above is still usable.\n" : "No additional records available.\n"
+            diagnosticReport = report + "\nPrivate processing history (up to 7 days):\n" + (records.isEmpty ? emptyHistory : records + "\n")
+            #if !APP_STORE
+            if !storeDistribution {
+                let logs = await DiagnosticLogCollector.collect()
+                diagnosticReport = (diagnosticReport ?? report) + logs.reportSection
+            }
+            #endif
             collectingDiagnostics = false
             copyDisplayedDiagnostics()
         }
@@ -191,13 +252,21 @@ final class SettingsModel: ObservableObject {
     }
 
     func exportSelectedEmailReport() {
+        exportEmailReport(openedFile: false)
+    }
+
+    func exportOpenedEmailReport() { exportEmailReport(openedFile: true) }
+
+    private func exportEmailReport(openedFile: Bool) {
         guard !exportingSelectedMessage && !analyzingSelectedMessage else { return }
         exportingSelectedMessage = true
         Task { @MainActor in
             defer { exportingSelectedMessage = false }
             do {
                 guard let store else { throw NativeStoreError.unavailable }
-                let selection = try MessageDiagnostics.selectedMessage()
+                let selection: MessageDiagnostics.Selection
+                if openedFile, let openedEmail { selection = openedEmail }
+                else { selection = try MessageDiagnostics.selectedMessage() }
                 let settings = try store.settings()
                 let extensionURL = Bundle.main.builtInPlugInsURL?.appendingPathComponent("Mail-Filter.appex")
                 let report = SelectedEmailReport(selection: selection, settings: settings, activity: try store.activity(),
@@ -215,7 +284,7 @@ final class SettingsModel: ObservableObject {
                     panel.begin { continuation.resume(returning: $0) }
                 }
                 guard response == .OK, let url = panel.url else { return }
-                try report.write(to: url)
+                try withFileAccess(url) { try report.write(to: url) }
                 analysisCopyMessage = "Email report exported to \(url.lastPathComponent). Attach that file when reporting this email."
             } catch { analysisCopyMessage = "Couldn't export the selected email: \(error.localizedDescription)" }
         }
@@ -233,43 +302,68 @@ final class SettingsModel: ObservableObject {
     func importPrototype() {
         let panel = NSOpenPanel()
         panel.title = "Import previous Mail-Filter setup"
-        panel.message = "Choose configuration.json, settings.json, or an older configured app bundle. Keep previous data until protection is imported."
-        panel.allowedContentTypes = [.applicationBundle, .json]
-        panel.canChooseDirectories = false
-        if let oldApp = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "org.mail-filter.prototype") {
-            panel.directoryURL = oldApp.deletingLastPathComponent()
-        }
+        panel.message = "Choose a Mail-Filter setup export, or a previous data folder containing settings.json and junk-protection.json. The import preserves preferences and waits for your confirmation before filtering."
+        panel.allowedContentTypes = [.json, .folder]
+        panel.canChooseDirectories = true
         guard panel.runModal() == .OK, let selected = panel.url else { return }
         do {
             guard let store else { throw NativeStoreError.unavailable }
-            let source = selected.pathExtension == "app"
-                ? selected.appendingPathComponent("Contents/PlugIns/Mail-Filter Probe.appex/Contents/Resources/configuration.json") : selected
-            let configuration: FilteringConfiguration
-            let oldProtection: URL
-            if source.lastPathComponent == "settings.json" {
-                let size = try source.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0
-                guard size > 0, size <= 1_024 * 1_024 else { throw NativeStoreError.invalidSettings }
-                let previous = try JSONDecoder().decode(NativeSettings.self, from: Data(contentsOf: source))
-                try previous.validate()
-                guard let previousConfiguration = previous.configuration else { throw NativeStoreError.invalidSettings }
-                configuration = previousConfiguration
-                oldProtection = source.deletingLastPathComponent().appendingPathComponent("junk-protection.json")
-            } else {
-                configuration = try FilteringConfiguration.load(source)
-                oldProtection = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Containers/org.mail-filter.prototype.extension/Data/Library/Application Support/Mail-Filter/junk-protection.json")
+            let archive = try withFileAccess(selected) {
+                if try selected.resourceValues(forKeys: [.isDirectoryKey]).isDirectory == true {
+                    // Directory selection authorizes both siblings. Never silently
+                    // omit protection because the sandbox can't see it.
+                    return try SetupArchive.readLegacyFolder(selected)
+                }
+                return try SetupArchive.read(from: selected)
             }
-            let protectionFile: URL?
-            do { _ = try oldProtection.resourceValues(forKeys: [.fileSizeKey]); protectionFile = oldProtection }
-            catch let error as NSError where error.domain == NSCocoaErrorDomain && error.code == NSFileReadNoSuchFileError { protectionFile = nil }
-            let settings = try store.importSetup(configuration: configuration, protectionFile: protectionFile)
+            let settings = try store.importSetup(archive)
             loaded = settings; applyLoadedSettings()
-            message = protectionFile != nil
-                ? "Previous setup and protection records imported. Enable Mail-Filter in Mail's Extensions settings and leave any earlier filtering extension disabled."
-                : "Setup imported; no protection file was found at the usual location. Import Protection File in Setup & help if you previously restored messages. Keep old data until migration is verified."
+            message = "Setup and protection imported. Review the preferences, then Confirm Imported Setup. The previous destination setup was backed up privately."
             error = nil
         } catch {
-            self.error = "Import failed. Keep the probe and its data. Check access to its configuration and protection file before migrating."
+            self.error = "Import failed. Choose a complete setup export or a data folder with settings and protection. Your active setup was preserved."
         }
+    }
+
+    func confirmImportedSetup() {
+        do {
+            try store?.confirmImportedSetup()
+            loaded = try store!.settings(); applyLoadedSettings()
+            message = paused ? "Imported setup confirmed. Filtering remains off as previously configured." : "Imported setup confirmed. Filtering can resume when the Mail extension is enabled."
+        } catch { self.error = error.localizedDescription }
+    }
+
+    func exportSetup() {
+        do {
+            guard let store else { throw NativeStoreError.unavailable }
+            let archive = try store.exportSetup()
+            let panel = NSSavePanel()
+            panel.title = "Export setup and restored-message protection"
+            panel.message = "This private file includes your account addresses, filtering instructions and recovery records. Keep it secure."
+            panel.allowedContentTypes = [.json]; panel.nameFieldStringValue = "Mail-Filter Setup.json"
+            guard panel.runModal() == .OK, let url = panel.url else { return }
+            try withFileAccess(url) { try archive.write(to: url) }
+            message = "Setup and recovery protection exported."
+        } catch { self.error = error.localizedDescription }
+    }
+
+    func exportDiagnostics() {
+        guard let diagnosticReport else { return }
+        let panel = NSSavePanel()
+        panel.allowedContentTypes = [.plainText]; panel.nameFieldStringValue = "Mail-Filter Support.txt"
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        do {
+            try withFileAccess(url) {
+                try diagnosticReport.write(to: url, atomically: true, encoding: .utf8)
+                try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
+            }
+        } catch { self.error = error.localizedDescription }
+    }
+
+    private func withFileAccess<T>(_ url: URL, operation: () throws -> T) rethrows -> T {
+        let granted = url.startAccessingSecurityScopedResource()
+        defer { if granted { url.stopAccessingSecurityScopedResource() } }
+        return try operation()
     }
 
     func importProtectionFile() {
@@ -279,9 +373,9 @@ final class SettingsModel: ObservableObject {
         guard panel.runModal() == .OK, let source = panel.url else { return }
         do {
             guard let store else { throw NativeStoreError.unavailable }
-            try store.importProtection(from: source)
+            try withFileAccess(source) { try store.importProtection(from: source) }
             error = nil; message = "Protection records merged. Existing protection was preserved."
-        } catch { self.error = "Protection couldn't be imported. The file must be a valid junk-protection.json from the probe or this app." }
+        } catch { self.error = "Protection couldn't be imported. Choose a valid junk-protection.json file from an earlier installation." }
     }
 
     func openMail() { NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Applications/Mail.app")) }

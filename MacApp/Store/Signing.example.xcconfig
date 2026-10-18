@@ -1,0 +1,4 @@
+// Copy this file to Signing.local.xcconfig in the same directory.
+// Set your actual 10-character paid developer Team ID after access is restored.
+// The local file is ignored by Git; do not edit generated project settings.
+DEVELOPMENT_TEAM =

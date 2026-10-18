@@ -1,0 +1,8 @@
+// Compile the sandboxed app and extension without a developer membership.
+// These unsigned products are for build checks only; the scheme has no runnable.
+#include "Development.xcconfig"
+MAIL_FILTER_DISPLAY_NAME = Mail-Filter Build Check
+CODE_SIGNING_ALLOWED = NO
+CODE_SIGNING_REQUIRED = NO
+CODE_SIGN_IDENTITY =
+DEVELOPMENT_TEAM =

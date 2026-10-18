@@ -13,7 +13,9 @@ struct MailFilterApp: App {
     var body: some Scene {
         WindowGroup("Mail-Filter") { SettingsView(model: model) }.defaultSize(width: 900, height: 750)
             .commands {
-                CommandGroup(after: .appInfo) { Button("Uninstall Mail-Filter…", action: model.openUninstaller) }
+                CommandGroup(after: .appInfo) {
+                    if !model.storeDistribution { Button("Uninstall Mail-Filter…", action: model.openUninstaller) }
+                }
             }
     }
 }

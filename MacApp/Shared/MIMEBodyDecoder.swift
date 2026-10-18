@@ -15,6 +15,12 @@ enum MIMEBodyError: String, Error {
 /// A bounded text extractor for on-device mail classification.
 /// It never opens links, loads images, examines attachments, or writes message data.
 enum MIMEBodyDecoder {
+    static func headers(_ data: Data) throws -> [String: String] {
+        guard data.count <= 2 * 1_024 * 1_024 else { throw MIMEBodyError.oversizedMessage }
+        let source = String(String.UnicodeScalarView(data.map { UnicodeScalar($0) })).replacingOccurrences(of: "\r\n", with: "\n")
+        return try splitEntity(source).0
+    }
+
     static func decode(_ data: Data) throws -> DecodedMailBody {
         guard data.count <= 2 * 1_024 * 1_024 else { throw MIMEBodyError.oversizedMessage }
         // A byte-preserving intermediate representation keeps non-UTF-8 parts intact.

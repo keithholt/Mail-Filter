@@ -31,7 +31,7 @@ struct SettingsView: View {
                                 Toggle("Enable filtering", isOn: Binding(get: { !model.paused }, set: model.setFilteringEnabled))
                                     .toggleStyle(.switch).fixedSize()
                                     .help("On enables filtering. Off pauses it immediately. Keep the Mail extension enabled.")
-                                Text(model.paused ? "Filtering is off." : "Filtering is on.")
+                                Text(model.activationRequired ? "Confirm imported setup to continue." : (model.paused ? "Filtering is off." : "Filtering is on."))
                                     .font(.caption).foregroundStyle(.secondary)
                             }
                         }
@@ -78,10 +78,20 @@ struct SettingsView: View {
                 HStack {
                     Text("Accounts to filter").font(.headline)
                     Spacer()
+                    Button("Enter Addresses…", action: model.beginManualAddresses)
                     Button(model.accounts.isEmpty ? "Read Mail Accounts" : "Refresh Accounts", action: model.readAccounts).disabled(model.busy)
                 }
+                if model.editingAddresses {
+                    Text("Enter every account you own, including accounts you will not filter. Use one line per account and separate aliases with commas.")
+                        .font(.callout)
+                    TextEditor(text: $model.manualAddresses).font(.system(.body, design: .monospaced)).frame(height: 120)
+                    HStack {
+                        Button("Use These Addresses", action: model.useManualAddresses)
+                        Button("Cancel") { model.editingAddresses = false }
+                    }
+                }
                 if model.accounts.isEmpty {
-                    Text("Read your account settings from Mail, then select which inboxes to filter. Mail-Filter does not read messages during setup.")
+                    Text("Read your account settings from Mail or enter your addresses manually, then select which inboxes to filter. Mail-Filter does not read messages during setup.")
                         .font(.callout).foregroundStyle(.secondary).padding(.vertical, 8)
                 } else {
                     ForEach(model.accounts) { account in
@@ -118,7 +128,13 @@ struct SettingsView: View {
             HStack {
                 Button("Save Settings", action: model.save).buttonStyle(.borderedProminent).disabled(model.accounts.isEmpty || model.selection.isEmpty)
                 Spacer()
-                Button("Import Previous Setup…", action: model.importPrototype)
+                Button("Export Setup…", action: model.exportSetup).disabled(!model.saved)
+                Button("Import Setup…", action: model.importPrototype)
+            }
+            if model.activationRequired {
+                Text("Imported settings are waiting for confirmation. No messages will be moved until you confirm, even if Enable filtering is on.")
+                    .font(.callout).foregroundStyle(.orange)
+                Button("Confirm Imported Setup", action: model.confirmImportedSetup).buttonStyle(.borderedProminent)
             }
             Text(model.message).font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             if !model.saved {
@@ -153,13 +169,20 @@ struct SettingsView: View {
             GroupBox("Selected email analysis") {
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
+                        Button("Open Email File…", action: model.analyzeEmailFile)
+                            .disabled(model.analyzingSelectedMessage || model.exportingSelectedMessage)
                         Button(model.analyzingSelectedMessage ? "Analyzing selected email…" : "Analyze selected email", action: model.analyzeSelectedMessage)
                             .disabled(model.analyzingSelectedMessage || model.exportingSelectedMessage)
-                        Button(model.exportingSelectedMessage ? "Exporting…" : "Export selected email report…", action: model.exportSelectedEmailReport)
-                            .disabled(model.exportingSelectedMessage || model.analyzingSelectedMessage)
                     }
+                    Button(model.exportingSelectedMessage ? "Exporting…" : "Export selected email report…", action: model.exportSelectedEmailReport)
+                        .disabled(model.exportingSelectedMessage || model.analyzingSelectedMessage)
                     Text("Select one message in Mail, then analyze it here. No messages are moved. Results may include quotes or the analyzed body excerpt.")
                         .font(.caption).foregroundStyle(.secondary)
+                    if let name = model.openedEmailName {
+                        Text("Opened file: \(name). This analysis does not access or move mail.").font(.caption)
+                        Button("Export opened email report…", action: model.exportOpenedEmailReport)
+                            .disabled(model.analyzingSelectedMessage || model.exportingSelectedMessage)
+                    }
                     if let result = model.selectedAnalysis {
                         ScrollView {
                             Text(result).font(.callout).textSelection(.enabled)
@@ -184,6 +207,7 @@ struct SettingsView: View {
                                 Text("Diagnostic report").font(.headline)
                                 Spacer()
                                 Button("Copy displayed report", action: model.copyDisplayedDiagnostics)
+                                Button("Save Report…", action: model.exportDiagnostics)
                             }
                             ScrollView {
                                 Text(report).font(.system(.caption, design: .monospaced)).textSelection(.enabled)
@@ -271,6 +295,7 @@ struct SettingsView: View {
         case "modelRateLimited": return "Apple's model service limited the request."
         case "analysisCancelled": return "Analysis was cancelled."
         case "privateSettings": return "The extension couldn't access filtering settings."
+        case "importConfirmationRequired": return "Confirm the imported setup in the Filtering pane before filtering resumes."
         case "bodyReady": return "Mail supplied the message body."
         case "bodyRequested": return "Waiting for Mail to supply the body."
         case "waitingForAnalysis": return "A previous message is still being analyzed."
@@ -288,16 +313,23 @@ struct SettingsView: View {
 
     private var help: some View {
         VStack(alignment: .leading, spacing: 18) {
-            helpItem("1. Choose accounts and save", "Read Mail accounts on the Filtering page. Allow access to Mail account settings when macOS asks. Select inboxes and save.")
+            helpItem("1. Choose accounts and save", "Read Mail accounts on the Filtering page, or enter all your addresses manually. Include aliases and accounts you will not filter so mail from you stays protected. Select inboxes and save.")
             helpItem("2. Enable the Mail extension", "Open Mail → Settings → Extensions, then check Mail-Filter.")
             Button("Open Mail", action: model.openMail)
             helpItem("3. Keep Mail running", "Mail-Filter's settings window can be closed, and this app can quit. Incoming mail is handled by the extension while Mail is running and your Mac is awake.")
             helpItem("Pause filtering", "Turn the Enable filtering switch off to leave new messages in place. Turn it on to resume. This switch is saved immediately; it does not require Save Settings. Keep Mail-Filter enabled in Mail's Extensions settings.")
             helpItem("Recover a false positive", "Move it from Junk back to Inbox. Its saved identity prevents another Junk move, including after restarts and settings changes. Junk moves already requested cannot be recalled by turning filtering off.")
-            helpItem("Update or uninstall", "Install a newer version over this one. Settings and restored-message protection are kept outside the app. Use Uninstall Mail-Filter to remove the app, with an option to erase its private data.")
+            helpItem("Update or uninstall", model.storeDistribution
+                ? "Install updates through the App Store. Remove the app using Finder. Private settings and restored-message protection are stored separately from the app."
+                : "Install a newer version over this one. Settings and restored-message protection are kept outside the app. Use Uninstall Mail-Filter to remove the app, with an option to erase its private data.")
+            helpItem("Move your setup", "Export Setup includes account selections, filtering instructions, preview and pause preferences, and restored-message protection. Import it in the new installation, review the settings, then confirm. Keep the private export and original data until the transition is verified.")
+            DisclosureGroup("Privacy") {
+                Text("Mail-Filter processes email on this Mac using Apple's on-device model. It does not upload email or include analytics. Private activity contains opaque message keys and processing categories, and file history is bounded to three 1 MiB files with a seven-day reporting window. Setup exports contain addresses and recovery records. Email reports contain full message source and filtering instructions; create and share them only when you choose. Removing the app does not erase private data automatically.")
+                    .font(.callout).textSelection(.enabled)
+            }
             HStack {
                 Button("Import Protection File…", action: model.importProtectionFile)
-                Button("Open Uninstaller…", action: model.openUninstaller)
+                if !model.storeDistribution { Button("Open Uninstaller…", action: model.openUninstaller) }
             }
             Link("Mail extension help from Apple", destination: URL(string: "https://support.apple.com/guide/mail/use-mail-extensions-mlhla9a93cd5/mac")!)
                 .font(.callout)

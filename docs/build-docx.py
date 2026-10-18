@@ -27,6 +27,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 # (markdown source, Word output) pairs — a bare run rebuilds all of these.
 DOCS = [
+    (os.path.join(HERE, "app-store-deployment-plan.md"), os.path.join(HERE, "app-store-deployment-plan.docx")),
     (os.path.join(HERE, "dev", "architecture.md"), os.path.join(HERE, "dev", "architecture.docx")),
     (os.path.join(HERE, "dev", "getting-started.md"), os.path.join(HERE, "dev", "getting-started.docx")),
 ]

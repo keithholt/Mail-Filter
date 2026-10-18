@@ -18,6 +18,22 @@ struct NativeAccount: Codable, Identifiable, Equatable {
     let id: String
     let name: String
     let addresses: [String]
+
+    /// Each line is one local address group, with aliases separated by commas.
+    /// IDs remain local; they are never presented as Mail account identifiers.
+    static func manualGroups(_ text: String) throws -> [NativeAccount] {
+        var seen = Set<String>()
+        let groups = try text.components(separatedBy: .newlines).filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }.map { line in
+            let addresses = line.split(separator: ",", omittingEmptySubsequences: false).map { normalizedEmailAddress(String($0)) }
+            guard !addresses.isEmpty, addresses.allSatisfy({ address in
+                address.range(of: "^[^@\\s,<>]+@[^@\\s,<>]+\\.[^@\\s,<>]+$", options: .regularExpression) != nil
+                && address.count <= 320 && seen.insert(address).inserted
+            }) else { throw NativeStoreError.invalidSettings }
+            return NativeAccount(id: "manual-" + (try JunkIdentity.hash(addresses.sorted())), name: addresses[0], addresses: addresses)
+        }
+        guard !groups.isEmpty, groups.count <= 1_024, seen.count <= 1_024 else { throw NativeStoreError.invalidSettings }
+        return groups
+    }
 }
 
 struct NativeSettings: Codable {
@@ -27,6 +43,10 @@ struct NativeSettings: Codable {
     var inventory: [NativeAccount] = []
     var selectedAccountIDs: [String] = []
     var configuration: FilteringConfiguration?
+    // Optional additions preserve schema-1 installations. Migration protection
+    // commits atomically with imported settings and is independent of log expiry.
+    var importedProtection: [String]? = nil
+    var activationRequired: Bool? = nil
 
     func validate() throws {
         guard schemaVersion == 1, UUID(uuidString: revision) != nil,
@@ -35,11 +55,69 @@ struct NativeSettings: Codable {
               inventory.allSatisfy({ !$0.id.isEmpty && $0.id.count <= 256 && !$0.name.isEmpty && $0.name.count <= 500 && $0.addresses.count <= 1_024 }),
               inventory.flatMap(\.addresses).allSatisfy({ $0.count <= 320 }),
               Set(selectedAccountIDs).isSubset(of: Set(inventory.map(\.id))) else { throw NativeStoreError.invalidSettings }
+        guard (importedProtection?.count ?? 0) <= 100_000,
+              importedProtection?.allSatisfy(JunkIdentity.isDigest) != false else { throw NativeStoreError.invalidSettings }
         try configuration?.validate()
     }
 }
 
-struct NativeActivity: Codable, Identifiable {
+struct SetupArchive: Codable {
+    var schemaVersion = 1
+    var exportedAt = Date()
+    var settings: NativeSettings
+    var protectionDigests: [String]
+
+    func validate() throws {
+        try settings.validate()
+        guard schemaVersion == 1, protectionDigests.count <= 100_000,
+              protectionDigests.allSatisfy(JunkIdentity.isDigest) else { throw NativeStoreError.invalidSettings }
+        guard let configuration = settings.configuration else {
+            guard settings.inventory.isEmpty, settings.selectedAccountIDs.isEmpty else { throw NativeStoreError.invalidSettings }
+            return
+        }
+        guard !settings.selectedAccountIDs.isEmpty else { throw NativeStoreError.invalidSettings }
+        let inventory = settings.inventory.map { FilteringAccount(id: $0.id, name: $0.id, addresses: $0.addresses) }
+        let rebuilt = try FilteringConfiguration.make(selectedNames: settings.selectedAccountIDs, inventory: inventory,
+            rules: configuration.rules, evidenceTerms: configuration.evidenceTerms, mode: configuration.mode)
+        guard Set(rebuilt.ownAddresses) == Set(configuration.ownAddresses.map(normalizedEmailAddress)),
+              Set(rebuilt.selectedRecipientAddresses) == Set(configuration.selectedRecipientAddresses.map(normalizedEmailAddress)) else {
+            throw NativeStoreError.invalidSettings
+        }
+    }
+
+    static func read(from url: URL) throws -> SetupArchive {
+        let size = try url.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0
+        guard size > 0, size <= 20 * 1_024 * 1_024 else { throw NativeStoreError.invalidSettings }
+        let data = try Data(contentsOf: url)
+        guard data.count <= 20 * 1_024 * 1_024 else { throw NativeStoreError.invalidSettings }
+        let result = try JSONDecoder().decode(Self.self, from: data)
+        try result.validate()
+        return result
+    }
+
+    static func readLegacyFolder(_ directory: URL) throws -> SetupArchive {
+        let url = directory.appendingPathComponent("settings.json")
+        let size = try url.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0
+        guard size > 0, size <= 16 * 1_024 * 1_024 else { throw NativeStoreError.invalidSettings }
+        let data = try Data(contentsOf: url)
+        guard data.count <= 16 * 1_024 * 1_024 else { throw NativeStoreError.invalidSettings }
+        let settings = try JSONDecoder().decode(NativeSettings.self, from: data)
+        let digests = try JunkProtection.readDigests(directory.appendingPathComponent("junk-protection.json"))
+        let archive = SetupArchive(settings: settings, protectionDigests: Array(digests).sorted())
+        try archive.validate()
+        return archive
+    }
+
+    func write(to url: URL) throws {
+        try validate()
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        try encoder.encode(self).write(to: url, options: .atomic)
+        try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
+    }
+}
+
+struct NativeActivity: Codable, Identifiable, Sendable {
     var id = UUID()
     var date = Date()
     let outcome: String
@@ -48,6 +126,8 @@ struct NativeActivity: Codable, Identifiable {
     var attempt: Int? = nil
     var failureDomain: String? = nil
     var failureCode: Int? = nil
+    var build: String? = nil
+    var channel: String? = nil
 }
 
 struct NativeActivityLog: Codable {
@@ -110,7 +190,8 @@ final class SharedStore {
     static func production(bundle: Bundle = .main) throws -> SharedStore {
         let mode = bundle.object(forInfoDictionaryKey: "MailFilterStorageMode") as? String ?? "app-group"
         let group = bundle.object(forInfoDictionaryKey: "MailFilterAppGroup") as? String
-        let directory = try NativeStorage.directory(mode: mode, group: group, userHome: NativeStorage.accountHome()) {
+        let home = mode == "local-development" ? try NativeStorage.accountHome() : FileManager.default.homeDirectoryForCurrentUser
+        let directory = try NativeStorage.directory(mode: mode, group: group, userHome: home) {
             FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: $0)
         }
         return SharedStore(directory: directory)
@@ -175,9 +256,59 @@ final class SharedStore {
         }
     }
 
+    func confirmImportedSetup() throws {
+        try locked {
+            var settings = try loadSettings()
+            guard settings.configuration != nil else { throw NativeStoreError.invalidSettings }
+            settings.activationRequired = false
+            settings.revision = UUID().uuidString
+            try write(settings, to: settingsURL)
+        }
+    }
+
+    func exportSetup() throws -> SetupArchive {
+        try locked { try snapshot() }
+    }
+
+    private func snapshot() throws -> SetupArchive {
+        let settings = try loadSettings()
+        let saved = FileManager.default.fileExists(atPath: directory.appendingPathComponent("junk-protection.json").path)
+            ? try JunkProtection.readDigests(directory.appendingPathComponent("junk-protection.json")) : []
+        return SetupArchive(settings: settings, protectionDigests: Array(saved.union(settings.importedProtection ?? [])).sorted())
+    }
+
+    /// One atomic settings replacement includes incoming protection. A failed
+    /// import can add no action permission. A private backup supports rollback.
+    func importSetup(_ archive: SetupArchive) throws -> NativeSettings {
+        try archive.validate()
+        return try locked {
+            let previous = try snapshot()
+            var imported = archive.settings
+            let protection = Set(previous.protectionDigests + archive.protectionDigests + (imported.importedProtection ?? []))
+            guard protection.count <= 100_000 else { throw NativeStoreError.invalidSettings }
+            if let old = previous.settings.configuration, let incoming = imported.configuration {
+                imported.configuration = FilteringConfiguration(schemaVersion: 2, mode: incoming.mode,
+                    selectedRecipientAddresses: incoming.selectedRecipientAddresses, ownAddresses: incoming.ownAddresses,
+                    rules: incoming.rules, evidenceTerms: incoming.evidenceTerms,
+                    legacyAccountIDs: Array(Set(old.legacyAccountIDs + incoming.legacyAccountIDs)).sorted(),
+                    protectedCLIIdentities: Array(Set(old.protectedCLIIdentities + incoming.protectedCLIIdentities)).sorted())
+            }
+            imported.importedProtection = protection.sorted()
+            imported.activationRequired = imported.configuration != nil
+            imported.revision = UUID().uuidString
+            try imported.validate()
+            // Backup is not an import source until the user explicitly selects it.
+            try write(previous, to: directory.appendingPathComponent("migration-backup.json"))
+            try write(imported, to: settingsURL)
+            return imported
+        }
+    }
+
     func protects(_ messageID: String, configuration: FilteringConfiguration) throws -> Bool {
         try locked {
-            try JunkIdentity.protectedByCLI(messageID: messageID, accountIDs: configuration.legacyAccountIDs,
+            let settings = try loadSettings()
+            return try (settings.importedProtection ?? []).contains(JunkIdentity.key(messageID))
+                || JunkIdentity.protectedByCLI(messageID: messageID, accountIDs: configuration.legacyAccountIDs,
                                           identities: configuration.protectedCLIIdentities) || protection.contains(messageID: messageID)
         }
     }
@@ -185,9 +316,9 @@ final class SharedStore {
     func finish(messageID: String, revision: String, decision: Classification.Decision, evidence: String?) throws -> NativeOutcome {
         try locked {
             let current = try loadSettings()
-            guard !current.paused, current.revision == revision, let configuration = current.configuration else { return .settingsChanged }
+            guard !current.paused, current.activationRequired != true, current.revision == revision, let configuration = current.configuration else { return .settingsChanged }
             guard decision == .political, let evidence, !evidence.isEmpty else { return .notPolitical }
-            if try JunkIdentity.protectedByCLI(messageID: messageID, accountIDs: configuration.legacyAccountIDs,
+            if try (current.importedProtection ?? []).contains(JunkIdentity.key(messageID)) || JunkIdentity.protectedByCLI(messageID: messageID, accountIDs: configuration.legacyAccountIDs,
                                               identities: configuration.protectedCLIIdentities) || protection.contains(messageID: messageID) { return .protected }
             if configuration.mode == "dry-run" { return .previewPolitical }
             return try protection.reserve(messageID: messageID) ? .junkRequested : .protected
@@ -220,10 +351,74 @@ final class SharedStore {
 
     func activity() throws -> NativeActivityLog { try locked { try loadActivity() } }
 
+    static func validEvent(_ event: NativeActivity) -> Bool {
+        func token(_ value: String, limit: Int, empty: Bool = false) -> Bool {
+            (empty && value.isEmpty) || (value.count <= limit && value.range(of: "^[A-Za-z0-9._-]+$", options: .regularExpression) != nil)
+        }
+        return token(event.outcome, limit: 80) && token(event.category, limit: 100, empty: true)
+            && (event.traceID == nil || (event.traceID!.count == 12 && event.traceID!.utf8.allSatisfy { (48...57).contains($0) || (97...102).contains($0) }))
+            && (event.attempt == nil || (1...10).contains(event.attempt!))
+            && ((event.failureDomain == nil) == (event.failureCode == nil))
+            && (event.failureDomain == nil || token(event.failureDomain!, limit: 200))
+            && (event.build == nil || token(event.build!, limit: 50))
+            && (event.channel == nil || token(event.channel!, limit: 50))
+    }
+
+    static let diagnosticFileLimit = 1_024 * 1_024
+    private func logURL(_ index: Int) -> URL { directory.appendingPathComponent(index == 0 ? "diagnostic.jsonl" : "diagnostic.\(index).jsonl") }
+
+    /// Shared structured records work without system archive access. This read
+    /// holds the same lock as writers and never returns arbitrary file contents.
+    func diagnosticEvents(now: Date = Date()) throws -> [NativeActivity] {
+        let snapshots: [Data] = try locked {
+            try (0...2).reversed().filter { FileManager.default.fileExists(atPath: logURL($0).path) }
+                .map { try boundedData(logURL($0), maximum: Self.diagnosticFileLimit) }
+        }
+        // Parse after releasing the action/settings lock. Support export must
+        // not keep an incoming callback waiting while decoding log history.
+        var events: [NativeActivity] = []
+        for data in snapshots {
+            for line in data.split(separator: 10) {
+                guard let event = try? JSONDecoder().decode(NativeActivity.self, from: Data(line)),
+                      Self.validEvent(event), event.date >= now.addingTimeInterval(-7 * 86400), event.date <= now.addingTimeInterval(60) else { continue }
+                events.append(event)
+            }
+        }
+        return Array(events.suffix(2_000))
+    }
+
+    private func appendDiagnostic(_ event: NativeActivity) throws {
+        let manager = FileManager.default
+        for index in 0...2 where manager.fileExists(atPath: logURL(index).path) {
+            let date = try logURL(index).resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate ?? .distantPast
+            if date < Date().addingTimeInterval(-7 * 86400) { try manager.removeItem(at: logURL(index)) }
+        }
+        let line = try JSONEncoder().encode(event) + Data([10])
+        guard line.count <= Self.diagnosticFileLimit else { throw NativeStoreError.invalidActivity }
+        let size = (try? logURL(0).resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0
+        if size + line.count > Self.diagnosticFileLimit {
+            if manager.fileExists(atPath: logURL(2).path) { try manager.removeItem(at: logURL(2)) }
+            for index in (0...1).reversed() where manager.fileExists(atPath: logURL(index).path) {
+                try manager.moveItem(at: logURL(index), to: logURL(index + 1))
+            }
+        }
+        if !manager.fileExists(atPath: logURL(0).path) { manager.createFile(atPath: logURL(0).path, contents: nil, attributes: [.posixPermissions: 0o600]) }
+        let handle = try FileHandle(forWritingTo: logURL(0))
+        defer { try? handle.close() }
+        try handle.seekToEnd()
+        try handle.write(contentsOf: line)
+        try manager.setAttributes([.posixPermissions: 0o600], ofItemAtPath: logURL(0).path)
+    }
+
     func record(outcome: String, category: String, processed: Bool = false, junkRequested: Bool = false,
                 traceID: String? = nil, receivedCallback: Bool = false, attempt: Int? = nil,
                 failureDomain: String? = nil, failureCode: Int? = nil) throws {
         try locked {
+            var event = NativeActivity(outcome: outcome, category: category, traceID: traceID,
+                attempt: attempt, failureDomain: failureDomain, failureCode: failureCode)
+            event.build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String
+            event.channel = Bundle.main.object(forInfoDictionaryKey: "MailFilterDistribution") as? String
+            guard Self.validEvent(event) else { throw NativeStoreError.invalidActivity }
             var activity = try loadActivity()
             if processed { activity.processed += 1 }
             if junkRequested { activity.junkRequested += 1 }
@@ -231,17 +426,19 @@ final class SharedStore {
                 activity.receivedCallbacks = (activity.receivedCallbacks ?? 0) + 1
                 activity.lastCallback = Date()
             }
-            activity.recent.insert(NativeActivity(outcome: outcome, category: category, traceID: traceID,
-                                                 attempt: attempt, failureDomain: failureDomain, failureCode: failureCode), at: 0)
+            activity.recent.insert(event, at: 0)
             activity.recent = Array(activity.recent.prefix(NativeActivityLog.maximumRecent))
             try write(activity, to: activityURL)
+            // File history supplements activity; failure must not discard an
+            // otherwise valid activity record or change a classification result.
+            try? appendDiagnostic(event)
         }
     }
 
     // Called only after the user explicitly chooses to erase private application data.
     func eraseApplicationData() throws {
         try locked {
-            for url in [settingsURL, activityURL, directory.appendingPathComponent("junk-protection.json"), directory.appendingPathComponent("junk-protection.json.lock")] {
+            for url in [settingsURL, activityURL, directory.appendingPathComponent("migration-backup.json"), directory.appendingPathComponent("junk-protection.json"), directory.appendingPathComponent("junk-protection.json.lock")] + (0...2).map(logURL) {
                 if FileManager.default.fileExists(atPath: url.path) { try FileManager.default.removeItem(at: url) }
             }
         }
@@ -250,7 +447,7 @@ final class SharedStore {
     private func loadSettings() throws -> NativeSettings {
         guard FileManager.default.fileExists(atPath: settingsURL.path) else { return NativeSettings() }
         do {
-            let settings = try JSONDecoder().decode(NativeSettings.self, from: boundedData(settingsURL, maximum: 1_024 * 1_024))
+            let settings = try JSONDecoder().decode(NativeSettings.self, from: boundedData(settingsURL, maximum: 16 * 1_024 * 1_024))
             try settings.validate()
             return settings
         } catch { throw NativeStoreError.invalidSettings }
@@ -285,7 +482,7 @@ final class SharedStore {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         let data = try encoder.encode(value)
-        guard data.count <= 1_024 * 1_024 else { throw NativeStoreError.invalidSettings }
+        guard data.count <= 20 * 1_024 * 1_024 else { throw NativeStoreError.invalidSettings }
         try data.write(to: url, options: .atomic)
         try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
     }

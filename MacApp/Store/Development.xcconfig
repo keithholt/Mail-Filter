@@ -1,0 +1,7 @@
+// Isolated from both the installed app and production Store data.
+MAIL_FILTER_BUNDLE_ID = org.mail-filter.development
+MAIL_FILTER_APP_GROUP = group.org.mail-filter.development.shared
+MAIL_FILTER_DISPLAY_NAME = Mail-Filter Development
+CODE_SIGN_IDENTITY = Apple Development
+// Keep the team outside generated project files and version control.
+#include? "Signing.local.xcconfig"

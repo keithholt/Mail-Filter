@@ -57,7 +57,7 @@ struct SelectedEmailReport: Encodable {
             var guarded = message
             guarded.ownAddresses = configuration.ownAddresses
             currentPolicy = Policy(revision: settings.revision, paused: settings.paused, mode: configuration.mode,
-                selectedAccount: settings.selectedAccountIDs.contains(message.accountID), senderIsOwnAddress: guarded.isFromSelf,
+                selectedAccount: selection.selectedAccount(in: settings), senderIsOwnAddress: guarded.isFromSelf,
                 rules: configuration.rules, evidenceTerms: configuration.evidenceTerms)
         } else { currentPolicy = nil }
         automaticHistory = activity.recent.filter { key != nil && $0.traceID == key }.reversed()

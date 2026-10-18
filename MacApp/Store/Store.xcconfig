@@ -1,0 +1,6 @@
+MAIL_FILTER_BUNDLE_ID = org.mail-filter.app
+MAIL_FILTER_APP_GROUP = group.org.mail-filter.shared
+MAIL_FILTER_DISPLAY_NAME = Mail-Filter
+CODE_SIGN_IDENTITY = Apple Distribution
+// Keep the team outside generated project files and version control.
+#include? "Signing.local.xcconfig"

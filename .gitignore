@@ -15,3 +15,7 @@ Mail-Filter Diagnostic *.json
 Mail-Filter Model Probe*.json
 Mail-Filter Supported Path*.json
 *.eml
+xcuserdata/
+MacApp/Store/Signing.local.xcconfig
+# Xcode may create tool caches beside the project in restricted environments.
+com.apple.DeveloperTools/

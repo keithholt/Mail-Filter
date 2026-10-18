@@ -8,6 +8,7 @@ enum DiagnosticReport {
         var report = "Mail-Filter diagnostic report\nBuild: \(build)\nInstalled extension build: \(extensionBuild ?? "unknown")\nMail running: \(mailRunning)\nModel: \(modelStatus)\n"
         if let settings {
             report += "Filtering paused: \(settings.paused)\nMode: \(settings.configuration?.mode ?? "setup required")\nSelected accounts: \(settings.selectedAccountIDs.count)\n"
+            if settings.activationRequired == true { report += "Imported setup: waiting for confirmation; no Junk actions permitted\n" }
         } else { report += "Saved filtering settings: unavailable\n" }
         report += "Received callbacks: \(activity.receivedCallbacks.map(String.init) ?? "not recorded by earlier builds")\nLast callback: \(activity.lastCallback.map(formatter.string) ?? "not recorded")\nClassified: \(activity.processed)\nJunk actions requested: \(activity.junkRequested)\n"
         for event in activity.recent.prefix(30) {
@@ -36,6 +37,7 @@ struct DiagnosticLogResult: Sendable {
     }
 }
 
+#if !APP_STORE
 enum DiagnosticLogCollector {
     static func collect() async -> DiagnosticLogResult {
         // Only this app's fixed-category logs; never collect Mail's email logs.
@@ -92,3 +94,4 @@ enum DiagnosticLogCollector {
         }
     }
 }
+#endif
