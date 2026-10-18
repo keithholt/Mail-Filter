@@ -97,9 +97,27 @@ struct ModelRequestChecks {
         try version11Store.save(version11Settings)
         try require(try version11Store.updateStandardVerificationWords(), "existing version-11 standard list receives campaign and office terms")
         let version11Updated = try version11Store.settings()
-        try require(version11Updated.configuration!.evidenceTerms.suffix(2) == ["campaign", "Vice President"] && version11Updated.configuration!.rules == "Custom retained policy",
+        try require(version11Updated.configuration!.evidenceTerms.suffix(3) == ["campaign", "Vice President", "Paid for by"] && version11Updated.configuration!.rules == "Custom retained policy",
                     "campaign upgrade preserves saved filtering instructions and appends only missing words")
         try require(try !version11Store.updateStandardVerificationWords(), "campaign upgrade does not duplicate words on reopen")
+        let version12Store = SharedStore(directory: storeURL.appendingPathComponent("version12"))
+        var version12Settings = settings
+        version12Settings.paused = false
+        version12Settings.configuration = try FilteringConfiguration.make(selectedNames: ["Sample"], inventory: [.init(id: "sample", name: "Sample", addresses: ["me@example.com"])],
+            rules: "Custom retained policy", evidenceTerms: PoliticalVerificationWords.previousDefaults + PoliticalVerificationWords.version12Additions, mode: "apply")
+        try version12Store.save(version12Settings)
+        _ = try version12Store.protection.reserve(messageID: "restored-v12@example.com")
+        try require(try version12Store.updateStandardVerificationWords(), "version-12 standard vocabulary receives sponsorship phrase")
+        let version12Updated = try version12Store.settings()
+        try require(version12Updated.configuration!.evidenceTerms == version12Settings.configuration!.evidenceTerms + ["Paid for by"], "sponsorship update appends exactly the missing phrase")
+        try require(version12Updated.configuration!.rules == version12Settings.configuration!.rules
+                    && version12Updated.configuration!.mode == "apply" && !version12Updated.paused
+                    && version12Updated.inventory == version12Settings.inventory
+                    && version12Updated.selectedAccountIDs == version12Settings.selectedAccountIDs,
+                    "sponsorship update preserves instructions, apply mode, pause state and account selection")
+        try require(version12Updated.revision != version12Settings.revision, "sponsorship update invalidates stale policy results")
+        try require(try version12Store.protection.contains(messageID: "restored-v12@example.com"), "sponsorship update retains restored-message protection")
+        try require(try !version12Store.updateStandardVerificationWords(), "sponsorship update is idempotent")
         print("Passed \(count) label validation, token budgeting, excerpt coverage and policy-upgrade checks; no model generation or real Mail actions")
     }
 }

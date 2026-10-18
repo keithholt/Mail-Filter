@@ -47,6 +47,29 @@ struct DryRunChecks {
         pac.body = "Paid for by Example Political Action Committee."
         let missingQuote = try parseClassification("{\"decision\":\"political\",\"reason\":\"PAC solicitation\",\"evidence\":\"incorrect quote\"}")
         try require(try validatePoliticalEvidence(missingQuote, message: pac, terms: configuration.evidenceTerms) == "Paid for by Example Political Action Committee", "PAC body evidence fallback reused")
+        let previousTerms = PoliticalVerificationWords.previousDefaults + PoliticalVerificationWords.version12Additions
+        let standardTerms = PoliticalVerificationWords.previousDefaults + PoliticalVerificationWords.additions
+        let labelOnlyPositive = Classification(decision: .political, reason: "Political solicitation", evidence: nil)
+        var sponsored = candidate
+        sponsored.subject = "Respectfully asking for $1"
+        sponsored.body = "I'm asking everyone for just $1.\nPaid for by Alex Morgan and Jamie Reed for Example State."
+        var sponsorshipPreviouslyRejected = false
+        do { _ = try validatePoliticalEvidence(labelOnlyPositive, message: sponsored, terms: previousTerms) }
+        catch { sponsorshipPreviouslyRejected = true }
+        try require(sponsorshipPreviouslyRejected, "sponsorship-only positive reproduces the previous vocabulary gap")
+        try require(try validatePoliticalEvidence(labelOnlyPositive, message: sponsored, terms: standardTerms) == "Paid for by Alex Morgan and Jamie Reed for Example State", "fundraising sponsorship verifies a label-only political positive")
+        sponsored.subject = "This took me a long time to write."
+        sponsored.body = "Read my personal message to you.\nPAID FOR BY Morgan for Example State, Inc. Unsubscribe."
+        try require(try validatePoliticalEvidence(labelOnlyPositive, message: sponsored, terms: standardTerms) == "PAID FOR BY Morgan for Example State, Inc", "sponsorship verifies an indirect appeal without requiring donation language")
+        sponsored.body = "Your lunch was paid for by your employer."
+        try require(try validatePoliticalEvidence(negative, message: sponsored, terms: standardTerms) == nil, "ordinary payment wording never promotes a negative model decision")
+        sponsored.body = String(repeating: "x", count: 6001) + "\nPaid for by Morgan for Example State."
+        var unseenSponsorshipRejected = false
+        do { _ = try validatePoliticalEvidence(labelOnlyPositive, message: sponsored, terms: standardTerms) }
+        catch { unseenSponsorshipRejected = true }
+        try require(unseenSponsorshipRejected, "sponsorship outside the classified excerpt remains insufficient")
+        let selfSponsorship = DecodedMailBody(text: "Paid for by Morgan for Example State.", characterCount: 42, truncated: false)
+        try require(isSkipped(configuration.input(messageID: "self-sponsorship@example.com", sender: "me@other.example", subject: "Forwarded appeal", recipients: ["me@example.com"], body: selfSponsorship), .selfMail), "sponsorship wording cannot bypass own-sender protection")
         let long = DecodedMailBody(text: body.text, characterCount: 8_000, truncated: true)
         guard case .classify(let longCandidate) = configuration.input(messageID: "long", sender: "sender@example.org", subject: "Campaign", recipients: ["me@example.com"], body: long) else { throw DryRunCheckFailure(name: "long excerpt should remain eligible") }
         try require(longCandidate.truncated, "long excerpts remain eligible and marked truncated")
@@ -73,7 +96,7 @@ struct DryRunChecks {
         var oldRejected = false
         do { try old.validate() } catch { oldRejected = true }
         try require(oldRejected, "obsolete configuration requires fresh export")
-        print("Passed 22 configuration, account protection and political-evidence checks (synthetic inputs only)")
+        print("Passed 28 configuration, account protection and political-evidence checks (synthetic inputs only)")
         try await scheduling()
     }
 

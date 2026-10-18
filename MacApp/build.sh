@@ -60,7 +60,7 @@ cp "$app/Contents/Resources/AppIcon.icns" "$uninstaller/Contents/Resources/"
 python3 - "$app" "$ext" "$uninstaller" "$group" "$out" "$mode" <<'PY'
 import plistlib, pathlib, sys
 app, ext, uninstaller, group, out, mode = sys.argv[1:]
-base = {'CFBundleDevelopmentRegion':'en','CFBundleShortVersionString':'2.0.0','CFBundleVersion':'12','LSMinimumSystemVersion':'26.0','MailFilterStorageMode':'app-group' if mode == 'release' else 'local-development','NSHighResolutionCapable':True}
+base = {'CFBundleDevelopmentRegion':'en','CFBundleShortVersionString':'2.0.0','CFBundleVersion':'13','LSMinimumSystemVersion':'26.0','MailFilterStorageMode':'app-group' if mode == 'release' else 'local-development','NSHighResolutionCapable':True}
 if mode == 'release': base['MailFilterAppGroup'] = group
 products = [
     (app, {'CFBundleIdentifier':'org.mail-filter.app','CFBundleName':'Mail-Filter','CFBundleExecutable':'MailFilter','CFBundlePackageType':'APPL','CFBundleIconFile':'AppIcon','NSAppleEventsUsageDescription':'Mail-Filter reads Mail account settings during setup, and reads one selected email when you request a read-only diagnostic test.'}),

@@ -128,7 +128,8 @@ final class SharedStore {
             let previous = Set(PoliticalVerificationWords.previousDefaults.map { $0.lowercased() })
             let version9 = Set((PoliticalVerificationWords.previousDefaults + PoliticalVerificationWords.firstAdditions).map { $0.lowercased() })
             let version11 = Set((PoliticalVerificationWords.previousDefaults + PoliticalVerificationWords.version11Additions).map { $0.lowercased() })
-            guard saved == previous || saved == version9 || saved == version11 else { return false }
+            let version12 = Set((PoliticalVerificationWords.previousDefaults + PoliticalVerificationWords.version12Additions).map { $0.lowercased() })
+            guard saved == previous || saved == version9 || saved == version11 || saved == version12 else { return false }
             let additions = PoliticalVerificationWords.additions.filter { !saved.contains($0.lowercased()) }
             settings.configuration = FilteringConfiguration(schemaVersion: original.schemaVersion, mode: original.mode,
                 selectedRecipientAddresses: original.selectedRecipientAddresses, ownAddresses: original.ownAddresses,

@@ -295,7 +295,8 @@ enum PoliticalVerificationWords {
     ]
     static let firstAdditions = ["MAGA", "candidate", "candidates", "donation", "donations"]
     static let version11Additions = firstAdditions + ["Second Amendment", "abortion"]
-    static let additions = version11Additions + ["campaign", "Vice President"]
+    static let version12Additions = version11Additions + ["campaign", "Vice President"]
+    static let additions = version12Additions + ["Paid for by"]
 }
 
 func normalizedEvidence(_ text: String) -> String {
