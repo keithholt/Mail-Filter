@@ -2,6 +2,8 @@
 
 Mail-Filter analyzes incoming Apple Mail messages on your Mac and moves verified political solicitations to Junk. It recognizes political fundraising, campaign advertising, advocacy and political mass polls. Ordinary commercial marketing is outside the filter. AI analysis runs on your Mac using Apple's on-device model.
 
+For setup help and contact information, see [Support](https://keithholt.github.io/Mail-Filter/support.html). Read the [Privacy Policy](https://keithholt.github.io/Mail-Filter/privacy.html) for on-device processing, local data and optional exports.
+
 ## Build the installer
 
 To build from source, use macOS 26 or later on an Apple silicon Mac, full Xcode with its first-launch setup completed, and Python 3. Select Xcode as the active Command Line Tools installation in Xcode's Settings, under Locations. From Terminal in this project's folder, run:

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Mail-Filter privacy policy: on-device email analysis, local settings and history, optional exports, data removal and contact information.">
+  <title>Privacy policy — Mail-Filter</title>
+  <link rel="icon" href="mail-filter.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header><div class="wrap">
+  <a class="brand" href="./"><img src="mail-filter.png" alt="" width="38" height="38">Mail-Filter</a>
+  <nav aria-label="Main navigation"><a href="support.html">Support</a><a href="privacy.html" aria-current="page">Privacy</a><a href="https://github.com/keithholt/Mail-Filter">Source code</a></nav>
+</div></header>
+<main id="main" class="wrap"><div class="reading">
+  <p class="eyebrow">Your data</p>
+  <h1>Privacy policy.</h1>
+  <p class="meta">Effective October 19, 2026 · Developer: Keith Holt</p>
+  <p class="lead">Mail-Filter analyzes email on your Mac. The app does not automatically send email, account settings or diagnostic history to the developer.</p>
+  <div class="callout"><p>Mail-Filter has no advertising, analytics SDK, developer-operated account service or email-upload service. Classification uses Apple's on-device Foundation Models framework.</p></div>
+  <h2>What the app accesses</h2>
+  <p>When you enable the Mail extension, Mail supplies incoming message data for filtering. The app uses sender, recipient and message-identity information to apply your account choices and protect your own mail. Classification uses the subject and the first 6,000 characters of decoded body text. Attachments are excluded from classification.</p>
+  <p>If you choose automatic account discovery, the settings app requests Mail automation permission to read account names, identifiers and addresses. If you choose selected-email analysis or export, it reads that selected message's source. You can instead enter addresses manually or open an email file that you select.</p>
+  <p>Mail and your email provider continue their normal message synchronization and mailbox operations. Their services and privacy practices are separate from Mail-Filter's local AI analysis.</p>
+  <h2>What stays on your Mac</h2>
+  <ul>
+    <li><strong>Settings:</strong> account names and addresses, aliases, selected account groups, filtering instructions, evidence terms, and Preview and pause preferences.</li>
+    <li><strong>Recovery protection:</strong> message-identity hashes used to avoid moving the same message to Junk again. These are identifiers, not a guarantee of anonymity.</li>
+    <li><strong>Activity and diagnostic history:</strong> counters, timestamps, processing decisions/categories, opaque message keys, attempts and sanitized error information. Ordinary activity records exclude email subjects, addresses, bodies, generated reasons and evidence quotes.</li>
+  </ul>
+  <p>The App Store edition stores this information in its private shared App Group on your Mac. It is used for filtering, recovery and troubleshooting. Email source is not saved as a separate history by routine incoming classification.</p>
+  <h2>Retention</h2>
+  <p>Settings and recovery records remain until you remove the app's data. Reinstalling or updating the app retains compatible data; removing the app alone does not erase it.</p>
+  <p>Activity retains aggregate counters and up to 500 recent events. Supplemental diagnostic history rotates across at most three files of one MiB each. Support reports include events from the last seven days; older diagnostic files are pruned as new activity is recorded. Recovery protection does not expire with diagnostic history.</p>
+  <h2>Files you choose to export</h2>
+  <p>Exports are saved only when you request them, to a location you choose. An application diagnostic report contains status and processing history. A detailed selected-email report includes that email's full source, extracted text, filtering instructions, identity key, retained processing history and any matching analysis. A setup export contains private account settings and recovery records.</p>
+  <p>These files can contain sensitive information. They are not automatically uploaded. You decide whether to share them, and you manage their storage and deletion, including copies in cloud-synced folders or backups you use.</p>
+  <h2 id="remove-data">Your choices and data removal</h2>
+  <p>Turn Enable filtering off to pause analysis, or disable Mail-Filter in Mail's Extensions settings. You can revoke the settings app's Mail automation permission in System Settings → Privacy &amp; Security → Automation. Revoking automation does not disable the separately enabled Mail extension.</p>
+  <p>To remove locally saved data from the App Store edition:</p>
+  <ol>
+    <li>Disable Mail-Filter in Mail's Extensions settings, then quit Mail and Mail-Filter.</li>
+    <li>In Finder, choose <strong>Go → Go to Folder…</strong> and enter <code>~/Library/Group Containers/group.org.mail-filter.shared/</code>.</li>
+    <li>Move the <code>Mail-Filter</code> folder inside that container to Trash. You can empty Trash when you are ready to erase that copy. This does not remove email from Apple Mail.</li>
+    <li>Delete any setup or report exports separately from the locations where you saved them. Backups and cloud services may retain their own copies according to their settings.</li>
+  </ol>
+  <p>Removing recovery data also removes protection for previously restored false positives. Development and direct-install editions use separate data locations; see the source repository's documentation if you use those editions.</p>
+  <h2>Contact and support correspondence</h2>
+  <p>Contact Keith Holt at <a href="mailto:mail@ephemeralimage.com">mail@ephemeralimage.com</a> for privacy questions, bug reports or a request to delete correspondence held by the developer. If you email a report, the information you choose to send is used to respond and investigate the issue. Correspondence is retained only as needed for those purposes or applicable legal obligations. Email delivery is handled by the email providers involved.</p>
+  <p>If you post to GitHub Issues, that content is public and handled by GitHub. Do not post private messages or email reports there.</p>
+  <h2>This website and other services</h2>
+  <p>This site is hosted by GitHub Pages. It includes no advertising, tracking scripts or analytics added by Mail-Filter. GitHub states that it logs visitors' IP addresses for security purposes. Website hosting and GitHub issue activity are covered by the <a href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement">GitHub Privacy Statement</a>. Apple's App Store and your email provider have their own policies.</p>
+  <h2>Policy changes</h2>
+  <p>Changes will be published on this page with an updated effective date. This policy describes the current app and support process.</p>
+</div></main>
+<footer><div class="wrap"><p>© 2026 Keith Holt</p><p><a href="support.html">Support</a> · <a href="privacy.html">Privacy policy</a> · <a href="mailto:mail@ephemeralimage.com">Contact</a></p></div></footer>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Mail-Filter support: setup, account selection, preview mode, troubleshooting, false positives and contact information.">
+  <title>Support — Mail-Filter</title>
+  <link rel="icon" href="mail-filter.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header><div class="wrap">
+  <a class="brand" href="./"><img src="mail-filter.png" alt="" width="38" height="38">Mail-Filter</a>
+  <nav aria-label="Main navigation"><a href="support.html" aria-current="page">Support</a><a href="privacy.html">Privacy</a><a href="https://github.com/keithholt/Mail-Filter">Source code</a></nav>
+</div></header>
+<main id="main" class="wrap"><div class="reading">
+  <p class="eyebrow">Setup &amp; help</p>
+  <h1>Help with Mail-Filter.</h1>
+  <p class="lead">Start with the steps below. For bug reports, feedback or privacy questions, contact Keith Holt at <a href="mailto:mail@ephemeralimage.com">mail@ephemeralimage.com</a>.</p>
+  <p class="meta">This is an independently maintained project. Assistance is provided as available, with no guaranteed response time.</p>
+  <h2>Set up filtering</h2>
+  <ol>
+    <li>Open Apple Mail and let your accounts finish syncing.</li>
+    <li>Open Mail-Filter's <strong>Filtering</strong> page. Read or refresh your Mail accounts, allowing Mail automation if prompted. You can also use <strong>Enter Addresses…</strong>. Include all your own addresses and aliases, even those you will not filter, so messages from you stay protected.</li>
+    <li>Select the accounts to filter. Keep <strong>Enable filtering</strong> on. Leave <strong>Preview without moving messages</strong> off for Junk moves, or turn it on to test decisions without moving messages. Click <strong>Save Settings</strong>.</li>
+    <li>In Mail, open <strong>Settings → Extensions</strong> and enable <strong>Mail-Filter</strong>.</li>
+    <li>Keep Mail running and your Mac awake. You can close Mail-Filter's settings window or quit its settings app.</li>
+  </ol>
+  <div class="callout"><p><strong>Requirements:</strong> macOS 26 or later, an Apple silicon Mac supporting Apple Intelligence, and Apple Intelligence enabled with its model available.</p></div>
+  <h2>Common questions</h2>
+  <details open><summary>A message was incorrectly moved to Junk</summary><p>Move it from Junk back to Inbox. Mail-Filter saves the identity of messages it selects for Junk to prevent another move of the same message. Keep the app's private data when updating or reinstalling so this protection remains available.</p><p>The app does not permanently delete messages or empty Junk. Apple Mail and your email provider keep their usual Junk-retention rules.</p></details>
+  <details><summary>New political email is staying in Inbox</summary><p>Confirm that Mail is running, the Mac is awake, the extension is checked in Mail's Extensions settings, the receiving account is selected, Enable filtering is on, and Preview is off. Save account, Preview and policy changes.</p><p>On <strong>Activity</strong>, check incoming callbacks and recent decisions. A Junk action count records requests to Mail; check the Junk mailbox to confirm the result. Errors or unverifiable classifications leave messages in place. Existing Inbox messages are not automatically scanned.</p></details>
+  <details><summary>How can I inspect one email?</summary><p>Select exactly one message in Mail, then use <strong>Activity → Analyze selected email</strong>. You can also use <strong>Open Email File…</strong> for a saved .eml file. These are read-only analyses and do not move messages. Selected-message access requires Mail automation permission; the saved-file option does not.</p></details>
+  <details><summary>Why does an email sent to myself stay in Inbox?</summary><p>Messages from any of your configured own addresses are protected, including mail between different accounts. A self-sent message therefore does not test positive filtering.</p></details>
+  <details><summary>Can I change the filtering rules?</summary><p>Expand <strong>Filtering instructions</strong> on the Filtering page. You can edit the prompt and political evidence terms, then click Save Settings. Evidence terms verify an AI-positive classification; a matching word alone does not move an email. Changes apply to future incoming messages.</p></details>
+  <details><summary>How do I pause, update or remove the app?</summary><p>Turn <strong>Enable filtering</strong> off to pause immediately, or uncheck the extension in Mail. Update the App Store edition through the Mac App Store, then quit and reopen Mail and Mail-Filter. To uninstall that edition, disable its extension and remove the app using Finder. Settings are stored separately and remain unless you remove them. See the <a href="privacy.html#remove-data">data-removal instructions</a>.</p></details>
+  <h2>Report a problem</h2>
+  <p>Email <a href="mailto:mail@ephemeralimage.com">mail@ephemeralimage.com</a> with your macOS version, Mail-Filter version/build, a description of the problem, and what you expected to happen. For general bugs or feature requests, you can also <a href="https://github.com/keithholt/Mail-Filter/issues">open a GitHub issue</a>.</p>
+  <p>The <strong>Application diagnostics</strong> panel on Activity can save a report with app status and processing history. Detailed selected-email reports are separate exports and include the email's full source and other private content. Review any report before sharing it.</p>
+  <div class="callout"><p><strong>GitHub issues are public.</strong> Keep personal addresses, message contents, private setup exports and detailed email reports out of public issues. Send only the information you choose to share using the contact email above.</p></div>
+  <p>Read the <a href="privacy.html">privacy policy</a> for details about local data, optional exports and support correspondence.</p>
+</div></main>
+<footer><div class="wrap"><p>© 2026 Keith Holt</p><p><a href="support.html">Support</a> · <a href="privacy.html">Privacy policy</a> · <a href="mailto:mail@ephemeralimage.com">Contact</a></p></div></footer>
+</body>
+</html>
