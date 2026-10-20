@@ -57,6 +57,13 @@ for name in ('MailFilter', 'MailFilterExtension', 'MailFilterCLI', 'MailFilterUn
     configurations = objects[objects[targets[name]]['buildConfigurationList']]['buildConfigurations']
     assert {objects[key]['name'] for key in configurations} == {'Local', 'DeveloperID', 'BuildCheck', 'Development', 'Store'}
     assert targets['MailFilterDocumentation'] in closure([targets[name]])
+extension_configurations = objects[objects[targets['MailFilterExtension']]['buildConfigurationList']]['buildConfigurations']
+for key in extension_configurations:
+    configuration = objects[key]
+    settings = configuration['buildSettings']
+    expected_executable = 'MailFilterExtension' if configuration['name'] in ('Local', 'DeveloperID') else '$(PRODUCT_NAME)'
+    assert settings['EXECUTABLE_NAME'] == expected_executable, configuration['name']
+    assert settings['PRODUCT_MODULE_NAME'] == 'MailFilterExtension'
 for role in ('Host', 'Extension', 'Uninstaller'):
     info = plistlib.loads((root / 'MacApp/Build' / (role + '-Local-Info.plist')).read_bytes())
     assert 'MailFilterAppGroup' not in info, 'Local storage must not acquire a group dependency'
@@ -73,6 +80,7 @@ finally:
 project_text = (project / 'project.pbxproj').read_text()
 reformatted = copy.deepcopy(payload)
 reformatted['objects'][reformatted['rootObject']]['attributes']['LastUpgradeCheck'] = '9999'
+reformatted['objects'][reformatted['rootObject']]['hasScannedForEncodings'] = '1'
 assert generated['project_matches'](project_text, plistlib.dumps(reformatted).decode())
 local_config = next(key for key in objects[objects[targets['MailFilter']]['buildConfigurationList']]['buildConfigurations']
                     if objects[key]['name'] == 'Local')

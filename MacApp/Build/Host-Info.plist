@@ -36,5 +36,7 @@
 	<string>Mail-Filter reads account addresses during setup and reads one selected email when you explicitly request a diagnostic test. You can also enter addresses and open an email file without Mail automation.</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
+	<key>NSHumanReadableCopyright</key>
+	<string>Copyright © 2026 Keith Holt. All rights reserved.</string>
 </dict>
 </plist>

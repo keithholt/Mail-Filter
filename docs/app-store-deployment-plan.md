@@ -6,13 +6,13 @@ Desktop probes confirm that App Sandbox permits our synthetic model classificati
 
 Assessment date: October 17, 2026. Baseline: build 13, commit `2cee33b`. The checks used an Apple silicon Mac with macOS 27.0.1, Xcode 27.0 and SDK 27.0. This plan records completed checks separately from the desktop, provisioning and review gates that remain open.
 
-Implementation update: build 15 uses one root Xcode project for local and Store builds. Store preparation includes manual address setup, email-file diagnostics, complete setup archives and bounded private file history. An unsigned archive compiles and passes payload inspection. Apple enrollment is processing. Section 9 records the completed work and the tests that must wait for signing. The working installation has not been replaced.
+Qualification update, October 19, 2026: developer-team access is active. Build 15 passed signed Development startup, account discovery, settings persistence, read-only analysis, shared activity, incoming Preview and actual Junk moves. A restored message stayed in Inbox after Mail restarted, and the user confirmed a Junk move with the settings app closed. The production archive and local distribution export passed their signature, provisioning and payload checks. Build 18 subsequently processed in App Store Connect, and the publisher reported completing submission for App Review. Section 10 separates these observations from the remaining clean-install tests and review outcome. The original installed app is preserved; the separately identified development extension is the active test installation.
 
 ## 1 Feasibility findings
 
 Apple explicitly supports distributing MailKit extensions through the Mac App Store. Our incoming handler already obtains message data and requests Junk actions through that public API. The settings application, packaging and supporting diagnostics require the larger changes. See [Apple MailKit presentation](https://developer.apple.com/videos/play/wwdc2021/10168/) and [App Sandbox guidance](https://developer.apple.com/documentation/security/protecting-user-data-with-app-sandbox).
 
-At the build-13 assessment baseline, the native settings application was unsandboxed and its embedded extension used a narrow local-development filesystem exception. The direct Local and DeveloperID configurations retain that intended host behavior. The current root Xcode project additionally provides sandboxed Development and Store configurations with shared-group entitlements; signed runtime qualification remains outstanding.
+At the build-13 assessment baseline, the native settings application was unsandboxed and its embedded extension used a narrow local-development filesystem exception. The direct Local and DeveloperID configurations retain that intended host behavior. The root Xcode project additionally provides sandboxed Development and Store configurations with shared-group entitlements. The following tables describe the October 17 probes; Section 10 records the subsequent signed Development qualification.
 
 | Check | Result | Evidence and limit |
 |---|---|---|
@@ -23,7 +23,7 @@ At the build-13 assessment baseline, the native settings application was unsandb
 | Basic sandbox process | Passed in desktop probes | All three sandboxed variants exit successfully and report a containerized home directory. |
 | Sandboxed Mail automation | Partial desktop evidence | The Mail-targeted exception reads account and selection counts. Compose-only metadata access fails with privilege error -10004. No selected-message source was tested. |
 | Synthetic model generation | Passed in desktop probes | All four variants classify the synthetic campaign appeal as political using the shared model code. |
-| Provisioned App Group | Not established | This Mac has zero valid Apple signing identities. A real team-authorized group has not been tested. |
+| Provisioned App Group | Not established by the October 17 probes | These ad-hoc experiments did not use team-authorized profiles. Later signed sharing results are in Section 10. |
 
 The user ran the complete matrix from a normal Terminal session on October 17, 2026. All four variants completed with exit code zero, verified signatures and matching entitlement dictionaries. The three sandboxed variants confirmed containerized storage. Their observed differences were limited to Mail automation in this run:
 
@@ -36,7 +36,7 @@ The user ran the complete matrix from a normal Terminal session on October 17, 2
 
 Mail was visible as running to every variant. No message was selected, so the successful metadata queries did not exercise the selected-source branch. Preflight success alone does not prove that a particular Apple Event is allowed, as the compose result demonstrates. The plain sandbox's -600 is `procNotFound` in the SDK; it does not mean Mail was closed, and this run did not isolate its cause.
 
-Earlier attempts inside the restricted execution environment could not launch the sandbox helper or complete synthetic generation, and did not see Mail. The successful desktop run establishes that those outcomes are not reproducible in the normal session. It does not identify their precise cause. Provisioned host/extension sharing, selected-message source access, permission denial and Store archive behavior remain separate qualification tasks.
+Earlier attempts inside the restricted execution environment could not launch the sandbox helper or complete synthetic generation, and did not see Mail. The successful desktop run establishes that those outcomes are not reproducible in the normal session. It does not identify their precise cause. These probes alone did not establish provisioned sharing, selected-message source access, permission denial or Store archive behavior; subsequent qualification is recorded separately.
 
 The desktop run used `--all-runtime --mail-metadata --synthetic-model`, without requesting new Mail permission. The probes did not install or enable a Mail extension, access production filter settings, move messages, send mail, or change the working installation.
 
@@ -146,13 +146,13 @@ Keep automatic discovery and direct selected-Mail analysis behind an explicit ca
 
 ### 6.1 Establish the account and signing foundation
 
-Owner: account holder with engineering support. Decide individual or organization enrollment, obtain membership, and authorize the team. Register development and production host/extension identifiers and separate App Groups. Establish certificate custody and roles. The exit condition is a signed development archive whose declared capabilities match its profiles, without modifying the working installation.
+Owner: account holder with engineering support. Paid-team access, the Apple Development identity and Development app/extension profiles are now established. Xcode registered the test Mac and authorized the Development App Group. Production identifiers, the separate production group and distribution assets must also qualify through archive/export. Keep team overrides in the ignored local configuration and establish certificate custody and App Store Connect roles.
 
 ### 6.2 Add a Store build pipeline
 
 Implemented in build 15. The root `Mail-Filter.xcodeproj` owns the shared app and extension targets, plus separate engineering CLI and uninstaller targets. Its Local, DeveloperID, BuildCheck, Development and Store configurations select the channel's identity, storage, entitlements and signing. `MacApp/generate-project.py` is the native source-list authority; shell build entry points invoke the same project. The developer guide documents all five schemes and their Build/Run/Archive behavior.
 
-The Local Installer scheme packages native dependencies without recursively compiling them. Store schemes and payload checks exclude engineering tools, the uninstaller, PATH components and Desktop shortcuts. A shared target regenerates the Word documentation for native builds. Configuration files live in `MacApp/Build/`; private team settings belong in the ignored `Signing.local.xcconfig`. The remaining gate is a provisioned archive that passes runtime qualification and App Store Connect validation before final listing preparation.
+The Local Installer scheme packages native dependencies without recursively compiling them. Store schemes and payload checks exclude engineering tools, the uninstaller, PATH components and Desktop shortcuts. A shared target regenerates the Word documentation for native builds. Configuration files live in `MacApp/Build/`; private team settings belong in the ignored `Signing.local.xcconfig`. Automatic archiving uses development signing; App Store export applies distribution signing. Archive verification is a separate stage and must never substitute for strict verification of the exported distribution artifact. See [Apple's distribution signing workflow](https://developer.apple.com/documentation/xcode/creating-distribution-signed-code-for-the-mac/).
 
 ### 6.3 Complete shared storage and migration
 
@@ -196,28 +196,28 @@ Upload using Xcode or Transporter, choose the processed build, add it for review
 
 | Gate | Current state | Evidence required |
 |---|---|---|
-| Publisher and signing | Pending account holder | Active membership, valid identities and authorized profiles |
-| Sandboxed desktop startup | Ad-hoc probes passed | Host and extension launch from the provisioned archive |
-| Shared storage | Open | Both processes read/write the intended group without development exceptions |
-| Setup capability | Account-count probe passed | Full inventory and selected-source access qualify with acceptable entitlements, or the manual path is complete |
-| File selection and export | Open | Open/Save access works without broad filesystem exceptions |
-| Model execution | Sandboxed synthetic appeal passed | Controls and representative consented fixtures work inside the distributed extension |
-| Migration and recovery | Complete archive fixture checks passed | Signed import and restored-message protection survive update and restart |
-| Store diagnostics | Container and fixture checks passed | Useful bounded reports after host quit, extension restart and log-service failure |
-| Mail actions | Pending isolated live test | Controlled eligible test mail moves; restored false positive stays in Inbox |
-| Store archive | Unsigned archive and payload checks passed | Provisioned archive validates for App Store Connect |
-| App Review | Open | Submitted build and requested entitlements accepted |
+| Publisher and signing | Paid team, Development profiles and distribution export passed | Maintain signing assets and publisher access |
+| Sandboxed desktop startup | Signed Development passed | Confirm startup from the final Store installation |
+| Shared storage | Signed Development passed | Confirm the separate production group on a clean installation |
+| Setup capability | Signed inventory and selected analysis passed | Qualify denial and manual paths; obtain entitlement acceptance |
+| File selection and export | Fixture checks passed | Signed Open/Save panels and exports work without broad exceptions |
+| Model execution | Signed incoming classification passed | Complete the provider, language and model-availability matrix |
+| Migration and recovery | Fixtures and signed restoration passed | Complete signed setup import, confirmation and update migration |
+| Store diagnostics | Shared activity passed in Development | Qualify signed support-file export, rotation and failure behavior |
+| Mail actions | Junk, restoration and host-quit tests passed | Repeat relevant checks from the final Store installation |
+| Store archive | Signed archive, local export and build 18 upload processing passed | Preserve the submitted archive and exported package |
+| App Review | Publisher reported submission of version 2.1.0 build 18 | Apple accepts the submitted build and requested entitlements |
 
 No gate should be marked passed solely because an ad-hoc signature verifies or the unsandboxed CLI works. Keep the archived build, signed entitlements, OS/Xcode versions and reproduction steps with each qualification result. Store actual test reports outside public documentation if they contain user data.
 
 ## 8 Immediate next actions
 
-1. Complete Apple enrollment, then confirm identifiers, group registration and the signing team. The desktop probes and unsigned implementation checks are complete; provisioning and upload qualification depend on the account.
-2. Build the isolated signed development configuration. Qualify App Group sharing, full inventory, selected-message source, permission denial, file panels and import confirmation before enabling any apply-mode test.
-3. Complete the isolated Mail action/update matrix, publish support and privacy URLs, and settle the review metadata. Keep the existing working installation and developer CLI available during this work.
-4. Validate the production archive, beta through TestFlight, and prepare the review submission after the technical gates pass.
+1. Monitor the submitted version in App Store Connect and respond to Apple's questions or requested changes. Submission is not App Review acceptance; the selected release setting is automatic release after approval.
+2. Preserve the submitted build-18 package and archive. A development-signed archive alone is not a distributable Store artifact; the exported package has separately passed distribution checks.
+3. Complete signed file-panel, email-file, setup import/confirmation, denial, clean-install and update tests. Repeat the necessary runtime checks with production storage and a TestFlight or Store installation.
+4. Complete the remaining provider/model matrix and keep the published support/privacy pages consistent with the app. Preserve the working developer CLI and original installation until migration is qualified.
 
-## 9 Work completed while enrollment processes
+## 9 Implementation completed before signed qualification
 
 ### 9.1 Build and capability separation
 
@@ -243,6 +243,51 @@ Privacy manifests accompany both Store bundles. They declare elapsed-time measur
 
 ### 9.4 Verification and account dependent handoff
 
-The native regression suite passes, including 42 dedicated checks for manual setup, complete migration, protection retention, import confirmation, email-file extraction, export privacy, log rotation, expiry and log-storage failure. All use synthetic input and temporary stores. The actual Store host and extension compile and archive with signing disabled, and payload inspection passes. These results do not establish signed runtime access, UI behavior under Powerbox, live Mail actions or model accuracy in the distributed extension.
+The native regression suite passes, including 42 dedicated checks for manual setup, complete migration, protection retention, import confirmation, email-file extraction, export privacy, log rotation, expiry and log-storage failure. All use synthetic input and temporary stores. The unsigned Store archive also passes payload inspection. These automated checks establish fixture contracts; signed runtime observations are recorded in Section 10 and do not replace clean-install or App Review qualification.
 
-`MacApp/Store/README.md` contains the commands for signed development, production archiving and local export after enrollment. `docs/store-review-preparation.md` provides listing, privacy-policy and entitlement drafts plus a reproducible reviewer demonstration. Public support/privacy URLs, contact details, screenshots and final business/compliance answers remain publisher work. Signed clean-install/update tests, TestFlight and App Review remain open.
+`MacApp/Store/README.md` contains the commands for signed development, production archiving and local export after enrollment. `docs/store-review-preparation.md` provides listing and entitlement notes plus a reproducible reviewer demonstration. The public pages and submission preparation were completed later on October 19, as recorded below. Signed clean-install/update tests, TestFlight installation and the App Review outcome remain open.
+
+## 10 Signed Development qualification on October 19, 2026
+
+The tested app and extension use the Development identities and provisioned App Group, version 2.1.0, build 15. Signatures and embedded profiles were checked for both bundles. The test Mac was registered with the team through Xcode. Personal team identifiers, account addresses, message contents and private reports are excluded from this public plan.
+
+| Check | Result and evidence |
+|---|---|
+| Signed startup | User confirmed a normal settings window without storage or permission errors. |
+| Mail account discovery | User confirmed the configured Mail accounts appeared. |
+| Settings persistence | Selected accounts and Preview were retained after closing and reopening the app. |
+| Selected-message analysis | User confirmed read-only analysis completed. |
+| Callback and shared activity | Logs recorded body-request/body-ready callbacks; the Development UI count increased from four to six. |
+| Own-sender protection | The 9:18 a.m. self-email was skipped as self-mail and retained in Inbox. |
+| Incoming political Preview | At 9:20 a.m., logs recorded a political label and Preview outcome, with no Junk request. |
+| Actual Junk action | User confirmed an incoming political email moved into Junk. |
+| Restoration after restart | User restored the message to Inbox, restarted Mail and confirmed it stayed there. |
+| Settings app closed | User confirmed a political email arriving at 11:20 a.m. moved into Junk while the settings app was closed. |
+
+Times above are local to the test Mac, America/Los_Angeles. Logs establish callback and classification stages; the user observations establish the actual mailbox moves, settings UI behavior and restored-message result. These observations cover this test installation, not every provider or all classifier inputs. A production Store installation has separate storage and still requires its own qualification.
+
+### 10.1 Development registration and lifecycle findings
+
+The development bundle was present in the full PlugInKit registry but absent from normal Mail extension discovery when only the build-folder copies were registered. A separately named copy under `~/Applications/Mail-Filter Development.app`, followed by explicit registration of its embedded extension, appeared in normal discovery and Mail's own extension list. Use the signed build workflow for the exact staging steps.
+
+Opening or replacing a development app can refresh its registration. During this run, Mail retained the old registration while a new registration was created for the same extension. Mail then rejected incoming requests with PlugInKit error 16, "other version in use." A clean Mail quit released the old extension process; reopening Mail restored callbacks. Quit Mail before replacing or re-registering a test extension, launch the intended settings copy, then reopen Mail. Avoid interleaving Xcode Run copies with the staged installation during a live test.
+
+The original and development apps have separate activity stores. Verify the app identity when comparing counts. Incoming callbacks count invocations, not unique emails; body retrieval normally produces two callbacks. Preview positives appear as "Political - preview only" in Activity and do not increment Junk actions requested.
+
+### 10.2 Store archive and local export
+
+The signed archive stage builds with automatic development signing and production identities. The local archive at `outputs/store/Mail-Filter.xcarchive` passed archive-stage capability and profile verification. A negative check confirmed that strict distribution validation rejects that development-signed archive.
+
+App Store export then succeeded at `outputs/store/export/Mail-Filter.pkg`. The maintained export verifier checked the Apple-issued App Store installer signature, a matching installer/app team, distribution signatures on the app and embedded extension, explicit unexpired App Store profiles, the provisioned production group, no debugging permission, matching privacy manifests and absence of engineering tools or custom installer scripts. The package was expanded into temporary files for inspection. These build commands did not install or upload it; subsequent upload and submission are recorded in Section 10.4.
+
+The initial build-15 metadata audit found a missing `NSHumanReadableCopyright` value. The publisher approved "Copyright © 2026 Keith Holt. All rights reserved." Build 16 includes this notice in the host metadata, and the payload verifier now rejects a missing or blank notice. The replacement build-16 archive and local export passed the same capability, profile, signature and payload checks; inspecting the exported app confirmed the approved notice and matching app/extension build numbers. The previous build-15 archive and export are preserved under the ignored `outputs/store/qualification-build-15/` directory. Build 16 is a metadata update; the signed incoming-mail runtime observations above remain evidence for Development build 15. See [Apple's distribution preparation guidance](https://developer.apple.com/documentation/xcode/preparing-your-app-for-distribution).
+
+### 10.3 Remaining qualification
+
+Remaining runtime qualification includes signed setup archive import/confirmation, user-selected email-file and support-report panels, permission-denial behavior and clean-install/update recovery. Repeat the relevant checks from a final Store or TestFlight installation. The tests above do not establish App Review acceptance.
+
+### 10.4 Upload and submission on October 19
+
+Transporter rejected build 16 with error 90362 because the extension executable did not match its `.appex` basename. Build 17 corrected the executable name in the sandboxed configurations and added validation for this constraint. Build 18 added public Privacy Policy and Support links in Setup & help. The versioned upload package is `outputs/store/Mail-Filter-2.1.0-build-18.pkg`.
+
+The public support and privacy pages are live at `https://keithholt.github.io/Mail-Filter/support.html` and `https://keithholt.github.io/Mail-Filter/privacy.html`. Four screenshots and synthetic reviewer samples were prepared. App Store Connect showed build 18 as Ready to Submit, and version 2.1.0 was saved with build 18 selected and the updated review notes. The publisher then reported completing submission. The selected primary category is Productivity, with Utilities secondary; Content Rights was saved by the publisher. Apple has not yet approved the submission. Automatic release after approval is selected.

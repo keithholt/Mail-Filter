@@ -6,6 +6,8 @@ MAIL_FILTER_DISTRIBUTION = app-store
 MAIL_FILTER_STORAGE_MODE = app-group
 SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) APP_STORE
 CODE_SIGN_STYLE = Automatic
-CODE_SIGN_IDENTITY = Apple Distribution
+// Automatic archives use development signing. App Store export re-signs them
+// with Apple Distribution and distribution provisioning profiles.
+CODE_SIGN_IDENTITY = Apple Development
 // Keep the team outside generated project files and version control.
 #include? "Signing.local.xcconfig"

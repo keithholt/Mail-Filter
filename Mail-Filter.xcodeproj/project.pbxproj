@@ -1,2331 +1,1545 @@
 // !$*UTF8*$!
 {
-	"archiveVersion" = 1;
-	"classes" = {
+	archiveVersion = 1;
+	classes = {
 	};
-	"objectVersion" = 56;
-	"objects" = {
-		"EC253747E1B9226F92DB92E1" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "AccountInventory.swift";
-			"path" = "MacApp/AccountInventory.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"E2D352830C11FA469F275050" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "DiagnosticReport.swift";
-			"path" = "MacApp/DiagnosticReport.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"44A00F555C15EB7A64D29F2C" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "MailFilterApp.swift";
-			"path" = "MacApp/MailFilterApp.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"5DE3AEDF1CCB7EA72FB57959" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "MessageDiagnostics.swift";
-			"path" = "MacApp/MessageDiagnostics.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"B932300D747368EBE1C1B108" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "NativeClassifier.swift";
-			"path" = "MacApp/NativeClassifier.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"604716F53C5EDC63C4268989" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "NativeExtension.swift";
-			"path" = "MacApp/NativeExtension.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"EF154CABE95C979848B98CAC" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "SelectedEmailReport.swift";
-			"path" = "MacApp/SelectedEmailReport.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"62D14A185FB0AFD3129DF58A" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "SettingsModel.swift";
-			"path" = "MacApp/SettingsModel.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"B2F23CB9D416686513629B8E" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "SettingsView.swift";
-			"path" = "MacApp/SettingsView.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"BBA95671781E6DEB8880A896" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "AnalysisDeadline.swift";
-			"path" = "MacApp/Shared/AnalysisDeadline.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"7DF53B11F35B0326533B13BE" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "BodyRequestTracker.swift";
-			"path" = "MacApp/Shared/BodyRequestTracker.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"2DC4156D5F66C5FF6911E21F" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "ClassificationRetry.swift";
-			"path" = "MacApp/Shared/ClassificationRetry.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"F924467C955A242D24394004" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "FilteringConfiguration.swift";
-			"path" = "MacApp/Shared/FilteringConfiguration.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"32FA5306C0DF31F3ADCACA71" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "InspectionScheduler.swift";
-			"path" = "MacApp/Shared/InspectionScheduler.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"3443A527845D1091CED41E2E" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "JunkProtection.swift";
-			"path" = "MacApp/Shared/JunkProtection.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"B280DEF19848D4BEEE440D96" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "MIMEBodyDecoder.swift";
-			"path" = "MacApp/Shared/MIMEBodyDecoder.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"24B8C1145EFC4D3D812C499E" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "SharedStore.swift";
-			"path" = "MacApp/SharedStore.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"B89782262EEC86D07762BBCD" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "UninstallPlan.swift";
-			"path" = "MacApp/UninstallPlan.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"376D4C1B8B5049F1C6D3983D" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "UninstallerApp.swift";
-			"path" = "MacApp/UninstallerApp.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"2DDDA7339AD08DBB81D8CA41" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "AgentControl.swift";
-			"path" = "Sources/MailFilter/AgentControl.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"A553D76EF54E0B6410717921" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "ClassificationRequest.swift";
-			"path" = "Sources/MailFilter/ClassificationRequest.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"0F9EC4F9E64A2019C7F96711" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "Core.swift";
-			"path" = "Sources/MailFilter/Core.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"669BC498F5A0ED83833814FD" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "MailAutomation.swift";
-			"path" = "Sources/MailFilter/MailAutomation.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"BB8764775FEF80A46897B183" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "MailFilter.swift";
-			"path" = "Sources/MailFilter/MailFilter.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"964F03D4DB4E679AAFFE10A2" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "PoliticalModel.swift";
-			"path" = "Sources/MailFilter/PoliticalModel.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"5D5EC16A145CBCE07DBA4551" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "ProcessedMessages.swift";
-			"path" = "Sources/MailFilter/ProcessedMessages.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"8F15B6E5C039C71ACBDC777E" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "folder.assetcatalog";
-			"name" = "Assets.xcassets";
-			"path" = "MacApp/Build/Assets.xcassets";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"9A112A41C85E8B40DBC8EE1F" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.xml";
-			"name" = "PrivacyInfo.xcprivacy";
-			"path" = "MacApp/Build/PrivacyInfo.xcprivacy";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"1B962942D670AF254AAA0159" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text";
-			"name" = "filter.txt";
-			"path" = "MacApp/Resources/filter.txt";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"D8054CD12FACFA6ACEB04AA7" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text";
-			"name" = "political-evidence.txt";
-			"path" = "MacApp/Resources/political-evidence.txt";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"FC1403135EB4386BD6C023A6" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "wrapper.framework";
-			"name" = "MailKit.framework";
-			"path" = "System/Library/Frameworks/MailKit.framework";
-			"sourceTree" = "SDKROOT";
-		};
-		"8BD2FC20C69A1E6BAD334CD6" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "wrapper.framework";
-			"name" = "AppKit.framework";
-			"path" = "System/Library/Frameworks/AppKit.framework";
-			"sourceTree" = "SDKROOT";
-		};
-		"FF45B4A2149347AA53D5F95C" = {
-			"isa" = "PBXFileReference";
-			"explicitFileType" = "wrapper.application";
-			"path" = "Mail-Filter.app";
-			"sourceTree" = "BUILT_PRODUCTS_DIR";
-		};
-		"9B5EA5B470B5FDC806AA1095" = {
-			"isa" = "PBXFileReference";
-			"explicitFileType" = "wrapper.app-extension";
-			"path" = "Mail-Filter.appex";
-			"sourceTree" = "BUILT_PRODUCTS_DIR";
-		};
-		"E42E036B49D679E107147509" = {
-			"isa" = "PBXFileReference";
-			"explicitFileType" = "wrapper.application";
-			"path" = "Uninstall Mail-Filter.app";
-			"sourceTree" = "BUILT_PRODUCTS_DIR";
-		};
-		"D83FDD13E01C161FBAFC0866" = {
-			"isa" = "PBXFileReference";
-			"explicitFileType" = "compiled.mach-o.executable";
-			"path" = "mail-filter";
-			"sourceTree" = "BUILT_PRODUCTS_DIR";
-		};
-		"67E3CB7E2A2793B90B04B3B2" = {
-			"isa" = "PBXShellScriptBuildPhase";
-			"buildActionMask" = 2147483647;
-			"files" = (
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		70F1C043A995B2E84CEB1654 /* MailFilterLocalInstaller */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 2DD6835325FCC8FA8F334CCE /* Build configuration list for PBXAggregateTarget "MailFilterLocalInstaller" */;
+			buildPhases = (
+				0B4C8C408CAF1D4B6EA45FA3 /* Package built local products */,
 			);
-			"inputPaths" = (
+			dependencies = (
+				7E1B566C8C37C754335FC8ED /* PBXTargetDependency */,
+				65BAD426725A76BEEB10AB0B /* PBXTargetDependency */,
+				A204DBAC201163A972599C27 /* PBXTargetDependency */,
+			);
+			name = MailFilterLocalInstaller;
+			productName = MailFilterLocalInstaller;
+		};
+		B8F1C788ECC68640F20B3A54 /* MailFilterDocumentation */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 19E6F147C668BB819913A98C /* Build configuration list for PBXAggregateTarget "MailFilterDocumentation" */;
+			buildPhases = (
+				67E3CB7E2A2793B90B04B3B2 /* Regenerate Word documentation */,
+			);
+			dependencies = (
+			);
+			name = MailFilterDocumentation;
+			productName = MailFilterDocumentation;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		005AFFA035F21706B994F8EB /* ClassificationRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A553D76EF54E0B6410717921 /* ClassificationRequest.swift */; };
+		070A9B21E400DE135839A994 /* Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F9EC4F9E64A2019C7F96711 /* Core.swift */; };
+		0A2C416D0EDB70A4AC0694E7 /* MailAutomation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 669BC498F5A0ED83833814FD /* MailAutomation.swift */; };
+		13C1A32B9FA5D32FCAA07FEF /* BodyRequestTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DF53B11F35B0326533B13BE /* BodyRequestTracker.swift */; };
+		160C88483516B43869026CA8 /* MIMEBodyDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B280DEF19848D4BEEE440D96 /* MIMEBodyDecoder.swift */; };
+		1695495448CF0E720FAEFD56 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 9A112A41C85E8B40DBC8EE1F /* PrivacyInfo.xcprivacy */; };
+		1757318B5A4E76E648BF9A70 /* MailAutomation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 669BC498F5A0ED83833814FD /* MailAutomation.swift */; };
+		2127715414BF48A798862B26 /* MIMEBodyDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B280DEF19848D4BEEE440D96 /* MIMEBodyDecoder.swift */; };
+		2184C7D577555449D842CAF4 /* JunkProtection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3443A527845D1091CED41E2E /* JunkProtection.swift */; };
+		256EAA302E8AFA181B8032C1 /* ProcessedMessages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5EC16A145CBCE07DBA4551 /* ProcessedMessages.swift */; };
+		26E8706A7608DE1B4FDE8A23 /* SharedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24B8C1145EFC4D3D812C499E /* SharedStore.swift */; };
+		2713A8921D998108F9605E88 /* SharedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24B8C1145EFC4D3D812C499E /* SharedStore.swift */; };
+		2979DC2BA0F449C63BBC2B7B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 9A112A41C85E8B40DBC8EE1F /* PrivacyInfo.xcprivacy */; };
+		2E020AF0447EF82021C8BF34 /* AgentControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDDA7339AD08DBB81D8CA41 /* AgentControl.swift */; };
+		3094D45D425F272EA7B2FE0A /* Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F9EC4F9E64A2019C7F96711 /* Core.swift */; };
+		316B35FC29A8A20EFB23EDF8 /* InspectionScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32FA5306C0DF31F3ADCACA71 /* InspectionScheduler.swift */; };
+		36AF5DC04D833E0A28D8A1B3 /* AccountInventory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC253747E1B9226F92DB92E1 /* AccountInventory.swift */; };
+		3C5F7BC21F0A37AFD3C78C44 /* ClassificationRetry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC4156D5F66C5FF6911E21F /* ClassificationRetry.swift */; };
+		3C8965437BF367209BDA121E /* UninstallPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = B89782262EEC86D07762BBCD /* UninstallPlan.swift */; };
+		44670D43C387E727E0810D6B /* SettingsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62D14A185FB0AFD3129DF58A /* SettingsModel.swift */; };
+		46057B7C2CC1A0690D66941B /* MailFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB8764775FEF80A46897B183 /* MailFilter.swift */; };
+		4A317661123F9C174CA9F954 /* PoliticalModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 964F03D4DB4E679AAFFE10A2 /* PoliticalModel.swift */; };
+		4B5D6A831DCE514F1FA9B769 /* FilteringConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F924467C955A242D24394004 /* FilteringConfiguration.swift */; };
+		4CAE8AE3F1513908F46B8B52 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2F23CB9D416686513629B8E /* SettingsView.swift */; };
+		4FFEFC6353AB86B8F3475B02 /* JunkProtection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3443A527845D1091CED41E2E /* JunkProtection.swift */; };
+		5104ACF6E39A243A7F43A8C2 /* Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F9EC4F9E64A2019C7F96711 /* Core.swift */; };
+		5B7B009AE2659821F443FB82 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8F15B6E5C039C71ACBDC777E /* Assets.xcassets */; };
+		627238DB2AD0328B456A84E1 /* PoliticalModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 964F03D4DB4E679AAFFE10A2 /* PoliticalModel.swift */; };
+		6B21DBC355DD855CB95CF1C4 /* MailFilterApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A00F555C15EB7A64D29F2C /* MailFilterApp.swift */; };
+		710228D525BC158BBE3B4726 /* ClassificationRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A553D76EF54E0B6410717921 /* ClassificationRequest.swift */; };
+		73BD2FA2F8DDA24DAB7D9105 /* AnalysisDeadline.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBA95671781E6DEB8880A896 /* AnalysisDeadline.swift */; };
+		7B93755A5908BD0EE6278BFE /* PoliticalModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 964F03D4DB4E679AAFFE10A2 /* PoliticalModel.swift */; };
+		7BB0234E90351C8844A42331 /* FilteringConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F924467C955A242D24394004 /* FilteringConfiguration.swift */; };
+		8872293A8813DFB9D16BD910 /* Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F9EC4F9E64A2019C7F96711 /* Core.swift */; };
+		8DF296D1741355AEECF6187F /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BD2FC20C69A1E6BAD334CD6 /* AppKit.framework */; };
+		93077D777834F8BEB0671E09 /* JunkProtection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3443A527845D1091CED41E2E /* JunkProtection.swift */; };
+		955634BC5CFE4F85F0976914 /* PoliticalModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 964F03D4DB4E679AAFFE10A2 /* PoliticalModel.swift */; };
+		A4563178E7C1B88778F8DE5D /* DiagnosticReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2D352830C11FA469F275050 /* DiagnosticReport.swift */; };
+		A51B56F851CEB9C0032EBBD0 /* MIMEBodyDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B280DEF19848D4BEEE440D96 /* MIMEBodyDecoder.swift */; };
+		A5361C130EA59E21E7D01ECB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8F15B6E5C039C71ACBDC777E /* Assets.xcassets */; };
+		A8C9EE3B28C7C831201ACC41 /* NativeExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 604716F53C5EDC63C4268989 /* NativeExtension.swift */; };
+		A9FB70A59E2EDB52C8013DD1 /* UninstallerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376D4C1B8B5049F1C6D3983D /* UninstallerApp.swift */; };
+		AB51B4D8BC4574A54AB2B2A2 /* MailAutomation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 669BC498F5A0ED83833814FD /* MailAutomation.swift */; };
+		B7E4AF042D87055693AAAE08 /* AnalysisDeadline.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBA95671781E6DEB8880A896 /* AnalysisDeadline.swift */; };
+		B95444E0454980F195EE0F18 /* ClassificationRetry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC4156D5F66C5FF6911E21F /* ClassificationRetry.swift */; };
+		C99FA8D3F5B2206CE85329A8 /* MailKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC1403135EB4386BD6C023A6 /* MailKit.framework */; };
+		CDE9833F2828D49104C656D3 /* ClassificationRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A553D76EF54E0B6410717921 /* ClassificationRequest.swift */; };
+		CEF94F63AF2D98CFD0D92B1A /* filter.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1B962942D670AF254AAA0159 /* filter.txt */; };
+		CFE5EBA205BA0B963EC23AA9 /* ClassificationRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A553D76EF54E0B6410717921 /* ClassificationRequest.swift */; };
+		D0FFD3C33C5B8401048406FA /* ClassificationRetry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC4156D5F66C5FF6911E21F /* ClassificationRetry.swift */; };
+		D52F23F543F1BF8948505892 /* AnalysisDeadline.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBA95671781E6DEB8880A896 /* AnalysisDeadline.swift */; };
+		D8D01285295156D452D8445C /* NativeClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B932300D747368EBE1C1B108 /* NativeClassifier.swift */; };
+		DBEB21021DA7690EF23A1762 /* Mail-Filter.appex in Embed Mail extension */ = {isa = PBXBuildFile; fileRef = 9B5EA5B470B5FDC806AA1095 /* Mail-Filter.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E15726C5681CFB8AD728CA23 /* MessageDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE3AEDF1CCB7EA72FB57959 /* MessageDiagnostics.swift */; };
+		E7BB016067249083DA9320E7 /* SharedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24B8C1145EFC4D3D812C499E /* SharedStore.swift */; };
+		EB0264397A2571C21D212D09 /* FilteringConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F924467C955A242D24394004 /* FilteringConfiguration.swift */; };
+		EB63142F08B08CD6AE7CC5C9 /* SelectedEmailReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF154CABE95C979848B98CAC /* SelectedEmailReport.swift */; };
+		EBBD19162029F71233EF50A1 /* UninstallPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = B89782262EEC86D07762BBCD /* UninstallPlan.swift */; };
+		EE3924EE23AC40DC9FBCFF89 /* political-evidence.txt in Resources */ = {isa = PBXBuildFile; fileRef = D8054CD12FACFA6ACEB04AA7 /* political-evidence.txt */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		78966EC83582B4DC2D02177E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 244210E48437B6556980A702 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2C8205F9CC6BD6EC239EC3D7;
+		};
+		80AC38B4E8803445C6DBD6EC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 244210E48437B6556980A702 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 31C09F7DD1F3993BA13EDA4C;
+		};
+		9B7A71F17E2DDF0C0496DDB2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 244210E48437B6556980A702 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B8F1C788ECC68640F20B3A54;
+		};
+		9ECF07CEF5CC21AEBB3F6444 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 244210E48437B6556980A702 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 098A2FAE5D6CC599A6DA7DE2;
+		};
+		EBB30C28FB56077190499346 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 244210E48437B6556980A702 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A148AD5E0608DCE6158BFF07;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		2FCDAD1C40F5D8DBFBA9E52D /* Embed Mail extension */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				DBEB21021DA7690EF23A1762 /* Mail-Filter.appex in Embed Mail extension */,
+			);
+			name = "Embed Mail extension";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		007E74EF93E377F19716BFCD /* MIMEBodyChecks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MIMEBodyChecks.swift; path = MacApp/Tests/MIMEBodyChecks.swift; sourceTree = SOURCE_ROOT; };
+		03971F35A8A7406E06CB9370 /* build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = build.sh; path = MacApp/build.sh; sourceTree = SOURCE_ROOT; };
+		041737C471AF5861DE8C183A /* generate-project.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = "generate-project.py"; path = "MacApp/generate-project.py"; sourceTree = SOURCE_ROOT; };
+		056A6A41B42C1057E69D8F1F /* accounts.example.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = accounts.example.txt; path = config/accounts.example.txt; sourceTree = SOURCE_ROOT; };
+		07280DCB92DEAADB672F9E95 /* ModelProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ModelProbe.swift; path = MacApp/ModelProbe.swift; sourceTree = SOURCE_ROOT; };
+		0A94E6533FF3B800008B131D /* JunkProtectionChecks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = JunkProtectionChecks.swift; path = MacApp/Tests/JunkProtectionChecks.swift; sourceTree = SOURCE_ROOT; };
+		0A9509B259C784CEB4D281B8 /* getting-started.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = "getting-started.md"; path = "docs/dev/getting-started.md"; sourceTree = SOURCE_ROOT; };
+		0CCA558ABCCFF8FC8109E4A6 /* Development.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Development.xcconfig; path = MacApp/Build/Development.xcconfig; sourceTree = SOURCE_ROOT; };
+		0D2B88EEF121DBBC1FDE9429 /* preinstall */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = preinstall; path = MacApp/InstallerScripts/CommandLineOn/preinstall; sourceTree = SOURCE_ROOT; };
+		0EA69702A2E612BCFC5AFDE9 /* verify.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = verify.py; path = MacApp/Store/verify.py; sourceTree = SOURCE_ROOT; };
+		0F9EC4F9E64A2019C7F96711 /* Core.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Core.swift; path = Sources/MailFilter/Core.swift; sourceTree = SOURCE_ROOT; };
+		1632D523A09F75EC81A0E67B /* Host-Local-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Host-Local-Info.plist"; path = "MacApp/Build/Host-Local-Info.plist"; sourceTree = SOURCE_ROOT; };
+		17657031D88204D9E549A836 /* verify_bundle.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = verify_bundle.py; path = MacApp/verify_bundle.py; sourceTree = SOURCE_ROOT; };
+		1779378023456FE0B1C1682D /* website.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = website.md; path = docs/website.md; sourceTree = SOURCE_ROOT; };
+		1A490E0C16585A4F419BED72 /* README-DEVELOPER.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "README-DEVELOPER.md"; sourceTree = SOURCE_ROOT; };
+		1B962942D670AF254AAA0159 /* filter.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = filter.txt; path = MacApp/Resources/filter.txt; sourceTree = SOURCE_ROOT; };
+		2250EE41A20795D923A0C684 /* architecture.docx */ = {isa = PBXFileReference; lastKnownFileType = file; name = architecture.docx; path = docs/dev/architecture.docx; sourceTree = SOURCE_ROOT; };
+		24B8C1145EFC4D3D812C499E /* SharedStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SharedStore.swift; path = MacApp/SharedStore.swift; sourceTree = SOURCE_ROOT; };
+		262CACBDB1BA17FA49164E08 /* build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = build.sh; sourceTree = SOURCE_ROOT; };
+		289E5F772612FC3DDBF111B6 /* test.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = test.sh; path = MacApp/test.sh; sourceTree = SOURCE_ROOT; };
+		2BE4893C30C0D061288A0E43 /* support.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = support.html; path = site/support.html; sourceTree = SOURCE_ROOT; };
+		2BF6BFB08BD70BF470F6BEED /* NativeChecks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NativeChecks.swift; path = MacApp/Tests/NativeChecks.swift; sourceTree = SOURCE_ROOT; };
+		2DC4156D5F66C5FF6911E21F /* ClassificationRetry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClassificationRetry.swift; path = MacApp/Shared/ClassificationRetry.swift; sourceTree = SOURCE_ROOT; };
+		2DDDA7339AD08DBB81D8CA41 /* AgentControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AgentControl.swift; path = Sources/MailFilter/AgentControl.swift; sourceTree = SOURCE_ROOT; };
+		2DFCE6FDBD5E60755AAD0E59 /* DeadlineChecks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DeadlineChecks.swift; path = MacApp/Tests/DeadlineChecks.swift; sourceTree = SOURCE_ROOT; };
+		32FA5306C0DF31F3ADCACA71 /* InspectionScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = InspectionScheduler.swift; path = MacApp/Shared/InspectionScheduler.swift; sourceTree = SOURCE_ROOT; };
+		3443A527845D1091CED41E2E /* JunkProtection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = JunkProtection.swift; path = MacApp/Shared/JunkProtection.swift; sourceTree = SOURCE_ROOT; };
+		353174241C81480002A3B5EC /* build-docx.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = "build-docx.py"; path = "docs/build-docx.py"; sourceTree = SOURCE_ROOT; };
+		374A07022B489A93A218E9F9 /* agent.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = agent.sh; path = scripts/agent.sh; sourceTree = SOURCE_ROOT; };
+		376D4C1B8B5049F1C6D3983D /* UninstallerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UninstallerApp.swift; path = MacApp/UninstallerApp.swift; sourceTree = SOURCE_ROOT; };
+		3D1EDDF680FC61E51E2B5901 /* StoreReadinessChecks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StoreReadinessChecks.swift; path = MacApp/Tests/StoreReadinessChecks.swift; sourceTree = SOURCE_ROOT; };
+		3E4B3EB06422AAED166090E5 /* app-store-deployment-plan.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = "app-store-deployment-plan.md"; path = "docs/app-store-deployment-plan.md"; sourceTree = SOURCE_ROOT; };
+		3EE00208F7206DB5925FF989 /* run.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = run.py; path = MacApp/Feasibility/run.py; sourceTree = SOURCE_ROOT; };
+		42C59AF8A4BAE559BC5A5D5D /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
+		44A00F555C15EB7A64D29F2C /* MailFilterApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MailFilterApp.swift; path = MacApp/MailFilterApp.swift; sourceTree = SOURCE_ROOT; };
+		44DE51A68066A1ABD4B768E8 /* pages.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; name = pages.yml; path = .github/workflows/pages.yml; sourceTree = SOURCE_ROOT; };
+		458B6DAADB8595DF0581BCBE /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = index.html; path = site/index.html; sourceTree = SOURCE_ROOT; };
+		4979DDE12A5D7D34C7CAD541 /* Host-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Host-Info.plist"; path = "MacApp/Build/Host-Info.plist"; sourceTree = SOURCE_ROOT; };
+		4B27412397CF1467EA6D3AC8 /* Extension-Local.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Extension-Local.entitlements"; path = "MacApp/Build/Extension-Local.entitlements"; sourceTree = SOURCE_ROOT; };
+		50F362E88B9EA508787E0C7A /* app-store-deployment-plan.docx */ = {isa = PBXFileReference; lastKnownFileType = file; name = "app-store-deployment-plan.docx"; path = "docs/app-store-deployment-plan.docx"; sourceTree = SOURCE_ROOT; };
+		5907A3E2A97FEFD9C48EAA7E /* Uninstaller-Direct.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Uninstaller-Direct.entitlements"; path = "MacApp/Build/Uninstaller-Direct.entitlements"; sourceTree = SOURCE_ROOT; };
+		5CE1F14C0EA21717C9F10C54 /* Uninstaller-Local.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Uninstaller-Local.entitlements"; path = "MacApp/Build/Uninstaller-Local.entitlements"; sourceTree = SOURCE_ROOT; };
+		5D5EC16A145CBCE07DBA4551 /* ProcessedMessages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ProcessedMessages.swift; path = Sources/MailFilter/ProcessedMessages.swift; sourceTree = SOURCE_ROOT; };
+		5DE3AEDF1CCB7EA72FB57959 /* MessageDiagnostics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MessageDiagnostics.swift; path = MacApp/MessageDiagnostics.swift; sourceTree = SOURCE_ROOT; };
+		5FF505F727B48BFD149CA338 /* PackagingChecks.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = PackagingChecks.py; path = MacApp/Tests/PackagingChecks.py; sourceTree = SOURCE_ROOT; };
+		604716F53C5EDC63C4268989 /* NativeExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NativeExtension.swift; path = MacApp/NativeExtension.swift; sourceTree = SOURCE_ROOT; };
+		62D14A185FB0AFD3129DF58A /* SettingsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsModel.swift; path = MacApp/SettingsModel.swift; sourceTree = SOURCE_ROOT; };
+		63185B2B25D7508453C2F9A8 /* DeveloperID.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = DeveloperID.xcconfig; path = MacApp/Build/DeveloperID.xcconfig; sourceTree = SOURCE_ROOT; };
+		64D7E7BD628355E75E79625A /* Signing.example.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Signing.example.xcconfig; path = MacApp/Build/Signing.example.xcconfig; sourceTree = SOURCE_ROOT; };
+		65B1B824DCA8562673160FE1 /* store-build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = "store-build.sh"; path = "MacApp/store-build.sh"; sourceTree = SOURCE_ROOT; };
+		6646362DC479AA18AEF1AB2F /* architecture.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = architecture.md; path = docs/dev/architecture.md; sourceTree = SOURCE_ROOT; };
+		669BC498F5A0ED83833814FD /* MailAutomation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MailAutomation.swift; path = Sources/MailFilter/MailAutomation.swift; sourceTree = SOURCE_ROOT; };
+		66CBAC7CD772E4093BDC3B1B /* verify_package.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = verify_package.py; path = MacApp/verify_package.py; sourceTree = SOURCE_ROOT; };
+		67D6DFC741B8BFA1A6A4197D /* Uninstaller-Local-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Uninstaller-Local-Info.plist"; path = "MacApp/Build/Uninstaller-Local-Info.plist"; sourceTree = SOURCE_ROOT; };
+		67DACA02A5D698732FBDFDEB /* Extension-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Extension-Info.plist"; path = "MacApp/Build/Extension-Info.plist"; sourceTree = SOURCE_ROOT; };
+		69AA7140F4B70C0EF77CA252 /* Host-Local.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Host-Local.entitlements"; path = "MacApp/Build/Host-Local.entitlements"; sourceTree = SOURCE_ROOT; };
+		6A2EE271C441DA8899B921A2 /* Common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Common.xcconfig; path = MacApp/Build/Common.xcconfig; sourceTree = SOURCE_ROOT; };
+		6E02A68992F0164F61097018 /* Host.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Host.entitlements; path = MacApp/Build/Host.entitlements; sourceTree = SOURCE_ROOT; };
+		6ED677768624818EC6DE0A01 /* AppStoreProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppStoreProbe.swift; path = MacApp/Feasibility/AppStoreProbe.swift; sourceTree = SOURCE_ROOT; };
+		6F337081F35C18885C7677A6 /* StorePackagingChecks.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = StorePackagingChecks.py; path = MacApp/Tests/StorePackagingChecks.py; sourceTree = SOURCE_ROOT; };
+		732359E46E3EFF7F3DF28803 /* prepare-direct-products.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = "prepare-direct-products.py"; path = "MacApp/prepare-direct-products.py"; sourceTree = SOURCE_ROOT; };
+		74FCF38993456C0CCF47F6EB /* store-review-preparation.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = "store-review-preparation.md"; path = "docs/store-review-preparation.md"; sourceTree = SOURCE_ROOT; };
+		7DF53B11F35B0326533B13BE /* BodyRequestTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BodyRequestTracker.swift; path = MacApp/Shared/BodyRequestTracker.swift; sourceTree = SOURCE_ROOT; };
+		7F7B0BA80D7D28D862282A9A /* notarize.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = notarize.sh; path = MacApp/notarize.sh; sourceTree = SOURCE_ROOT; };
+		86C2901E92BDF550F9B78D19 /* Store.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Store.xcconfig; path = MacApp/Build/Store.xcconfig; sourceTree = SOURCE_ROOT; };
+		882890448FC689550D0A0642 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = MacApp/Store/README.md; sourceTree = SOURCE_ROOT; };
+		89EFC9282D16E8DEE1C5BC15 /* styles.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; name = styles.css; path = site/styles.css; sourceTree = SOURCE_ROOT; };
+		8B81B5153C68D2FDE812A661 /* Local.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Local.xcconfig; path = MacApp/Build/Local.xcconfig; sourceTree = SOURCE_ROOT; };
+		8BD2FC20C69A1E6BAD334CD6 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		8CCDDB0362EC1F1F1B6623AB /* package.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = package.sh; path = MacApp/package.sh; sourceTree = SOURCE_ROOT; };
+		8CD30E65E094D80B5E5C9A43 /* test.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = test.sh; sourceTree = SOURCE_ROOT; };
+		8DF7399541A14930FA88EE7E /* Extension-Direct.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Extension-Direct.entitlements"; path = "MacApp/Build/Extension-Direct.entitlements"; sourceTree = SOURCE_ROOT; };
+		8F15B6E5C039C71ACBDC777E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = MacApp/Build/Assets.xcassets; sourceTree = SOURCE_ROOT; };
+		91B6BC03974DD4049A78FBEA /* Extension-Local-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Extension-Local-Info.plist"; path = "MacApp/Build/Extension-Local-Info.plist"; sourceTree = SOURCE_ROOT; };
+		964F03D4DB4E679AAFFE10A2 /* PoliticalModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PoliticalModel.swift; path = Sources/MailFilter/PoliticalModel.swift; sourceTree = SOURCE_ROOT; };
+		9831AFD2DA449F91AFC93069 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = docs/README.md; sourceTree = SOURCE_ROOT; };
+		98D747AFFD0DDA5CF407EB3E /* probe-model.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = "probe-model.sh"; path = "MacApp/probe-model.sh"; sourceTree = SOURCE_ROOT; };
+		9A112A41C85E8B40DBC8EE1F /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = MacApp/Build/PrivacyInfo.xcprivacy; sourceTree = SOURCE_ROOT; };
+		9AAEEB9F97AE852518ED358C /* verify-export.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = "verify-export.py"; path = "MacApp/Store/verify-export.py"; sourceTree = SOURCE_ROOT; };
+		9ADB414D40BF357DF534F01F /* getting-started.docx */ = {isa = PBXFileReference; lastKnownFileType = file; name = "getting-started.docx"; path = "docs/dev/getting-started.docx"; sourceTree = SOURCE_ROOT; };
+		9B150385C1B690A223D1C99D /* Uninstaller-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Uninstaller-Info.plist"; path = "MacApp/Build/Uninstaller-Info.plist"; sourceTree = SOURCE_ROOT; };
+		9B5EA5B470B5FDC806AA1095 /* Mail-Filter.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; path = "Mail-Filter.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A278DBCA3CA22BB37DBAEBB6 /* OfflineChecks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = OfflineChecks.swift; path = MacApp/Feasibility/OfflineChecks.swift; sourceTree = SOURCE_ROOT; };
+		A553D76EF54E0B6410717921 /* ClassificationRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ClassificationRequest.swift; path = Sources/MailFilter/ClassificationRequest.swift; sourceTree = SOURCE_ROOT; };
+		A5F8D6FC80CB9210CAAC99ED /* political-merchandise.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = "political-merchandise.json"; path = "fixtures/political-merchandise.json"; sourceTree = SOURCE_ROOT; };
+		A6948193FD659F26DA9DFEED /* Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Extension.entitlements; path = MacApp/Build/Extension.entitlements; sourceTree = SOURCE_ROOT; };
+		AB061E12E3F2638C8D807214 /* ExportOptions.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = ExportOptions.plist; path = MacApp/Store/ExportOptions.plist; sourceTree = SOURCE_ROOT; };
+		B042C270B9BF87DD5C43E816 /* SafetyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SafetyTests.swift; path = Tests/MailFilterTests/SafetyTests.swift; sourceTree = SOURCE_ROOT; };
+		B215FE5E7F2B27ABCC39FF44 /* CLI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = CLI.entitlements; path = MacApp/Build/CLI.entitlements; sourceTree = SOURCE_ROOT; };
+		B280DEF19848D4BEEE440D96 /* MIMEBodyDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MIMEBodyDecoder.swift; path = MacApp/Shared/MIMEBodyDecoder.swift; sourceTree = SOURCE_ROOT; };
+		B2F23CB9D416686513629B8E /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsView.swift; path = MacApp/SettingsView.swift; sourceTree = SOURCE_ROOT; };
+		B89782262EEC86D07762BBCD /* UninstallPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UninstallPlan.swift; path = MacApp/UninstallPlan.swift; sourceTree = SOURCE_ROOT; };
+		B932300D747368EBE1C1B108 /* NativeClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NativeClassifier.swift; path = MacApp/NativeClassifier.swift; sourceTree = SOURCE_ROOT; };
+		B9A874DC198CCB98722771CC /* sample.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = sample.json; path = fixtures/sample.json; sourceTree = SOURCE_ROOT; };
+		B9A880DB12B4BACA90EC9FA7 /* MakeIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MakeIcon.swift; path = MacApp/MakeIcon.swift; sourceTree = SOURCE_ROOT; };
+		BA42E1472EB2BDE594C4A014 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = SOURCE_ROOT; };
+		BB8764775FEF80A46897B183 /* MailFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MailFilter.swift; path = Sources/MailFilter/MailFilter.swift; sourceTree = SOURCE_ROOT; };
+		BBA95671781E6DEB8880A896 /* AnalysisDeadline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AnalysisDeadline.swift; path = MacApp/Shared/AnalysisDeadline.swift; sourceTree = SOURCE_ROOT; };
+		BC0271A04BA3304BBB776E8C /* desktop_shortcut.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = desktop_shortcut.py; path = MacApp/desktop_shortcut.py; sourceTree = SOURCE_ROOT; };
+		C650A5132A111E9FC6232F74 /* DiagnosticChecks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DiagnosticChecks.swift; path = MacApp/Tests/DiagnosticChecks.swift; sourceTree = SOURCE_ROOT; };
+		CD4870C936721EE98B5A18BF /* political-evidence.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = "political-evidence.txt"; path = "prompts/political-evidence.txt"; sourceTree = SOURCE_ROOT; };
+		D0E6229B4AA85E4F173EE6CA /* Host-Direct.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Host-Direct.entitlements"; path = "MacApp/Build/Host-Direct.entitlements"; sourceTree = SOURCE_ROOT; };
+		D604F75D27A089550D06EA94 /* ModelRequestChecks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ModelRequestChecks.swift; path = MacApp/Tests/ModelRequestChecks.swift; sourceTree = SOURCE_ROOT; };
+		D61366A4192F7AB146B4AAAC /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = MacApp/README.md; sourceTree = SOURCE_ROOT; };
+		D8054CD12FACFA6ACEB04AA7 /* political-evidence.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = "political-evidence.txt"; path = "MacApp/Resources/political-evidence.txt"; sourceTree = SOURCE_ROOT; };
+		D83FDD13E01C161FBAFC0866 /* mail-filter */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; path = "mail-filter"; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF3D66EA08CC14E6477F2BD3 /* BuildGraphChecks.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = BuildGraphChecks.py; path = MacApp/Tests/BuildGraphChecks.py; sourceTree = SOURCE_ROOT; };
+		DFAA9A79675E5B61B48843E5 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = SOURCE_ROOT; };
+		E010D94CEFF87FE0FBF35464 /* BuildCheck.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = BuildCheck.xcconfig; path = MacApp/Build/BuildCheck.xcconfig; sourceTree = SOURCE_ROOT; };
+		E2D352830C11FA469F275050 /* DiagnosticReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DiagnosticReport.swift; path = MacApp/DiagnosticReport.swift; sourceTree = SOURCE_ROOT; };
+		E42E036B49D679E107147509 /* Uninstall Mail-Filter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; path = "Uninstall Mail-Filter.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		EAC66771DAC3026562CC2779 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = MacApp/Feasibility/README.md; sourceTree = SOURCE_ROOT; };
+		EB03A8A7A63D05581D307485 /* privacy.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = privacy.html; path = site/privacy.html; sourceTree = SOURCE_ROOT; };
+		EC253747E1B9226F92DB92E1 /* AccountInventory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AccountInventory.swift; path = MacApp/AccountInventory.swift; sourceTree = SOURCE_ROOT; };
+		EF154CABE95C979848B98CAC /* SelectedEmailReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SelectedEmailReport.swift; path = MacApp/SelectedEmailReport.swift; sourceTree = SOURCE_ROOT; };
+		EF8E3557A9D4F124E8185FA3 /* filter.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = filter.txt; path = prompts/filter.txt; sourceTree = SOURCE_ROOT; };
+		F03D7F5D1EF306F5DEF12826 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = MacApp/Build/README.md; sourceTree = SOURCE_ROOT; };
+		F4661BF5B4CA91DFEE78D379 /* FilteringChecks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FilteringChecks.swift; path = MacApp/Tests/FilteringChecks.swift; sourceTree = SOURCE_ROOT; };
+		F5808891A4A8FA3537A5F79E /* .nojekyll */ = {isa = PBXFileReference; lastKnownFileType = text; name = .nojekyll; path = site/.nojekyll; sourceTree = SOURCE_ROOT; };
+		F5D7903FDD8EA433C3E8AD8F /* postinstall */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = postinstall; path = MacApp/InstallerScripts/CommandLineOff/postinstall; sourceTree = SOURCE_ROOT; };
+		F68A867A61E8FDF3212728CB /* mail-filter.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "mail-filter.png"; path = "site/mail-filter.png"; sourceTree = SOURCE_ROOT; };
+		F924467C955A242D24394004 /* FilteringConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FilteringConfiguration.swift; path = MacApp/Shared/FilteringConfiguration.swift; sourceTree = SOURCE_ROOT; };
+		F9A0DAF680C37477F024BECD /* RetryChecks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RetryChecks.swift; path = MacApp/Tests/RetryChecks.swift; sourceTree = SOURCE_ROOT; };
+		FC1403135EB4386BD6C023A6 /* MailKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MailKit.framework; path = System/Library/Frameworks/MailKit.framework; sourceTree = SDKROOT; };
+		FF45B4A2149347AA53D5F95C /* Mail-Filter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; path = "Mail-Filter.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C2000662670FC0462E6D472F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C99FA8D3F5B2206CE85329A8 /* MailKit.framework in Frameworks */,
+				8DF296D1741355AEECF6187F /* AppKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0133B36624B25C016BFBA7C5 /* .github */ = {
+			isa = PBXGroup;
+			children = (
+				8298DE138F53DE1AF6172E29 /* workflows */,
+			);
+			path = .github;
+			sourceTree = "<group>";
+		};
+		016062C3206CCEB3F1758007 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				1B962942D670AF254AAA0159 /* filter.txt */,
+				D8054CD12FACFA6ACEB04AA7 /* political-evidence.txt */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		03EC502C927878AE40AE445C /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				873C8B3C2FB5AD22D10EE4E6 /* MailFilterTests */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		0A3E27B8CA818264D75C8D81 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FF45B4A2149347AA53D5F95C /* Mail-Filter.app */,
+				9B5EA5B470B5FDC806AA1095 /* Mail-Filter.appex */,
+				E42E036B49D679E107147509 /* Uninstall Mail-Filter.app */,
+				D83FDD13E01C161FBAFC0866 /* mail-filter */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0D450D620E551A192AD055D7 /* MailFilter */ = {
+			isa = PBXGroup;
+			children = (
+				2DDDA7339AD08DBB81D8CA41 /* AgentControl.swift */,
+				A553D76EF54E0B6410717921 /* ClassificationRequest.swift */,
+				0F9EC4F9E64A2019C7F96711 /* Core.swift */,
+				669BC498F5A0ED83833814FD /* MailAutomation.swift */,
+				BB8764775FEF80A46897B183 /* MailFilter.swift */,
+				964F03D4DB4E679AAFFE10A2 /* PoliticalModel.swift */,
+				5D5EC16A145CBCE07DBA4551 /* ProcessedMessages.swift */,
+			);
+			path = MailFilter;
+			sourceTree = "<group>";
+		};
+		14375BF3ECAB635C8AEAACFC /* site */ = {
+			isa = PBXGroup;
+			children = (
+				F5808891A4A8FA3537A5F79E /* .nojekyll */,
+				458B6DAADB8595DF0581BCBE /* index.html */,
+				F68A867A61E8FDF3212728CB /* mail-filter.png */,
+				EB03A8A7A63D05581D307485 /* privacy.html */,
+				89EFC9282D16E8DEE1C5BC15 /* styles.css */,
+				2BE4893C30C0D061288A0E43 /* support.html */,
+			);
+			path = site;
+			sourceTree = "<group>";
+		};
+		18D067672033295834D2C346 /* dev */ = {
+			isa = PBXGroup;
+			children = (
+				2250EE41A20795D923A0C684 /* architecture.docx */,
+				6646362DC479AA18AEF1AB2F /* architecture.md */,
+				9ADB414D40BF357DF534F01F /* getting-started.docx */,
+				0A9509B259C784CEB4D281B8 /* getting-started.md */,
+			);
+			path = dev;
+			sourceTree = "<group>";
+		};
+		19F479106CE8C3BA8C106518 = {
+			isa = PBXGroup;
+			children = (
+				0133B36624B25C016BFBA7C5 /* .github */,
+				5EA69888B7731A3FC8B5959A /* config */,
+				BAE9AFA394D07408B11CEBFC /* docs */,
+				5D3BB217B662D7870A373268 /* fixtures */,
+				E23E0B51018AFE0D7E5C4E1F /* MacApp */,
+				5646BF22D7BF52605A24CFC9 /* prompts */,
+				3DD0EDC7500BCED0B8BD2F85 /* scripts */,
+				14375BF3ECAB635C8AEAACFC /* site */,
+				5EAB3FFEE99DBEDBAFE1324F /* Sources */,
+				03EC502C927878AE40AE445C /* Tests */,
+				DFAA9A79675E5B61B48843E5 /* .gitignore */,
+				262CACBDB1BA17FA49164E08 /* build.sh */,
+				BA42E1472EB2BDE594C4A014 /* Package.swift */,
+				1A490E0C16585A4F419BED72 /* README-DEVELOPER.md */,
+				42C59AF8A4BAE559BC5A5D5D /* README.md */,
+				8CD30E65E094D80B5E5C9A43 /* test.sh */,
+				E2AA269EB967A8853A258BFA /* Frameworks */,
+				0A3E27B8CA818264D75C8D81 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		1D8DBFDD4FF22839FB04374B /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				BBA95671781E6DEB8880A896 /* AnalysisDeadline.swift */,
+				7DF53B11F35B0326533B13BE /* BodyRequestTracker.swift */,
+				2DC4156D5F66C5FF6911E21F /* ClassificationRetry.swift */,
+				F924467C955A242D24394004 /* FilteringConfiguration.swift */,
+				32FA5306C0DF31F3ADCACA71 /* InspectionScheduler.swift */,
+				3443A527845D1091CED41E2E /* JunkProtection.swift */,
+				B280DEF19848D4BEEE440D96 /* MIMEBodyDecoder.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		3DD0EDC7500BCED0B8BD2F85 /* scripts */ = {
+			isa = PBXGroup;
+			children = (
+				374A07022B489A93A218E9F9 /* agent.sh */,
+			);
+			path = scripts;
+			sourceTree = "<group>";
+		};
+		49CCA63271EF03CFE3937E6E /* InstallerScripts */ = {
+			isa = PBXGroup;
+			children = (
+				5C2ED9F98EAA3EDDC6B9223E /* CommandLineOff */,
+				63349F9B01FC0BAC5A26C2F9 /* CommandLineOn */,
+			);
+			path = InstallerScripts;
+			sourceTree = "<group>";
+		};
+		5646BF22D7BF52605A24CFC9 /* prompts */ = {
+			isa = PBXGroup;
+			children = (
+				EF8E3557A9D4F124E8185FA3 /* filter.txt */,
+				CD4870C936721EE98B5A18BF /* political-evidence.txt */,
+			);
+			path = prompts;
+			sourceTree = "<group>";
+		};
+		5C2ED9F98EAA3EDDC6B9223E /* CommandLineOff */ = {
+			isa = PBXGroup;
+			children = (
+				F5D7903FDD8EA433C3E8AD8F /* postinstall */,
+			);
+			path = CommandLineOff;
+			sourceTree = "<group>";
+		};
+		5D3BB217B662D7870A373268 /* fixtures */ = {
+			isa = PBXGroup;
+			children = (
+				A5F8D6FC80CB9210CAAC99ED /* political-merchandise.json */,
+				B9A874DC198CCB98722771CC /* sample.json */,
+			);
+			path = fixtures;
+			sourceTree = "<group>";
+		};
+		5EA69888B7731A3FC8B5959A /* config */ = {
+			isa = PBXGroup;
+			children = (
+				056A6A41B42C1057E69D8F1F /* accounts.example.txt */,
+			);
+			path = config;
+			sourceTree = "<group>";
+		};
+		5EAB3FFEE99DBEDBAFE1324F /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				0D450D620E551A192AD055D7 /* MailFilter */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		63349F9B01FC0BAC5A26C2F9 /* CommandLineOn */ = {
+			isa = PBXGroup;
+			children = (
+				0D2B88EEF121DBBC1FDE9429 /* preinstall */,
+			);
+			path = CommandLineOn;
+			sourceTree = "<group>";
+		};
+		8298DE138F53DE1AF6172E29 /* workflows */ = {
+			isa = PBXGroup;
+			children = (
+				44DE51A68066A1ABD4B768E8 /* pages.yml */,
+			);
+			path = workflows;
+			sourceTree = "<group>";
+		};
+		873C8B3C2FB5AD22D10EE4E6 /* MailFilterTests */ = {
+			isa = PBXGroup;
+			children = (
+				B042C270B9BF87DD5C43E816 /* SafetyTests.swift */,
+			);
+			path = MailFilterTests;
+			sourceTree = "<group>";
+		};
+		A30F2D8BA84D5FE9CA55BEB5 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				DF3D66EA08CC14E6477F2BD3 /* BuildGraphChecks.py */,
+				2DFCE6FDBD5E60755AAD0E59 /* DeadlineChecks.swift */,
+				C650A5132A111E9FC6232F74 /* DiagnosticChecks.swift */,
+				F4661BF5B4CA91DFEE78D379 /* FilteringChecks.swift */,
+				0A94E6533FF3B800008B131D /* JunkProtectionChecks.swift */,
+				007E74EF93E377F19716BFCD /* MIMEBodyChecks.swift */,
+				D604F75D27A089550D06EA94 /* ModelRequestChecks.swift */,
+				2BF6BFB08BD70BF470F6BEED /* NativeChecks.swift */,
+				5FF505F727B48BFD149CA338 /* PackagingChecks.py */,
+				F9A0DAF680C37477F024BECD /* RetryChecks.swift */,
+				6F337081F35C18885C7677A6 /* StorePackagingChecks.py */,
+				3D1EDDF680FC61E51E2B5901 /* StoreReadinessChecks.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		BAE9AFA394D07408B11CEBFC /* docs */ = {
+			isa = PBXGroup;
+			children = (
+				18D067672033295834D2C346 /* dev */,
+				50F362E88B9EA508787E0C7A /* app-store-deployment-plan.docx */,
+				3E4B3EB06422AAED166090E5 /* app-store-deployment-plan.md */,
+				353174241C81480002A3B5EC /* build-docx.py */,
+				9831AFD2DA449F91AFC93069 /* README.md */,
+				74FCF38993456C0CCF47F6EB /* store-review-preparation.md */,
+				1779378023456FE0B1C1682D /* website.md */,
+			);
+			path = docs;
+			sourceTree = "<group>";
+		};
+		BBCDC69089BCFB7CD02E0ECA /* Feasibility */ = {
+			isa = PBXGroup;
+			children = (
+				6ED677768624818EC6DE0A01 /* AppStoreProbe.swift */,
+				A278DBCA3CA22BB37DBAEBB6 /* OfflineChecks.swift */,
+				EAC66771DAC3026562CC2779 /* README.md */,
+				3EE00208F7206DB5925FF989 /* run.py */,
+			);
+			path = Feasibility;
+			sourceTree = "<group>";
+		};
+		CC4F86DEF33A9FE4D2912646 /* Store */ = {
+			isa = PBXGroup;
+			children = (
+				AB061E12E3F2638C8D807214 /* ExportOptions.plist */,
+				882890448FC689550D0A0642 /* README.md */,
+				9AAEEB9F97AE852518ED358C /* verify-export.py */,
+				0EA69702A2E612BCFC5AFDE9 /* verify.py */,
+			);
+			path = Store;
+			sourceTree = "<group>";
+		};
+		D84E7E611DAF98B5288CA997 /* Build */ = {
+			isa = PBXGroup;
+			children = (
+				8F15B6E5C039C71ACBDC777E /* Assets.xcassets */,
+				E010D94CEFF87FE0FBF35464 /* BuildCheck.xcconfig */,
+				B215FE5E7F2B27ABCC39FF44 /* CLI.entitlements */,
+				6A2EE271C441DA8899B921A2 /* Common.xcconfig */,
+				63185B2B25D7508453C2F9A8 /* DeveloperID.xcconfig */,
+				0CCA558ABCCFF8FC8109E4A6 /* Development.xcconfig */,
+				8DF7399541A14930FA88EE7E /* Extension-Direct.entitlements */,
+				67DACA02A5D698732FBDFDEB /* Extension-Info.plist */,
+				91B6BC03974DD4049A78FBEA /* Extension-Local-Info.plist */,
+				4B27412397CF1467EA6D3AC8 /* Extension-Local.entitlements */,
+				A6948193FD659F26DA9DFEED /* Extension.entitlements */,
+				D0E6229B4AA85E4F173EE6CA /* Host-Direct.entitlements */,
+				4979DDE12A5D7D34C7CAD541 /* Host-Info.plist */,
+				1632D523A09F75EC81A0E67B /* Host-Local-Info.plist */,
+				69AA7140F4B70C0EF77CA252 /* Host-Local.entitlements */,
+				6E02A68992F0164F61097018 /* Host.entitlements */,
+				8B81B5153C68D2FDE812A661 /* Local.xcconfig */,
+				9A112A41C85E8B40DBC8EE1F /* PrivacyInfo.xcprivacy */,
+				F03D7F5D1EF306F5DEF12826 /* README.md */,
+				64D7E7BD628355E75E79625A /* Signing.example.xcconfig */,
+				86C2901E92BDF550F9B78D19 /* Store.xcconfig */,
+				5907A3E2A97FEFD9C48EAA7E /* Uninstaller-Direct.entitlements */,
+				9B150385C1B690A223D1C99D /* Uninstaller-Info.plist */,
+				67D6DFC741B8BFA1A6A4197D /* Uninstaller-Local-Info.plist */,
+				5CE1F14C0EA21717C9F10C54 /* Uninstaller-Local.entitlements */,
+			);
+			path = Build;
+			sourceTree = "<group>";
+		};
+		E23E0B51018AFE0D7E5C4E1F /* MacApp */ = {
+			isa = PBXGroup;
+			children = (
+				D84E7E611DAF98B5288CA997 /* Build */,
+				BBCDC69089BCFB7CD02E0ECA /* Feasibility */,
+				49CCA63271EF03CFE3937E6E /* InstallerScripts */,
+				016062C3206CCEB3F1758007 /* Resources */,
+				1D8DBFDD4FF22839FB04374B /* Shared */,
+				CC4F86DEF33A9FE4D2912646 /* Store */,
+				A30F2D8BA84D5FE9CA55BEB5 /* Tests */,
+				EC253747E1B9226F92DB92E1 /* AccountInventory.swift */,
+				03971F35A8A7406E06CB9370 /* build.sh */,
+				BC0271A04BA3304BBB776E8C /* desktop_shortcut.py */,
+				E2D352830C11FA469F275050 /* DiagnosticReport.swift */,
+				041737C471AF5861DE8C183A /* generate-project.py */,
+				44A00F555C15EB7A64D29F2C /* MailFilterApp.swift */,
+				B9A880DB12B4BACA90EC9FA7 /* MakeIcon.swift */,
+				5DE3AEDF1CCB7EA72FB57959 /* MessageDiagnostics.swift */,
+				07280DCB92DEAADB672F9E95 /* ModelProbe.swift */,
+				B932300D747368EBE1C1B108 /* NativeClassifier.swift */,
+				604716F53C5EDC63C4268989 /* NativeExtension.swift */,
+				7F7B0BA80D7D28D862282A9A /* notarize.sh */,
+				8CCDDB0362EC1F1F1B6623AB /* package.sh */,
+				732359E46E3EFF7F3DF28803 /* prepare-direct-products.py */,
+				98D747AFFD0DDA5CF407EB3E /* probe-model.sh */,
+				D61366A4192F7AB146B4AAAC /* README.md */,
+				EF154CABE95C979848B98CAC /* SelectedEmailReport.swift */,
+				62D14A185FB0AFD3129DF58A /* SettingsModel.swift */,
+				B2F23CB9D416686513629B8E /* SettingsView.swift */,
+				24B8C1145EFC4D3D812C499E /* SharedStore.swift */,
+				65B1B824DCA8562673160FE1 /* store-build.sh */,
+				289E5F772612FC3DDBF111B6 /* test.sh */,
+				376D4C1B8B5049F1C6D3983D /* UninstallerApp.swift */,
+				B89782262EEC86D07762BBCD /* UninstallPlan.swift */,
+				17657031D88204D9E549A836 /* verify_bundle.py */,
+				66CBAC7CD772E4093BDC3B1B /* verify_package.py */,
+			);
+			path = MacApp;
+			sourceTree = "<group>";
+		};
+		E2AA269EB967A8853A258BFA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				FC1403135EB4386BD6C023A6 /* MailKit.framework */,
+				8BD2FC20C69A1E6BAD334CD6 /* AppKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		098A2FAE5D6CC599A6DA7DE2 /* MailFilter */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 61106CA495831233F6A119B3 /* Build configuration list for PBXNativeTarget "MailFilter" */;
+			buildPhases = (
+				5FF3B63757176E6FE76DB5FB /* Sources */,
+				3C677BCDE48A10953EB824EC /* Resources */,
+				2FCDAD1C40F5D8DBFBA9E52D /* Embed Mail extension */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D0C43333FC3AC85BFA8929CF /* PBXTargetDependency */,
+				965FF32F58B180754D654307 /* PBXTargetDependency */,
+			);
+			name = MailFilter;
+			productName = MailFilter;
+			productReference = FF45B4A2149347AA53D5F95C /* Mail-Filter.app */;
+			productType = "com.apple.product-type.application";
+		};
+		2C8205F9CC6BD6EC239EC3D7 /* MailFilterCLI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0A721AD4FD82EF44EC9B56E3 /* Build configuration list for PBXNativeTarget "MailFilterCLI" */;
+			buildPhases = (
+				E2CC3FBCD6ED1735DB6BDE6B /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D0C43333FC3AC85BFA8929CF /* PBXTargetDependency */,
+			);
+			name = MailFilterCLI;
+			productName = MailFilterCLI;
+			productReference = D83FDD13E01C161FBAFC0866 /* mail-filter */;
+			productType = "com.apple.product-type.tool";
+		};
+		31C09F7DD1F3993BA13EDA4C /* MailFilterUninstaller */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F7A211BAE23F1B86EBBEFCAF /* Build configuration list for PBXNativeTarget "MailFilterUninstaller" */;
+			buildPhases = (
+				572E735D347A07765B141D08 /* Sources */,
+				AAEAF3910D3585650F7FB5B5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D0C43333FC3AC85BFA8929CF /* PBXTargetDependency */,
+			);
+			name = MailFilterUninstaller;
+			productName = MailFilterUninstaller;
+			productReference = E42E036B49D679E107147509 /* Uninstall Mail-Filter.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A148AD5E0608DCE6158BFF07 /* MailFilterExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 78C3946580C419ADCFAA768D /* Build configuration list for PBXNativeTarget "MailFilterExtension" */;
+			buildPhases = (
+				E0150B6BB50B701D6F7D6619 /* Sources */,
+				503F45234EB4666AB550389A /* Resources */,
+				C2000662670FC0462E6D472F /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D0C43333FC3AC85BFA8929CF /* PBXTargetDependency */,
+			);
+			name = MailFilterExtension;
+			productName = MailFilterExtension;
+			productReference = 9B5EA5B470B5FDC806AA1095 /* Mail-Filter.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		244210E48437B6556980A702 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 2710;
+			};
+			buildConfigurationList = B4E10CAA9C5E22150B71559C /* Build configuration list for PBXProject "Mail-Filter" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 19F479106CE8C3BA8C106518;
+			productRefGroup = 0A3E27B8CA818264D75C8D81 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				098A2FAE5D6CC599A6DA7DE2 /* MailFilter */,
+				A148AD5E0608DCE6158BFF07 /* MailFilterExtension */,
+				31C09F7DD1F3993BA13EDA4C /* MailFilterUninstaller */,
+				2C8205F9CC6BD6EC239EC3D7 /* MailFilterCLI */,
+				B8F1C788ECC68640F20B3A54 /* MailFilterDocumentation */,
+				70F1C043A995B2E84CEB1654 /* MailFilterLocalInstaller */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		3C677BCDE48A10953EB824EC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CEF94F63AF2D98CFD0D92B1A /* filter.txt in Resources */,
+				EE3924EE23AC40DC9FBCFF89 /* political-evidence.txt in Resources */,
+				5B7B009AE2659821F443FB82 /* Assets.xcassets in Resources */,
+				2979DC2BA0F449C63BBC2B7B /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		503F45234EB4666AB550389A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1695495448CF0E720FAEFD56 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AAEAF3910D3585650F7FB5B5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A5361C130EA59E21E7D01ECB /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		0B4C8C408CAF1D4B6EA45FA3 /* Package built local products */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Package built local products";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/zsh;
+			shellScript = "set -eu\n[[ \"$CONFIGURATION\" == Local ]] || { print -u2 \"Select the Local installer configuration.\"; exit 1; }\n\"${SRCROOT}/MacApp/package.sh\" local --built-products \"${BUILT_PRODUCTS_DIR}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		67E3CB7E2A2793B90B04B3B2 /* Regenerate Word documentation */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
 				"$(SRCROOT)/docs/build-docx.py",
 				"$(SRCROOT)/docs/app-store-deployment-plan.md",
 				"$(SRCROOT)/docs/dev/architecture.md",
 				"$(SRCROOT)/docs/dev/getting-started.md",
 			);
-			"outputPaths" = (
+			name = "Regenerate Word documentation";
+			outputPaths = (
 				"$(SRCROOT)/docs/app-store-deployment-plan.docx",
 				"$(SRCROOT)/docs/dev/architecture.docx",
 				"$(SRCROOT)/docs/dev/getting-started.docx",
 			);
-			"name" = "Regenerate Word documentation";
-			"runOnlyForDeploymentPostprocessing" = 0;
-			"alwaysOutOfDate" = 1;
-			"showEnvVarsInLog" = 0;
-			"shellPath" = "/bin/zsh";
-			"shellScript" = "set -eu\npython3 \"${SRCROOT}/docs/build-docx.py\"\n";
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/zsh;
+			shellScript = "set -eu\npython3 \"${SRCROOT}/docs/build-docx.py\"\n";
+			showEnvVarsInLog = 0;
 		};
-		"8B81B5153C68D2FDE812A661" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.xcconfig";
-			"name" = "Local.xcconfig";
-			"path" = "MacApp/Build/Local.xcconfig";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"B8BDFA65F58995F3F9D2092F" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "Local";
-			"baseConfigurationReference" = "8B81B5153C68D2FDE812A661";
-			"buildSettings" = {
-			};
-		};
-		"63185B2B25D7508453C2F9A8" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.xcconfig";
-			"name" = "DeveloperID.xcconfig";
-			"path" = "MacApp/Build/DeveloperID.xcconfig";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"6D5B5C87EFB254E7BF023425" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "DeveloperID";
-			"baseConfigurationReference" = "63185B2B25D7508453C2F9A8";
-			"buildSettings" = {
-			};
-		};
-		"E010D94CEFF87FE0FBF35464" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.xcconfig";
-			"name" = "BuildCheck.xcconfig";
-			"path" = "MacApp/Build/BuildCheck.xcconfig";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"10CF0D0504F9D7C53B4AF9E8" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "BuildCheck";
-			"baseConfigurationReference" = "E010D94CEFF87FE0FBF35464";
-			"buildSettings" = {
-			};
-		};
-		"0CCA558ABCCFF8FC8109E4A6" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.xcconfig";
-			"name" = "Development.xcconfig";
-			"path" = "MacApp/Build/Development.xcconfig";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"13F4512E22A59BEA43D994C5" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "Development";
-			"baseConfigurationReference" = "0CCA558ABCCFF8FC8109E4A6";
-			"buildSettings" = {
-			};
-		};
-		"86C2901E92BDF550F9B78D19" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.xcconfig";
-			"name" = "Store.xcconfig";
-			"path" = "MacApp/Build/Store.xcconfig";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"346A13512AF5334FD54E80E0" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "Store";
-			"baseConfigurationReference" = "86C2901E92BDF550F9B78D19";
-			"buildSettings" = {
-			};
-		};
-		"19E6F147C668BB819913A98C" = {
-			"isa" = "XCConfigurationList";
-			"buildConfigurations" = (
-				"B8BDFA65F58995F3F9D2092F",
-				"6D5B5C87EFB254E7BF023425",
-				"10CF0D0504F9D7C53B4AF9E8",
-				"13F4512E22A59BEA43D994C5",
-				"346A13512AF5334FD54E80E0",
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		572E735D347A07765B141D08 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				070A9B21E400DE135839A994 /* Core.swift in Sources */,
+				CDE9833F2828D49104C656D3 /* ClassificationRequest.swift in Sources */,
+				7B93755A5908BD0EE6278BFE /* PoliticalModel.swift in Sources */,
+				2713A8921D998108F9605E88 /* SharedStore.swift in Sources */,
+				2127715414BF48A798862B26 /* MIMEBodyDecoder.swift in Sources */,
+				7BB0234E90351C8844A42331 /* FilteringConfiguration.swift in Sources */,
+				2184C7D577555449D842CAF4 /* JunkProtection.swift in Sources */,
+				D52F23F543F1BF8948505892 /* AnalysisDeadline.swift in Sources */,
+				B95444E0454980F195EE0F18 /* ClassificationRetry.swift in Sources */,
+				AB51B4D8BC4574A54AB2B2A2 /* MailAutomation.swift in Sources */,
+				3C8965437BF367209BDA121E /* UninstallPlan.swift in Sources */,
+				A9FB70A59E2EDB52C8013DD1 /* UninstallerApp.swift in Sources */,
 			);
-			"defaultConfigurationIsVisible" = 0;
-			"defaultConfigurationName" = "Local";
+			runOnlyForDeploymentPostprocessing = 0;
 		};
-		"B8F1C788ECC68640F20B3A54" = {
-			"isa" = "PBXAggregateTarget";
-			"name" = "MailFilterDocumentation";
-			"productName" = "MailFilterDocumentation";
-			"buildConfigurationList" = "19E6F147C668BB819913A98C";
-			"dependencies" = (
+		5FF3B63757176E6FE76DB5FB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8872293A8813DFB9D16BD910 /* Core.swift in Sources */,
+				005AFFA035F21706B994F8EB /* ClassificationRequest.swift in Sources */,
+				4A317661123F9C174CA9F954 /* PoliticalModel.swift in Sources */,
+				26E8706A7608DE1B4FDE8A23 /* SharedStore.swift in Sources */,
+				A51B56F851CEB9C0032EBBD0 /* MIMEBodyDecoder.swift in Sources */,
+				EB0264397A2571C21D212D09 /* FilteringConfiguration.swift in Sources */,
+				4FFEFC6353AB86B8F3475B02 /* JunkProtection.swift in Sources */,
+				B7E4AF042D87055693AAAE08 /* AnalysisDeadline.swift in Sources */,
+				3C5F7BC21F0A37AFD3C78C44 /* ClassificationRetry.swift in Sources */,
+				1757318B5A4E76E648BF9A70 /* MailAutomation.swift in Sources */,
+				6B21DBC355DD855CB95CF1C4 /* MailFilterApp.swift in Sources */,
+				44670D43C387E727E0810D6B /* SettingsModel.swift in Sources */,
+				4CAE8AE3F1513908F46B8B52 /* SettingsView.swift in Sources */,
+				36AF5DC04D833E0A28D8A1B3 /* AccountInventory.swift in Sources */,
+				E15726C5681CFB8AD728CA23 /* MessageDiagnostics.swift in Sources */,
+				EB63142F08B08CD6AE7CC5C9 /* SelectedEmailReport.swift in Sources */,
+				A4563178E7C1B88778F8DE5D /* DiagnosticReport.swift in Sources */,
+				EBBD19162029F71233EF50A1 /* UninstallPlan.swift in Sources */,
 			);
-			"buildPhases" = (
-				"67E3CB7E2A2793B90B04B3B2",
-			);
+			runOnlyForDeploymentPostprocessing = 0;
 		};
-		"DBEB21021DA7690EF23A1762" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "9B5EA5B470B5FDC806AA1095";
-			"settings" = {
-				"ATTRIBUTES" = (
-					"RemoveHeadersOnCopy",
-				);
+		E0150B6BB50B701D6F7D6619 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5104ACF6E39A243A7F43A8C2 /* Core.swift in Sources */,
+				CFE5EBA205BA0B963EC23AA9 /* ClassificationRequest.swift in Sources */,
+				955634BC5CFE4F85F0976914 /* PoliticalModel.swift in Sources */,
+				E7BB016067249083DA9320E7 /* SharedStore.swift in Sources */,
+				160C88483516B43869026CA8 /* MIMEBodyDecoder.swift in Sources */,
+				4B5D6A831DCE514F1FA9B769 /* FilteringConfiguration.swift in Sources */,
+				93077D777834F8BEB0671E09 /* JunkProtection.swift in Sources */,
+				73BD2FA2F8DDA24DAB7D9105 /* AnalysisDeadline.swift in Sources */,
+				D0FFD3C33C5B8401048406FA /* ClassificationRetry.swift in Sources */,
+				D8D01285295156D452D8445C /* NativeClassifier.swift in Sources */,
+				A8C9EE3B28C7C831201ACC41 /* NativeExtension.swift in Sources */,
+				316B35FC29A8A20EFB23EDF8 /* InspectionScheduler.swift in Sources */,
+				13C1A32B9FA5D32FCAA07FEF /* BodyRequestTracker.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E2CC3FBCD6ED1735DB6BDE6B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2E020AF0447EF82021C8BF34 /* AgentControl.swift in Sources */,
+				710228D525BC158BBE3B4726 /* ClassificationRequest.swift in Sources */,
+				3094D45D425F272EA7B2FE0A /* Core.swift in Sources */,
+				0A2C416D0EDB70A4AC0694E7 /* MailAutomation.swift in Sources */,
+				46057B7C2CC1A0690D66941B /* MailFilter.swift in Sources */,
+				627238DB2AD0328B456A84E1 /* PoliticalModel.swift in Sources */,
+				256EAA302E8AFA181B8032C1 /* ProcessedMessages.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		65BAD426725A76BEEB10AB0B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2C8205F9CC6BD6EC239EC3D7 /* MailFilterCLI */;
+			targetProxy = 78966EC83582B4DC2D02177E /* PBXContainerItemProxy */;
+		};
+		7E1B566C8C37C754335FC8ED /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 098A2FAE5D6CC599A6DA7DE2 /* MailFilter */;
+			targetProxy = 9ECF07CEF5CC21AEBB3F6444 /* PBXContainerItemProxy */;
+		};
+		965FF32F58B180754D654307 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A148AD5E0608DCE6158BFF07 /* MailFilterExtension */;
+			targetProxy = EBB30C28FB56077190499346 /* PBXContainerItemProxy */;
+		};
+		A204DBAC201163A972599C27 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 31C09F7DD1F3993BA13EDA4C /* MailFilterUninstaller */;
+			targetProxy = 80AC38B4E8803445C6DBD6EC /* PBXContainerItemProxy */;
+		};
+		D0C43333FC3AC85BFA8929CF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B8F1C788ECC68640F20B3A54 /* MailFilterDocumentation */;
+			targetProxy = 9B7A71F17E2DDF0C0496DDB2 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		070C8768B3D25D519B55241D /* Local */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8B81B5153C68D2FDE812A661 /* Local.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = MacApp/Build/CLI.entitlements;
+				PRODUCT_MODULE_NAME = MailFilterCLI;
+				PRODUCT_NAME = "mail-filter";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 6.0;
 			};
+			name = Local;
 		};
-		"2FCDAD1C40F5D8DBFBA9E52D" = {
-			"isa" = "PBXCopyFilesBuildPhase";
-			"buildActionMask" = 2147483647;
-			"dstPath" = "";
-			"dstSubfolderSpec" = 13;
-			"files" = (
-				"DBEB21021DA7690EF23A1762",
-			);
-			"name" = "Embed Mail extension";
-			"runOnlyForDeploymentPostprocessing" = 0;
+		08F6340E12FEBD34CA19B5BD /* Local */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8B81B5153C68D2FDE812A661 /* Local.xcconfig */;
+			buildSettings = {
+			};
+			name = Local;
 		};
-		"8872293A8813DFB9D16BD910" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "0F9EC4F9E64A2019C7F96711";
+		096D79CC71722392E450707C /* Store */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 86C2901E92BDF550F9B78D19 /* Store.xcconfig */;
+			buildSettings = {
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+			};
+			name = Store;
 		};
-		"005AFFA035F21706B994F8EB" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "A553D76EF54E0B6410717921";
-		};
-		"4A317661123F9C174CA9F954" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "964F03D4DB4E679AAFFE10A2";
-		};
-		"26E8706A7608DE1B4FDE8A23" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "24B8C1145EFC4D3D812C499E";
-		};
-		"A51B56F851CEB9C0032EBBD0" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "B280DEF19848D4BEEE440D96";
-		};
-		"EB0264397A2571C21D212D09" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "F924467C955A242D24394004";
-		};
-		"4FFEFC6353AB86B8F3475B02" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "3443A527845D1091CED41E2E";
-		};
-		"B7E4AF042D87055693AAAE08" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "BBA95671781E6DEB8880A896";
-		};
-		"3C5F7BC21F0A37AFD3C78C44" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "2DC4156D5F66C5FF6911E21F";
-		};
-		"1757318B5A4E76E648BF9A70" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "669BC498F5A0ED83833814FD";
-		};
-		"6B21DBC355DD855CB95CF1C4" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "44A00F555C15EB7A64D29F2C";
-		};
-		"44670D43C387E727E0810D6B" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "62D14A185FB0AFD3129DF58A";
-		};
-		"4CAE8AE3F1513908F46B8B52" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "B2F23CB9D416686513629B8E";
-		};
-		"36AF5DC04D833E0A28D8A1B3" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "EC253747E1B9226F92DB92E1";
-		};
-		"E15726C5681CFB8AD728CA23" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "5DE3AEDF1CCB7EA72FB57959";
-		};
-		"EB63142F08B08CD6AE7CC5C9" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "EF154CABE95C979848B98CAC";
-		};
-		"A4563178E7C1B88778F8DE5D" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "E2D352830C11FA469F275050";
-		};
-		"EBBD19162029F71233EF50A1" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "B89782262EEC86D07762BBCD";
-		};
-		"5FF3B63757176E6FE76DB5FB" = {
-			"isa" = "PBXSourcesBuildPhase";
-			"buildActionMask" = 2147483647;
-			"files" = (
-				"8872293A8813DFB9D16BD910",
-				"005AFFA035F21706B994F8EB",
-				"4A317661123F9C174CA9F954",
-				"26E8706A7608DE1B4FDE8A23",
-				"A51B56F851CEB9C0032EBBD0",
-				"EB0264397A2571C21D212D09",
-				"4FFEFC6353AB86B8F3475B02",
-				"B7E4AF042D87055693AAAE08",
-				"3C5F7BC21F0A37AFD3C78C44",
-				"1757318B5A4E76E648BF9A70",
-				"6B21DBC355DD855CB95CF1C4",
-				"44670D43C387E727E0810D6B",
-				"4CAE8AE3F1513908F46B8B52",
-				"36AF5DC04D833E0A28D8A1B3",
-				"E15726C5681CFB8AD728CA23",
-				"EB63142F08B08CD6AE7CC5C9",
-				"A4563178E7C1B88778F8DE5D",
-				"EBBD19162029F71233EF50A1",
-			);
-			"runOnlyForDeploymentPostprocessing" = 0;
-		};
-		"CEF94F63AF2D98CFD0D92B1A" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "1B962942D670AF254AAA0159";
-		};
-		"EE3924EE23AC40DC9FBCFF89" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "D8054CD12FACFA6ACEB04AA7";
-		};
-		"5B7B009AE2659821F443FB82" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "8F15B6E5C039C71ACBDC777E";
-		};
-		"2979DC2BA0F449C63BBC2B7B" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "9A112A41C85E8B40DBC8EE1F";
-		};
-		"3C677BCDE48A10953EB824EC" = {
-			"isa" = "PBXResourcesBuildPhase";
-			"buildActionMask" = 2147483647;
-			"files" = (
-				"CEF94F63AF2D98CFD0D92B1A",
-				"EE3924EE23AC40DC9FBCFF89",
-				"5B7B009AE2659821F443FB82",
-				"2979DC2BA0F449C63BBC2B7B",
-			);
-			"runOnlyForDeploymentPostprocessing" = 0;
-		};
-		"C2FCF552A63C1A3A3D3A64F0" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "Local";
-			"baseConfigurationReference" = "8B81B5153C68D2FDE812A661";
-			"buildSettings" = {
-				"PRODUCT_NAME" = "Mail-Filter";
-				"EXECUTABLE_NAME" = "MailFilter";
-				"PRODUCT_MODULE_NAME" = "MailFilter";
-				"GENERATE_INFOPLIST_FILE" = "NO";
-				"INFOPLIST_FILE" = "MacApp/Build/Host-Local-Info.plist";
-				"CODE_SIGN_ENTITLEMENTS" = "MacApp/Build/Host-Local.entitlements";
-				"COMBINE_HIDPI_IMAGES" = "YES";
-				"LD_RUNPATH_SEARCH_PATHS" = (
+		0AC8ECCB24966F289FE9A2E8 /* Development */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0CCA558ABCCFF8FC8109E4A6 /* Development.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "MacApp/Build/Uninstaller-Local.entitlements";
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_NAME = MailFilterUninstaller;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "MacApp/Build/Uninstaller-Info.plist";
+				INSTALL_PATH = "$(LOCAL_APPS_DIR)";
+				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				"PRODUCT_BUNDLE_IDENTIFIER" = "$(MAIL_FILTER_BUNDLE_ID)";
-				"REGISTER_APP_GROUPS" = "YES";
-				"SKIP_INSTALL" = "NO";
-				"INSTALL_PATH" = "$(LOCAL_APPS_DIR)";
-				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.mail-filter.uninstaller";
+				PRODUCT_MODULE_NAME = MailFilterUninstaller;
+				PRODUCT_NAME = "Uninstall Mail-Filter";
+				SKIP_INSTALL = YES;
 			};
+			name = Development;
 		};
-		"D8DA2930A42571EF216E321B" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "DeveloperID";
-			"baseConfigurationReference" = "63185B2B25D7508453C2F9A8";
-			"buildSettings" = {
-				"PRODUCT_NAME" = "Mail-Filter";
-				"EXECUTABLE_NAME" = "MailFilter";
-				"PRODUCT_MODULE_NAME" = "MailFilter";
-				"GENERATE_INFOPLIST_FILE" = "NO";
-				"INFOPLIST_FILE" = "MacApp/Build/Host-Info.plist";
-				"CODE_SIGN_ENTITLEMENTS" = "MacApp/Build/Host-Direct.entitlements";
-				"COMBINE_HIDPI_IMAGES" = "YES";
-				"LD_RUNPATH_SEARCH_PATHS" = (
+		10CF0D0504F9D7C53B4AF9E8 /* BuildCheck */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E010D94CEFF87FE0FBF35464 /* BuildCheck.xcconfig */;
+			buildSettings = {
+			};
+			name = BuildCheck;
+		};
+		13F4512E22A59BEA43D994C5 /* Development */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0CCA558ABCCFF8FC8109E4A6 /* Development.xcconfig */;
+			buildSettings = {
+			};
+			name = Development;
+		};
+		19F33C0E6664FCAEA8045A07 /* DeveloperID */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63185B2B25D7508453C2F9A8 /* DeveloperID.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = MacApp/Build/CLI.entitlements;
+				PRODUCT_MODULE_NAME = MailFilterCLI;
+				PRODUCT_NAME = "mail-filter";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = DeveloperID;
+		};
+		22A95C215B40710B591C2AEB /* Store */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 86C2901E92BDF550F9B78D19 /* Store.xcconfig */;
+			buildSettings = {
+			};
+			name = Store;
+		};
+		234C83D7ABB72A02B352AED0 /* Development */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0CCA558ABCCFF8FC8109E4A6 /* Development.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = MacApp/Build/CLI.entitlements;
+				PRODUCT_MODULE_NAME = MailFilterCLI;
+				PRODUCT_NAME = "mail-filter";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Development;
+		};
+		346A13512AF5334FD54E80E0 /* Store */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 86C2901E92BDF550F9B78D19 /* Store.xcconfig */;
+			buildSettings = {
+			};
+			name = Store;
+		};
+		34F330479B2BFAFF82E2216F /* Development */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0CCA558ABCCFF8FC8109E4A6 /* Development.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = MacApp/Build/Host.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_NAME = MailFilter;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "MacApp/Build/Host-Info.plist";
+				INSTALL_PATH = "$(LOCAL_APPS_DIR)";
+				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				"PRODUCT_BUNDLE_IDENTIFIER" = "$(MAIL_FILTER_BUNDLE_ID)";
-				"REGISTER_APP_GROUPS" = "YES";
-				"SKIP_INSTALL" = "NO";
-				"INSTALL_PATH" = "$(LOCAL_APPS_DIR)";
-				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(MAIL_FILTER_BUNDLE_ID)";
+				PRODUCT_MODULE_NAME = MailFilter;
+				PRODUCT_NAME = "Mail-Filter";
+				REGISTER_APP_GROUPS = YES;
+				SKIP_INSTALL = NO;
 			};
+			name = Development;
 		};
-		"A6BF6E5977C6CDDA009CD4C9" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "BuildCheck";
-			"baseConfigurationReference" = "E010D94CEFF87FE0FBF35464";
-			"buildSettings" = {
-				"PRODUCT_NAME" = "Mail-Filter";
-				"EXECUTABLE_NAME" = "MailFilter";
-				"PRODUCT_MODULE_NAME" = "MailFilter";
-				"GENERATE_INFOPLIST_FILE" = "NO";
-				"INFOPLIST_FILE" = "MacApp/Build/Host-Info.plist";
-				"CODE_SIGN_ENTITLEMENTS" = "MacApp/Build/Host.entitlements";
-				"COMBINE_HIDPI_IMAGES" = "YES";
-				"LD_RUNPATH_SEARCH_PATHS" = (
+		39D5FB79F345F86F7C3229EE /* Local */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8B81B5153C68D2FDE812A661 /* Local.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "MacApp/Build/Uninstaller-Local.entitlements";
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_NAME = MailFilterUninstaller;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "MacApp/Build/Uninstaller-Local-Info.plist";
+				INSTALL_PATH = "$(LOCAL_APPS_DIR)";
+				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				"PRODUCT_BUNDLE_IDENTIFIER" = "$(MAIL_FILTER_BUNDLE_ID)";
-				"REGISTER_APP_GROUPS" = "YES";
-				"SKIP_INSTALL" = "NO";
-				"INSTALL_PATH" = "$(LOCAL_APPS_DIR)";
-				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.mail-filter.uninstaller";
+				PRODUCT_MODULE_NAME = MailFilterUninstaller;
+				PRODUCT_NAME = "Uninstall Mail-Filter";
+				SKIP_INSTALL = YES;
 			};
+			name = Local;
 		};
-		"34F330479B2BFAFF82E2216F" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "Development";
-			"baseConfigurationReference" = "0CCA558ABCCFF8FC8109E4A6";
-			"buildSettings" = {
-				"PRODUCT_NAME" = "Mail-Filter";
-				"EXECUTABLE_NAME" = "MailFilter";
-				"PRODUCT_MODULE_NAME" = "MailFilter";
-				"GENERATE_INFOPLIST_FILE" = "NO";
-				"INFOPLIST_FILE" = "MacApp/Build/Host-Info.plist";
-				"CODE_SIGN_ENTITLEMENTS" = "MacApp/Build/Host.entitlements";
-				"COMBINE_HIDPI_IMAGES" = "YES";
-				"LD_RUNPATH_SEARCH_PATHS" = (
+		4C93632DCC7F239C5180573F /* BuildCheck */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E010D94CEFF87FE0FBF35464 /* BuildCheck.xcconfig */;
+			buildSettings = {
+			};
+			name = BuildCheck;
+		};
+		56C982E889FD61ED3F747DA8 /* Store */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 86C2901E92BDF550F9B78D19 /* Store.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = MacApp/Build/Extension.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_NAME = "$(PRODUCT_NAME)";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "MacApp/Build/Extension-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				"PRODUCT_BUNDLE_IDENTIFIER" = "$(MAIL_FILTER_BUNDLE_ID)";
-				"REGISTER_APP_GROUPS" = "YES";
-				"SKIP_INSTALL" = "NO";
-				"INSTALL_PATH" = "$(LOCAL_APPS_DIR)";
-				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
-			};
-		};
-		"F0135F98FA206F843560C868" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "Store";
-			"baseConfigurationReference" = "86C2901E92BDF550F9B78D19";
-			"buildSettings" = {
-				"PRODUCT_NAME" = "Mail-Filter";
-				"EXECUTABLE_NAME" = "MailFilter";
-				"PRODUCT_MODULE_NAME" = "MailFilter";
-				"GENERATE_INFOPLIST_FILE" = "NO";
-				"INFOPLIST_FILE" = "MacApp/Build/Host-Info.plist";
-				"CODE_SIGN_ENTITLEMENTS" = "MacApp/Build/Host.entitlements";
-				"COMBINE_HIDPI_IMAGES" = "YES";
-				"LD_RUNPATH_SEARCH_PATHS" = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
-				"PRODUCT_BUNDLE_IDENTIFIER" = "$(MAIL_FILTER_BUNDLE_ID)";
-				"REGISTER_APP_GROUPS" = "YES";
-				"SKIP_INSTALL" = "NO";
-				"INSTALL_PATH" = "$(LOCAL_APPS_DIR)";
-				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
-			};
-		};
-		"61106CA495831233F6A119B3" = {
-			"isa" = "XCConfigurationList";
-			"buildConfigurations" = (
-				"C2FCF552A63C1A3A3D3A64F0",
-				"D8DA2930A42571EF216E321B",
-				"A6BF6E5977C6CDDA009CD4C9",
-				"34F330479B2BFAFF82E2216F",
-				"F0135F98FA206F843560C868",
-			);
-			"defaultConfigurationIsVisible" = 0;
-			"defaultConfigurationName" = "Local";
-		};
-		"9B7A71F17E2DDF0C0496DDB2" = {
-			"isa" = "PBXContainerItemProxy";
-			"containerPortal" = "244210E48437B6556980A702";
-			"proxyType" = 1;
-			"remoteGlobalIDString" = "B8F1C788ECC68640F20B3A54";
-		};
-		"D0C43333FC3AC85BFA8929CF" = {
-			"isa" = "PBXTargetDependency";
-			"target" = "B8F1C788ECC68640F20B3A54";
-			"targetProxy" = "9B7A71F17E2DDF0C0496DDB2";
-		};
-		"EBB30C28FB56077190499346" = {
-			"isa" = "PBXContainerItemProxy";
-			"containerPortal" = "244210E48437B6556980A702";
-			"proxyType" = 1;
-			"remoteGlobalIDString" = "A148AD5E0608DCE6158BFF07";
-		};
-		"965FF32F58B180754D654307" = {
-			"isa" = "PBXTargetDependency";
-			"target" = "A148AD5E0608DCE6158BFF07";
-			"targetProxy" = "EBB30C28FB56077190499346";
-		};
-		"098A2FAE5D6CC599A6DA7DE2" = {
-			"isa" = "PBXNativeTarget";
-			"name" = "MailFilter";
-			"productName" = "MailFilter";
-			"productReference" = "FF45B4A2149347AA53D5F95C";
-			"productType" = "com.apple.product-type.application";
-			"buildConfigurationList" = "61106CA495831233F6A119B3";
-			"dependencies" = (
-				"D0C43333FC3AC85BFA8929CF",
-				"965FF32F58B180754D654307",
-			);
-			"buildRules" = (
-			);
-			"buildPhases" = (
-				"5FF3B63757176E6FE76DB5FB",
-				"3C677BCDE48A10953EB824EC",
-				"2FCDAD1C40F5D8DBFBA9E52D",
-			);
-		};
-		"5104ACF6E39A243A7F43A8C2" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "0F9EC4F9E64A2019C7F96711";
-		};
-		"CFE5EBA205BA0B963EC23AA9" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "A553D76EF54E0B6410717921";
-		};
-		"955634BC5CFE4F85F0976914" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "964F03D4DB4E679AAFFE10A2";
-		};
-		"E7BB016067249083DA9320E7" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "24B8C1145EFC4D3D812C499E";
-		};
-		"160C88483516B43869026CA8" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "B280DEF19848D4BEEE440D96";
-		};
-		"4B5D6A831DCE514F1FA9B769" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "F924467C955A242D24394004";
-		};
-		"93077D777834F8BEB0671E09" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "3443A527845D1091CED41E2E";
-		};
-		"73BD2FA2F8DDA24DAB7D9105" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "BBA95671781E6DEB8880A896";
-		};
-		"D0FFD3C33C5B8401048406FA" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "2DC4156D5F66C5FF6911E21F";
-		};
-		"D8D01285295156D452D8445C" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "B932300D747368EBE1C1B108";
-		};
-		"A8C9EE3B28C7C831201ACC41" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "604716F53C5EDC63C4268989";
-		};
-		"316B35FC29A8A20EFB23EDF8" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "32FA5306C0DF31F3ADCACA71";
-		};
-		"13C1A32B9FA5D32FCAA07FEF" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "7DF53B11F35B0326533B13BE";
-		};
-		"E0150B6BB50B701D6F7D6619" = {
-			"isa" = "PBXSourcesBuildPhase";
-			"buildActionMask" = 2147483647;
-			"files" = (
-				"5104ACF6E39A243A7F43A8C2",
-				"CFE5EBA205BA0B963EC23AA9",
-				"955634BC5CFE4F85F0976914",
-				"E7BB016067249083DA9320E7",
-				"160C88483516B43869026CA8",
-				"4B5D6A831DCE514F1FA9B769",
-				"93077D777834F8BEB0671E09",
-				"73BD2FA2F8DDA24DAB7D9105",
-				"D0FFD3C33C5B8401048406FA",
-				"D8D01285295156D452D8445C",
-				"A8C9EE3B28C7C831201ACC41",
-				"316B35FC29A8A20EFB23EDF8",
-				"13C1A32B9FA5D32FCAA07FEF",
-			);
-			"runOnlyForDeploymentPostprocessing" = 0;
-		};
-		"1695495448CF0E720FAEFD56" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "9A112A41C85E8B40DBC8EE1F";
-		};
-		"503F45234EB4666AB550389A" = {
-			"isa" = "PBXResourcesBuildPhase";
-			"buildActionMask" = 2147483647;
-			"files" = (
-				"1695495448CF0E720FAEFD56",
-			);
-			"runOnlyForDeploymentPostprocessing" = 0;
-		};
-		"C99FA8D3F5B2206CE85329A8" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "FC1403135EB4386BD6C023A6";
-		};
-		"8DF296D1741355AEECF6187F" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "8BD2FC20C69A1E6BAD334CD6";
-		};
-		"C2000662670FC0462E6D472F" = {
-			"isa" = "PBXFrameworksBuildPhase";
-			"buildActionMask" = 2147483647;
-			"files" = (
-				"C99FA8D3F5B2206CE85329A8",
-				"8DF296D1741355AEECF6187F",
-			);
-			"runOnlyForDeploymentPostprocessing" = 0;
-		};
-		"FF13D03BEB850BC759DBC97F" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "Local";
-			"baseConfigurationReference" = "8B81B5153C68D2FDE812A661";
-			"buildSettings" = {
-				"PRODUCT_NAME" = "Mail-Filter";
-				"EXECUTABLE_NAME" = "MailFilterExtension";
-				"PRODUCT_MODULE_NAME" = "MailFilterExtension";
-				"GENERATE_INFOPLIST_FILE" = "NO";
-				"INFOPLIST_FILE" = "MacApp/Build/Extension-Local-Info.plist";
-				"CODE_SIGN_ENTITLEMENTS" = "MacApp/Build/Extension-Local.entitlements";
-				"COMBINE_HIDPI_IMAGES" = "YES";
-				"LD_RUNPATH_SEARCH_PATHS" = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
-				"PRODUCT_BUNDLE_IDENTIFIER" = "$(MAIL_FILTER_BUNDLE_ID).extension";
-				"REGISTER_APP_GROUPS" = "YES";
-				"APPLICATION_EXTENSION_API_ONLY" = "YES";
-				"SKIP_INSTALL" = "YES";
-				"OTHER_LDFLAGS" = (
+				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-e",
-					"_NSExtensionMain",
+					_NSExtensionMain,
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(MAIL_FILTER_BUNDLE_ID).extension";
+				PRODUCT_MODULE_NAME = MailFilterExtension;
+				PRODUCT_NAME = "Mail-Filter";
+				REGISTER_APP_GROUPS = YES;
+				SKIP_INSTALL = YES;
 			};
+			name = Store;
 		};
-		"CA5318A5A175E87C0D767C66" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "DeveloperID";
-			"baseConfigurationReference" = "63185B2B25D7508453C2F9A8";
-			"buildSettings" = {
-				"PRODUCT_NAME" = "Mail-Filter";
-				"EXECUTABLE_NAME" = "MailFilterExtension";
-				"PRODUCT_MODULE_NAME" = "MailFilterExtension";
-				"GENERATE_INFOPLIST_FILE" = "NO";
-				"INFOPLIST_FILE" = "MacApp/Build/Extension-Info.plist";
-				"CODE_SIGN_ENTITLEMENTS" = "MacApp/Build/Extension-Direct.entitlements";
-				"COMBINE_HIDPI_IMAGES" = "YES";
-				"LD_RUNPATH_SEARCH_PATHS" = (
+		5DB92A55D449366F180855EE /* DeveloperID */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63185B2B25D7508453C2F9A8 /* DeveloperID.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "MacApp/Build/Uninstaller-Direct.entitlements";
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_NAME = MailFilterUninstaller;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "MacApp/Build/Uninstaller-Info.plist";
+				INSTALL_PATH = "$(LOCAL_APPS_DIR)";
+				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				"PRODUCT_BUNDLE_IDENTIFIER" = "$(MAIL_FILTER_BUNDLE_ID).extension";
-				"REGISTER_APP_GROUPS" = "YES";
-				"APPLICATION_EXTENSION_API_ONLY" = "YES";
-				"SKIP_INSTALL" = "YES";
-				"OTHER_LDFLAGS" = (
+				PRODUCT_BUNDLE_IDENTIFIER = "org.mail-filter.uninstaller";
+				PRODUCT_MODULE_NAME = MailFilterUninstaller;
+				PRODUCT_NAME = "Uninstall Mail-Filter";
+				SKIP_INSTALL = YES;
+			};
+			name = DeveloperID;
+		};
+		6D5B5C87EFB254E7BF023425 /* DeveloperID */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63185B2B25D7508453C2F9A8 /* DeveloperID.xcconfig */;
+			buildSettings = {
+			};
+			name = DeveloperID;
+		};
+		77D1A9360A1CD41E2A67F54D /* DeveloperID */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63185B2B25D7508453C2F9A8 /* DeveloperID.xcconfig */;
+			buildSettings = {
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+			};
+			name = DeveloperID;
+		};
+		88212D4B282122AE672AFEA9 /* BuildCheck */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E010D94CEFF87FE0FBF35464 /* BuildCheck.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = MacApp/Build/Extension.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_NAME = "$(PRODUCT_NAME)";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "MacApp/Build/Extension-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-e",
-					"_NSExtensionMain",
+					_NSExtensionMain,
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(MAIL_FILTER_BUNDLE_ID).extension";
+				PRODUCT_MODULE_NAME = MailFilterExtension;
+				PRODUCT_NAME = "Mail-Filter";
+				REGISTER_APP_GROUPS = YES;
+				SKIP_INSTALL = YES;
 			};
+			name = BuildCheck;
 		};
-		"88212D4B282122AE672AFEA9" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "BuildCheck";
-			"baseConfigurationReference" = "E010D94CEFF87FE0FBF35464";
-			"buildSettings" = {
-				"PRODUCT_NAME" = "Mail-Filter";
-				"EXECUTABLE_NAME" = "MailFilterExtension";
-				"PRODUCT_MODULE_NAME" = "MailFilterExtension";
-				"GENERATE_INFOPLIST_FILE" = "NO";
-				"INFOPLIST_FILE" = "MacApp/Build/Extension-Info.plist";
-				"CODE_SIGN_ENTITLEMENTS" = "MacApp/Build/Extension.entitlements";
-				"COMBINE_HIDPI_IMAGES" = "YES";
-				"LD_RUNPATH_SEARCH_PATHS" = (
+		898EC1FF3619030C60C60AC7 /* Store */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 86C2901E92BDF550F9B78D19 /* Store.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = MacApp/Build/CLI.entitlements;
+				PRODUCT_MODULE_NAME = MailFilterCLI;
+				PRODUCT_NAME = "mail-filter";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Store;
+		};
+		8E8D48CE691B6068696F83A4 /* Development */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0CCA558ABCCFF8FC8109E4A6 /* Development.xcconfig */;
+			buildSettings = {
+			};
+			name = Development;
+		};
+		9186A357E6690A4568AEED85 /* BuildCheck */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E010D94CEFF87FE0FBF35464 /* BuildCheck.xcconfig */;
+			buildSettings = {
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+			};
+			name = BuildCheck;
+		};
+		967EF5A8C7FB320DFF2E73BC /* BuildCheck */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E010D94CEFF87FE0FBF35464 /* BuildCheck.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = MacApp/Build/CLI.entitlements;
+				PRODUCT_MODULE_NAME = MailFilterCLI;
+				PRODUCT_NAME = "mail-filter";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = BuildCheck;
+		};
+		96CAB4E3A5C535012FDF3966 /* Store */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 86C2901E92BDF550F9B78D19 /* Store.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "MacApp/Build/Uninstaller-Local.entitlements";
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_NAME = MailFilterUninstaller;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "MacApp/Build/Uninstaller-Info.plist";
+				INSTALL_PATH = "$(LOCAL_APPS_DIR)";
+				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				"PRODUCT_BUNDLE_IDENTIFIER" = "$(MAIL_FILTER_BUNDLE_ID).extension";
-				"REGISTER_APP_GROUPS" = "YES";
-				"APPLICATION_EXTENSION_API_ONLY" = "YES";
-				"SKIP_INSTALL" = "YES";
-				"OTHER_LDFLAGS" = (
+				PRODUCT_BUNDLE_IDENTIFIER = "org.mail-filter.uninstaller";
+				PRODUCT_MODULE_NAME = MailFilterUninstaller;
+				PRODUCT_NAME = "Uninstall Mail-Filter";
+				SKIP_INSTALL = YES;
+			};
+			name = Store;
+		};
+		A6BF6E5977C6CDDA009CD4C9 /* BuildCheck */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E010D94CEFF87FE0FBF35464 /* BuildCheck.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = MacApp/Build/Host.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_NAME = MailFilter;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "MacApp/Build/Host-Info.plist";
+				INSTALL_PATH = "$(LOCAL_APPS_DIR)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(MAIL_FILTER_BUNDLE_ID)";
+				PRODUCT_MODULE_NAME = MailFilter;
+				PRODUCT_NAME = "Mail-Filter";
+				REGISTER_APP_GROUPS = YES;
+				SKIP_INSTALL = NO;
+			};
+			name = BuildCheck;
+		};
+		B8BDFA65F58995F3F9D2092F /* Local */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8B81B5153C68D2FDE812A661 /* Local.xcconfig */;
+			buildSettings = {
+			};
+			name = Local;
+		};
+		B9725491A2F4415B5F05E94F /* Development */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0CCA558ABCCFF8FC8109E4A6 /* Development.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = MacApp/Build/Extension.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_NAME = "$(PRODUCT_NAME)";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "MacApp/Build/Extension-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-e",
-					"_NSExtensionMain",
+					_NSExtensionMain,
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(MAIL_FILTER_BUNDLE_ID).extension";
+				PRODUCT_MODULE_NAME = MailFilterExtension;
+				PRODUCT_NAME = "Mail-Filter";
+				REGISTER_APP_GROUPS = YES;
+				SKIP_INSTALL = YES;
 			};
+			name = Development;
 		};
-		"B9725491A2F4415B5F05E94F" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "Development";
-			"baseConfigurationReference" = "0CCA558ABCCFF8FC8109E4A6";
-			"buildSettings" = {
-				"PRODUCT_NAME" = "Mail-Filter";
-				"EXECUTABLE_NAME" = "MailFilterExtension";
-				"PRODUCT_MODULE_NAME" = "MailFilterExtension";
-				"GENERATE_INFOPLIST_FILE" = "NO";
-				"INFOPLIST_FILE" = "MacApp/Build/Extension-Info.plist";
-				"CODE_SIGN_ENTITLEMENTS" = "MacApp/Build/Extension.entitlements";
-				"COMBINE_HIDPI_IMAGES" = "YES";
-				"LD_RUNPATH_SEARCH_PATHS" = (
+		C2FCF552A63C1A3A3D3A64F0 /* Local */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8B81B5153C68D2FDE812A661 /* Local.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "MacApp/Build/Host-Local.entitlements";
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_NAME = MailFilter;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "MacApp/Build/Host-Local-Info.plist";
+				INSTALL_PATH = "$(LOCAL_APPS_DIR)";
+				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				"PRODUCT_BUNDLE_IDENTIFIER" = "$(MAIL_FILTER_BUNDLE_ID).extension";
-				"REGISTER_APP_GROUPS" = "YES";
-				"APPLICATION_EXTENSION_API_ONLY" = "YES";
-				"SKIP_INSTALL" = "YES";
-				"OTHER_LDFLAGS" = (
+				PRODUCT_BUNDLE_IDENTIFIER = "$(MAIL_FILTER_BUNDLE_ID)";
+				PRODUCT_MODULE_NAME = MailFilter;
+				PRODUCT_NAME = "Mail-Filter";
+				REGISTER_APP_GROUPS = YES;
+				SKIP_INSTALL = NO;
+			};
+			name = Local;
+		};
+		CA5318A5A175E87C0D767C66 /* DeveloperID */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63185B2B25D7508453C2F9A8 /* DeveloperID.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = "MacApp/Build/Extension-Direct.entitlements";
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_NAME = MailFilterExtension;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "MacApp/Build/Extension-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-e",
-					"_NSExtensionMain",
+					_NSExtensionMain,
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(MAIL_FILTER_BUNDLE_ID).extension";
+				PRODUCT_MODULE_NAME = MailFilterExtension;
+				PRODUCT_NAME = "Mail-Filter";
+				REGISTER_APP_GROUPS = YES;
+				SKIP_INSTALL = YES;
 			};
+			name = DeveloperID;
 		};
-		"56C982E889FD61ED3F747DA8" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "Store";
-			"baseConfigurationReference" = "86C2901E92BDF550F9B78D19";
-			"buildSettings" = {
-				"PRODUCT_NAME" = "Mail-Filter";
-				"EXECUTABLE_NAME" = "MailFilterExtension";
-				"PRODUCT_MODULE_NAME" = "MailFilterExtension";
-				"GENERATE_INFOPLIST_FILE" = "NO";
-				"INFOPLIST_FILE" = "MacApp/Build/Extension-Info.plist";
-				"CODE_SIGN_ENTITLEMENTS" = "MacApp/Build/Extension.entitlements";
-				"COMBINE_HIDPI_IMAGES" = "YES";
-				"LD_RUNPATH_SEARCH_PATHS" = (
+		D435A44B90320436F84C16D0 /* Local */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8B81B5153C68D2FDE812A661 /* Local.xcconfig */;
+			buildSettings = {
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+			};
+			name = Local;
+		};
+		D8DA2930A42571EF216E321B /* DeveloperID */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63185B2B25D7508453C2F9A8 /* DeveloperID.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "MacApp/Build/Host-Direct.entitlements";
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_NAME = MailFilter;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "MacApp/Build/Host-Info.plist";
+				INSTALL_PATH = "$(LOCAL_APPS_DIR)";
+				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				"PRODUCT_BUNDLE_IDENTIFIER" = "$(MAIL_FILTER_BUNDLE_ID).extension";
-				"REGISTER_APP_GROUPS" = "YES";
-				"APPLICATION_EXTENSION_API_ONLY" = "YES";
-				"SKIP_INSTALL" = "YES";
-				"OTHER_LDFLAGS" = (
+				PRODUCT_BUNDLE_IDENTIFIER = "$(MAIL_FILTER_BUNDLE_ID)";
+				PRODUCT_MODULE_NAME = MailFilter;
+				PRODUCT_NAME = "Mail-Filter";
+				REGISTER_APP_GROUPS = YES;
+				SKIP_INSTALL = NO;
+			};
+			name = DeveloperID;
+		};
+		EDE7FE340DEC28BCF4280813 /* BuildCheck */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E010D94CEFF87FE0FBF35464 /* BuildCheck.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "MacApp/Build/Uninstaller-Local.entitlements";
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_NAME = MailFilterUninstaller;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "MacApp/Build/Uninstaller-Info.plist";
+				INSTALL_PATH = "$(LOCAL_APPS_DIR)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "org.mail-filter.uninstaller";
+				PRODUCT_MODULE_NAME = MailFilterUninstaller;
+				PRODUCT_NAME = "Uninstall Mail-Filter";
+				SKIP_INSTALL = YES;
+			};
+			name = BuildCheck;
+		};
+		EEBCD91FB9DDC038BDFEE138 /* Development */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0CCA558ABCCFF8FC8109E4A6 /* Development.xcconfig */;
+			buildSettings = {
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+			};
+			name = Development;
+		};
+		F0135F98FA206F843560C868 /* Store */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 86C2901E92BDF550F9B78D19 /* Store.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = MacApp/Build/Host.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_NAME = MailFilter;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "MacApp/Build/Host-Info.plist";
+				INSTALL_PATH = "$(LOCAL_APPS_DIR)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(MAIL_FILTER_BUNDLE_ID)";
+				PRODUCT_MODULE_NAME = MailFilter;
+				PRODUCT_NAME = "Mail-Filter";
+				REGISTER_APP_GROUPS = YES;
+				SKIP_INSTALL = NO;
+			};
+			name = Store;
+		};
+		F52BD6E6EC2F7A86DF527842 /* DeveloperID */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 63185B2B25D7508453C2F9A8 /* DeveloperID.xcconfig */;
+			buildSettings = {
+			};
+			name = DeveloperID;
+		};
+		FF13D03BEB850BC759DBC97F /* Local */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8B81B5153C68D2FDE812A661 /* Local.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = "MacApp/Build/Extension-Local.entitlements";
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_NAME = MailFilterExtension;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "MacApp/Build/Extension-Local-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-e",
-					"_NSExtensionMain",
+					_NSExtensionMain,
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(MAIL_FILTER_BUNDLE_ID).extension";
+				PRODUCT_MODULE_NAME = MailFilterExtension;
+				PRODUCT_NAME = "Mail-Filter";
+				REGISTER_APP_GROUPS = YES;
+				SKIP_INSTALL = YES;
 			};
+			name = Local;
 		};
-		"78C3946580C419ADCFAA768D" = {
-			"isa" = "XCConfigurationList";
-			"buildConfigurations" = (
-				"FF13D03BEB850BC759DBC97F",
-				"CA5318A5A175E87C0D767C66",
-				"88212D4B282122AE672AFEA9",
-				"B9725491A2F4415B5F05E94F",
-				"56C982E889FD61ED3F747DA8",
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0A721AD4FD82EF44EC9B56E3 /* Build configuration list for PBXNativeTarget "MailFilterCLI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				070C8768B3D25D519B55241D /* Local */,
+				19F33C0E6664FCAEA8045A07 /* DeveloperID */,
+				967EF5A8C7FB320DFF2E73BC /* BuildCheck */,
+				234C83D7ABB72A02B352AED0 /* Development */,
+				898EC1FF3619030C60C60AC7 /* Store */,
 			);
-			"defaultConfigurationIsVisible" = 0;
-			"defaultConfigurationName" = "Local";
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Local;
 		};
-		"A148AD5E0608DCE6158BFF07" = {
-			"isa" = "PBXNativeTarget";
-			"name" = "MailFilterExtension";
-			"productName" = "MailFilterExtension";
-			"productReference" = "9B5EA5B470B5FDC806AA1095";
-			"productType" = "com.apple.product-type.app-extension";
-			"buildConfigurationList" = "78C3946580C419ADCFAA768D";
-			"dependencies" = (
-				"D0C43333FC3AC85BFA8929CF",
+		19E6F147C668BB819913A98C /* Build configuration list for PBXAggregateTarget "MailFilterDocumentation" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B8BDFA65F58995F3F9D2092F /* Local */,
+				6D5B5C87EFB254E7BF023425 /* DeveloperID */,
+				10CF0D0504F9D7C53B4AF9E8 /* BuildCheck */,
+				13F4512E22A59BEA43D994C5 /* Development */,
+				346A13512AF5334FD54E80E0 /* Store */,
 			);
-			"buildRules" = (
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Local;
+		};
+		2DD6835325FCC8FA8F334CCE /* Build configuration list for PBXAggregateTarget "MailFilterLocalInstaller" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D435A44B90320436F84C16D0 /* Local */,
+				77D1A9360A1CD41E2A67F54D /* DeveloperID */,
+				9186A357E6690A4568AEED85 /* BuildCheck */,
+				EEBCD91FB9DDC038BDFEE138 /* Development */,
+				096D79CC71722392E450707C /* Store */,
 			);
-			"buildPhases" = (
-				"E0150B6BB50B701D6F7D6619",
-				"503F45234EB4666AB550389A",
-				"C2000662670FC0462E6D472F",
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Local;
+		};
+		61106CA495831233F6A119B3 /* Build configuration list for PBXNativeTarget "MailFilter" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C2FCF552A63C1A3A3D3A64F0 /* Local */,
+				D8DA2930A42571EF216E321B /* DeveloperID */,
+				A6BF6E5977C6CDDA009CD4C9 /* BuildCheck */,
+				34F330479B2BFAFF82E2216F /* Development */,
+				F0135F98FA206F843560C868 /* Store */,
 			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Local;
 		};
-		"070A9B21E400DE135839A994" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "0F9EC4F9E64A2019C7F96711";
-		};
-		"CDE9833F2828D49104C656D3" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "A553D76EF54E0B6410717921";
-		};
-		"7B93755A5908BD0EE6278BFE" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "964F03D4DB4E679AAFFE10A2";
-		};
-		"2713A8921D998108F9605E88" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "24B8C1145EFC4D3D812C499E";
-		};
-		"2127715414BF48A798862B26" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "B280DEF19848D4BEEE440D96";
-		};
-		"7BB0234E90351C8844A42331" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "F924467C955A242D24394004";
-		};
-		"2184C7D577555449D842CAF4" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "3443A527845D1091CED41E2E";
-		};
-		"D52F23F543F1BF8948505892" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "BBA95671781E6DEB8880A896";
-		};
-		"B95444E0454980F195EE0F18" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "2DC4156D5F66C5FF6911E21F";
-		};
-		"AB51B4D8BC4574A54AB2B2A2" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "669BC498F5A0ED83833814FD";
-		};
-		"3C8965437BF367209BDA121E" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "B89782262EEC86D07762BBCD";
-		};
-		"A9FB70A59E2EDB52C8013DD1" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "376D4C1B8B5049F1C6D3983D";
-		};
-		"572E735D347A07765B141D08" = {
-			"isa" = "PBXSourcesBuildPhase";
-			"buildActionMask" = 2147483647;
-			"files" = (
-				"070A9B21E400DE135839A994",
-				"CDE9833F2828D49104C656D3",
-				"7B93755A5908BD0EE6278BFE",
-				"2713A8921D998108F9605E88",
-				"2127715414BF48A798862B26",
-				"7BB0234E90351C8844A42331",
-				"2184C7D577555449D842CAF4",
-				"D52F23F543F1BF8948505892",
-				"B95444E0454980F195EE0F18",
-				"AB51B4D8BC4574A54AB2B2A2",
-				"3C8965437BF367209BDA121E",
-				"A9FB70A59E2EDB52C8013DD1",
+		78C3946580C419ADCFAA768D /* Build configuration list for PBXNativeTarget "MailFilterExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FF13D03BEB850BC759DBC97F /* Local */,
+				CA5318A5A175E87C0D767C66 /* DeveloperID */,
+				88212D4B282122AE672AFEA9 /* BuildCheck */,
+				B9725491A2F4415B5F05E94F /* Development */,
+				56C982E889FD61ED3F747DA8 /* Store */,
 			);
-			"runOnlyForDeploymentPostprocessing" = 0;
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Local;
 		};
-		"A5361C130EA59E21E7D01ECB" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "8F15B6E5C039C71ACBDC777E";
-		};
-		"AAEAF3910D3585650F7FB5B5" = {
-			"isa" = "PBXResourcesBuildPhase";
-			"buildActionMask" = 2147483647;
-			"files" = (
-				"A5361C130EA59E21E7D01ECB",
+		B4E10CAA9C5E22150B71559C /* Build configuration list for PBXProject "Mail-Filter" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				08F6340E12FEBD34CA19B5BD /* Local */,
+				F52BD6E6EC2F7A86DF527842 /* DeveloperID */,
+				4C93632DCC7F239C5180573F /* BuildCheck */,
+				8E8D48CE691B6068696F83A4 /* Development */,
+				22A95C215B40710B591C2AEB /* Store */,
 			);
-			"runOnlyForDeploymentPostprocessing" = 0;
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Local;
 		};
-		"39D5FB79F345F86F7C3229EE" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "Local";
-			"baseConfigurationReference" = "8B81B5153C68D2FDE812A661";
-			"buildSettings" = {
-				"PRODUCT_NAME" = "Uninstall Mail-Filter";
-				"EXECUTABLE_NAME" = "MailFilterUninstaller";
-				"PRODUCT_MODULE_NAME" = "MailFilterUninstaller";
-				"GENERATE_INFOPLIST_FILE" = "NO";
-				"INFOPLIST_FILE" = "MacApp/Build/Uninstaller-Local-Info.plist";
-				"CODE_SIGN_ENTITLEMENTS" = "MacApp/Build/Uninstaller-Local.entitlements";
-				"COMBINE_HIDPI_IMAGES" = "YES";
-				"LD_RUNPATH_SEARCH_PATHS" = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
-				"PRODUCT_BUNDLE_IDENTIFIER" = "org.mail-filter.uninstaller";
-				"SKIP_INSTALL" = "YES";
-				"INSTALL_PATH" = "$(LOCAL_APPS_DIR)";
-				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
-			};
-		};
-		"5DB92A55D449366F180855EE" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "DeveloperID";
-			"baseConfigurationReference" = "63185B2B25D7508453C2F9A8";
-			"buildSettings" = {
-				"PRODUCT_NAME" = "Uninstall Mail-Filter";
-				"EXECUTABLE_NAME" = "MailFilterUninstaller";
-				"PRODUCT_MODULE_NAME" = "MailFilterUninstaller";
-				"GENERATE_INFOPLIST_FILE" = "NO";
-				"INFOPLIST_FILE" = "MacApp/Build/Uninstaller-Info.plist";
-				"CODE_SIGN_ENTITLEMENTS" = "MacApp/Build/Uninstaller-Direct.entitlements";
-				"COMBINE_HIDPI_IMAGES" = "YES";
-				"LD_RUNPATH_SEARCH_PATHS" = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
-				"PRODUCT_BUNDLE_IDENTIFIER" = "org.mail-filter.uninstaller";
-				"SKIP_INSTALL" = "YES";
-				"INSTALL_PATH" = "$(LOCAL_APPS_DIR)";
-				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
-			};
-		};
-		"EDE7FE340DEC28BCF4280813" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "BuildCheck";
-			"baseConfigurationReference" = "E010D94CEFF87FE0FBF35464";
-			"buildSettings" = {
-				"PRODUCT_NAME" = "Uninstall Mail-Filter";
-				"EXECUTABLE_NAME" = "MailFilterUninstaller";
-				"PRODUCT_MODULE_NAME" = "MailFilterUninstaller";
-				"GENERATE_INFOPLIST_FILE" = "NO";
-				"INFOPLIST_FILE" = "MacApp/Build/Uninstaller-Info.plist";
-				"CODE_SIGN_ENTITLEMENTS" = "MacApp/Build/Uninstaller-Local.entitlements";
-				"COMBINE_HIDPI_IMAGES" = "YES";
-				"LD_RUNPATH_SEARCH_PATHS" = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
-				"PRODUCT_BUNDLE_IDENTIFIER" = "org.mail-filter.uninstaller";
-				"SKIP_INSTALL" = "YES";
-				"INSTALL_PATH" = "$(LOCAL_APPS_DIR)";
-				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
-			};
-		};
-		"0AC8ECCB24966F289FE9A2E8" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "Development";
-			"baseConfigurationReference" = "0CCA558ABCCFF8FC8109E4A6";
-			"buildSettings" = {
-				"PRODUCT_NAME" = "Uninstall Mail-Filter";
-				"EXECUTABLE_NAME" = "MailFilterUninstaller";
-				"PRODUCT_MODULE_NAME" = "MailFilterUninstaller";
-				"GENERATE_INFOPLIST_FILE" = "NO";
-				"INFOPLIST_FILE" = "MacApp/Build/Uninstaller-Info.plist";
-				"CODE_SIGN_ENTITLEMENTS" = "MacApp/Build/Uninstaller-Local.entitlements";
-				"COMBINE_HIDPI_IMAGES" = "YES";
-				"LD_RUNPATH_SEARCH_PATHS" = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
-				"PRODUCT_BUNDLE_IDENTIFIER" = "org.mail-filter.uninstaller";
-				"SKIP_INSTALL" = "YES";
-				"INSTALL_PATH" = "$(LOCAL_APPS_DIR)";
-				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
-			};
-		};
-		"96CAB4E3A5C535012FDF3966" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "Store";
-			"baseConfigurationReference" = "86C2901E92BDF550F9B78D19";
-			"buildSettings" = {
-				"PRODUCT_NAME" = "Uninstall Mail-Filter";
-				"EXECUTABLE_NAME" = "MailFilterUninstaller";
-				"PRODUCT_MODULE_NAME" = "MailFilterUninstaller";
-				"GENERATE_INFOPLIST_FILE" = "NO";
-				"INFOPLIST_FILE" = "MacApp/Build/Uninstaller-Info.plist";
-				"CODE_SIGN_ENTITLEMENTS" = "MacApp/Build/Uninstaller-Local.entitlements";
-				"COMBINE_HIDPI_IMAGES" = "YES";
-				"LD_RUNPATH_SEARCH_PATHS" = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
-				"PRODUCT_BUNDLE_IDENTIFIER" = "org.mail-filter.uninstaller";
-				"SKIP_INSTALL" = "YES";
-				"INSTALL_PATH" = "$(LOCAL_APPS_DIR)";
-				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
-			};
-		};
-		"F7A211BAE23F1B86EBBEFCAF" = {
-			"isa" = "XCConfigurationList";
-			"buildConfigurations" = (
-				"39D5FB79F345F86F7C3229EE",
-				"5DB92A55D449366F180855EE",
-				"EDE7FE340DEC28BCF4280813",
-				"0AC8ECCB24966F289FE9A2E8",
-				"96CAB4E3A5C535012FDF3966",
+		F7A211BAE23F1B86EBBEFCAF /* Build configuration list for PBXNativeTarget "MailFilterUninstaller" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				39D5FB79F345F86F7C3229EE /* Local */,
+				5DB92A55D449366F180855EE /* DeveloperID */,
+				EDE7FE340DEC28BCF4280813 /* BuildCheck */,
+				0AC8ECCB24966F289FE9A2E8 /* Development */,
+				96CAB4E3A5C535012FDF3966 /* Store */,
 			);
-			"defaultConfigurationIsVisible" = 0;
-			"defaultConfigurationName" = "Local";
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Local;
 		};
-		"31C09F7DD1F3993BA13EDA4C" = {
-			"isa" = "PBXNativeTarget";
-			"name" = "MailFilterUninstaller";
-			"productName" = "MailFilterUninstaller";
-			"productReference" = "E42E036B49D679E107147509";
-			"productType" = "com.apple.product-type.application";
-			"buildConfigurationList" = "F7A211BAE23F1B86EBBEFCAF";
-			"dependencies" = (
-				"D0C43333FC3AC85BFA8929CF",
-			);
-			"buildRules" = (
-			);
-			"buildPhases" = (
-				"572E735D347A07765B141D08",
-				"AAEAF3910D3585650F7FB5B5",
-			);
-		};
-		"2E020AF0447EF82021C8BF34" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "2DDDA7339AD08DBB81D8CA41";
-		};
-		"710228D525BC158BBE3B4726" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "A553D76EF54E0B6410717921";
-		};
-		"3094D45D425F272EA7B2FE0A" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "0F9EC4F9E64A2019C7F96711";
-		};
-		"0A2C416D0EDB70A4AC0694E7" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "669BC498F5A0ED83833814FD";
-		};
-		"46057B7C2CC1A0690D66941B" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "BB8764775FEF80A46897B183";
-		};
-		"627238DB2AD0328B456A84E1" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "964F03D4DB4E679AAFFE10A2";
-		};
-		"256EAA302E8AFA181B8032C1" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "5D5EC16A145CBCE07DBA4551";
-		};
-		"E2CC3FBCD6ED1735DB6BDE6B" = {
-			"isa" = "PBXSourcesBuildPhase";
-			"buildActionMask" = 2147483647;
-			"files" = (
-				"2E020AF0447EF82021C8BF34",
-				"710228D525BC158BBE3B4726",
-				"3094D45D425F272EA7B2FE0A",
-				"0A2C416D0EDB70A4AC0694E7",
-				"46057B7C2CC1A0690D66941B",
-				"627238DB2AD0328B456A84E1",
-				"256EAA302E8AFA181B8032C1",
-			);
-			"runOnlyForDeploymentPostprocessing" = 0;
-		};
-		"070C8768B3D25D519B55241D" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "Local";
-			"baseConfigurationReference" = "8B81B5153C68D2FDE812A661";
-			"buildSettings" = {
-				"PRODUCT_NAME" = "mail-filter";
-				"PRODUCT_MODULE_NAME" = "MailFilterCLI";
-				"SWIFT_VERSION" = "6.0";
-				"SKIP_INSTALL" = "YES";
-				"CODE_SIGN_ENTITLEMENTS" = "MacApp/Build/CLI.entitlements";
-			};
-		};
-		"19F33C0E6664FCAEA8045A07" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "DeveloperID";
-			"baseConfigurationReference" = "63185B2B25D7508453C2F9A8";
-			"buildSettings" = {
-				"PRODUCT_NAME" = "mail-filter";
-				"PRODUCT_MODULE_NAME" = "MailFilterCLI";
-				"SWIFT_VERSION" = "6.0";
-				"SKIP_INSTALL" = "YES";
-				"CODE_SIGN_ENTITLEMENTS" = "MacApp/Build/CLI.entitlements";
-			};
-		};
-		"967EF5A8C7FB320DFF2E73BC" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "BuildCheck";
-			"baseConfigurationReference" = "E010D94CEFF87FE0FBF35464";
-			"buildSettings" = {
-				"PRODUCT_NAME" = "mail-filter";
-				"PRODUCT_MODULE_NAME" = "MailFilterCLI";
-				"SWIFT_VERSION" = "6.0";
-				"SKIP_INSTALL" = "YES";
-				"CODE_SIGN_ENTITLEMENTS" = "MacApp/Build/CLI.entitlements";
-			};
-		};
-		"234C83D7ABB72A02B352AED0" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "Development";
-			"baseConfigurationReference" = "0CCA558ABCCFF8FC8109E4A6";
-			"buildSettings" = {
-				"PRODUCT_NAME" = "mail-filter";
-				"PRODUCT_MODULE_NAME" = "MailFilterCLI";
-				"SWIFT_VERSION" = "6.0";
-				"SKIP_INSTALL" = "YES";
-				"CODE_SIGN_ENTITLEMENTS" = "MacApp/Build/CLI.entitlements";
-			};
-		};
-		"898EC1FF3619030C60C60AC7" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "Store";
-			"baseConfigurationReference" = "86C2901E92BDF550F9B78D19";
-			"buildSettings" = {
-				"PRODUCT_NAME" = "mail-filter";
-				"PRODUCT_MODULE_NAME" = "MailFilterCLI";
-				"SWIFT_VERSION" = "6.0";
-				"SKIP_INSTALL" = "YES";
-				"CODE_SIGN_ENTITLEMENTS" = "MacApp/Build/CLI.entitlements";
-			};
-		};
-		"0A721AD4FD82EF44EC9B56E3" = {
-			"isa" = "XCConfigurationList";
-			"buildConfigurations" = (
-				"070C8768B3D25D519B55241D",
-				"19F33C0E6664FCAEA8045A07",
-				"967EF5A8C7FB320DFF2E73BC",
-				"234C83D7ABB72A02B352AED0",
-				"898EC1FF3619030C60C60AC7",
-			);
-			"defaultConfigurationIsVisible" = 0;
-			"defaultConfigurationName" = "Local";
-		};
-		"2C8205F9CC6BD6EC239EC3D7" = {
-			"isa" = "PBXNativeTarget";
-			"name" = "MailFilterCLI";
-			"productName" = "MailFilterCLI";
-			"productReference" = "D83FDD13E01C161FBAFC0866";
-			"productType" = "com.apple.product-type.tool";
-			"buildConfigurationList" = "0A721AD4FD82EF44EC9B56E3";
-			"dependencies" = (
-				"D0C43333FC3AC85BFA8929CF",
-			);
-			"buildRules" = (
-			);
-			"buildPhases" = (
-				"E2CC3FBCD6ED1735DB6BDE6B",
-			);
-		};
-		"0B4C8C408CAF1D4B6EA45FA3" = {
-			"isa" = "PBXShellScriptBuildPhase";
-			"buildActionMask" = 2147483647;
-			"files" = (
-			);
-			"inputPaths" = (
-			);
-			"outputPaths" = (
-			);
-			"name" = "Package built local products";
-			"runOnlyForDeploymentPostprocessing" = 0;
-			"alwaysOutOfDate" = 1;
-			"showEnvVarsInLog" = 0;
-			"shellPath" = "/bin/zsh";
-			"shellScript" = "set -eu\n[[ \"$CONFIGURATION\" == Local ]] || { print -u2 \"Select the Local installer configuration.\"; exit 1; }\n\"${SRCROOT}/MacApp/package.sh\" local --built-products \"${BUILT_PRODUCTS_DIR}\"\n";
-		};
-		"D435A44B90320436F84C16D0" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "Local";
-			"baseConfigurationReference" = "8B81B5153C68D2FDE812A661";
-			"buildSettings" = {
-				"CODE_SIGNING_ALLOWED" = "NO";
-				"CODE_SIGNING_REQUIRED" = "NO";
-				"DEVELOPMENT_TEAM" = "";
-				"CODE_SIGN_IDENTITY" = "";
-				"ENABLE_USER_SCRIPT_SANDBOXING" = "NO";
-			};
-		};
-		"77D1A9360A1CD41E2A67F54D" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "DeveloperID";
-			"baseConfigurationReference" = "63185B2B25D7508453C2F9A8";
-			"buildSettings" = {
-				"CODE_SIGNING_ALLOWED" = "NO";
-				"CODE_SIGNING_REQUIRED" = "NO";
-				"DEVELOPMENT_TEAM" = "";
-				"CODE_SIGN_IDENTITY" = "";
-				"ENABLE_USER_SCRIPT_SANDBOXING" = "NO";
-			};
-		};
-		"9186A357E6690A4568AEED85" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "BuildCheck";
-			"baseConfigurationReference" = "E010D94CEFF87FE0FBF35464";
-			"buildSettings" = {
-				"CODE_SIGNING_ALLOWED" = "NO";
-				"CODE_SIGNING_REQUIRED" = "NO";
-				"DEVELOPMENT_TEAM" = "";
-				"CODE_SIGN_IDENTITY" = "";
-				"ENABLE_USER_SCRIPT_SANDBOXING" = "NO";
-			};
-		};
-		"EEBCD91FB9DDC038BDFEE138" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "Development";
-			"baseConfigurationReference" = "0CCA558ABCCFF8FC8109E4A6";
-			"buildSettings" = {
-				"CODE_SIGNING_ALLOWED" = "NO";
-				"CODE_SIGNING_REQUIRED" = "NO";
-				"DEVELOPMENT_TEAM" = "";
-				"CODE_SIGN_IDENTITY" = "";
-				"ENABLE_USER_SCRIPT_SANDBOXING" = "NO";
-			};
-		};
-		"096D79CC71722392E450707C" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "Store";
-			"baseConfigurationReference" = "86C2901E92BDF550F9B78D19";
-			"buildSettings" = {
-				"CODE_SIGNING_ALLOWED" = "NO";
-				"CODE_SIGNING_REQUIRED" = "NO";
-				"DEVELOPMENT_TEAM" = "";
-				"CODE_SIGN_IDENTITY" = "";
-				"ENABLE_USER_SCRIPT_SANDBOXING" = "NO";
-			};
-		};
-		"2DD6835325FCC8FA8F334CCE" = {
-			"isa" = "XCConfigurationList";
-			"buildConfigurations" = (
-				"D435A44B90320436F84C16D0",
-				"77D1A9360A1CD41E2A67F54D",
-				"9186A357E6690A4568AEED85",
-				"EEBCD91FB9DDC038BDFEE138",
-				"096D79CC71722392E450707C",
-			);
-			"defaultConfigurationIsVisible" = 0;
-			"defaultConfigurationName" = "Local";
-		};
-		"9ECF07CEF5CC21AEBB3F6444" = {
-			"isa" = "PBXContainerItemProxy";
-			"containerPortal" = "244210E48437B6556980A702";
-			"proxyType" = 1;
-			"remoteGlobalIDString" = "098A2FAE5D6CC599A6DA7DE2";
-		};
-		"7E1B566C8C37C754335FC8ED" = {
-			"isa" = "PBXTargetDependency";
-			"target" = "098A2FAE5D6CC599A6DA7DE2";
-			"targetProxy" = "9ECF07CEF5CC21AEBB3F6444";
-		};
-		"78966EC83582B4DC2D02177E" = {
-			"isa" = "PBXContainerItemProxy";
-			"containerPortal" = "244210E48437B6556980A702";
-			"proxyType" = 1;
-			"remoteGlobalIDString" = "2C8205F9CC6BD6EC239EC3D7";
-		};
-		"65BAD426725A76BEEB10AB0B" = {
-			"isa" = "PBXTargetDependency";
-			"target" = "2C8205F9CC6BD6EC239EC3D7";
-			"targetProxy" = "78966EC83582B4DC2D02177E";
-		};
-		"80AC38B4E8803445C6DBD6EC" = {
-			"isa" = "PBXContainerItemProxy";
-			"containerPortal" = "244210E48437B6556980A702";
-			"proxyType" = 1;
-			"remoteGlobalIDString" = "31C09F7DD1F3993BA13EDA4C";
-		};
-		"A204DBAC201163A972599C27" = {
-			"isa" = "PBXTargetDependency";
-			"target" = "31C09F7DD1F3993BA13EDA4C";
-			"targetProxy" = "80AC38B4E8803445C6DBD6EC";
-		};
-		"70F1C043A995B2E84CEB1654" = {
-			"isa" = "PBXAggregateTarget";
-			"name" = "MailFilterLocalInstaller";
-			"productName" = "MailFilterLocalInstaller";
-			"buildConfigurationList" = "2DD6835325FCC8FA8F334CCE";
-			"dependencies" = (
-				"7E1B566C8C37C754335FC8ED",
-				"65BAD426725A76BEEB10AB0B",
-				"A204DBAC201163A972599C27",
-			);
-			"buildPhases" = (
-				"0B4C8C408CAF1D4B6EA45FA3",
-			);
-		};
-		"0A3E27B8CA818264D75C8D81" = {
-			"isa" = "PBXGroup";
-			"children" = (
-				"FF45B4A2149347AA53D5F95C",
-				"9B5EA5B470B5FDC806AA1095",
-				"E42E036B49D679E107147509",
-				"D83FDD13E01C161FBAFC0866",
-			);
-			"name" = "Products";
-			"sourceTree" = "<group>";
-		};
-		"E2AA269EB967A8853A258BFA" = {
-			"isa" = "PBXGroup";
-			"children" = (
-				"FC1403135EB4386BD6C023A6",
-				"8BD2FC20C69A1E6BAD334CD6",
-			);
-			"name" = "Frameworks";
-			"sourceTree" = "<group>";
-		};
-		"08F6340E12FEBD34CA19B5BD" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "Local";
-			"baseConfigurationReference" = "8B81B5153C68D2FDE812A661";
-			"buildSettings" = {
-			};
-		};
-		"F52BD6E6EC2F7A86DF527842" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "DeveloperID";
-			"baseConfigurationReference" = "63185B2B25D7508453C2F9A8";
-			"buildSettings" = {
-			};
-		};
-		"4C93632DCC7F239C5180573F" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "BuildCheck";
-			"baseConfigurationReference" = "E010D94CEFF87FE0FBF35464";
-			"buildSettings" = {
-			};
-		};
-		"8E8D48CE691B6068696F83A4" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "Development";
-			"baseConfigurationReference" = "0CCA558ABCCFF8FC8109E4A6";
-			"buildSettings" = {
-			};
-		};
-		"22A95C215B40710B591C2AEB" = {
-			"isa" = "XCBuildConfiguration";
-			"name" = "Store";
-			"baseConfigurationReference" = "86C2901E92BDF550F9B78D19";
-			"buildSettings" = {
-			};
-		};
-		"B4E10CAA9C5E22150B71559C" = {
-			"isa" = "XCConfigurationList";
-			"buildConfigurations" = (
-				"08F6340E12FEBD34CA19B5BD",
-				"F52BD6E6EC2F7A86DF527842",
-				"4C93632DCC7F239C5180573F",
-				"8E8D48CE691B6068696F83A4",
-				"22A95C215B40710B591C2AEB",
-			);
-			"defaultConfigurationIsVisible" = 0;
-			"defaultConfigurationName" = "Local";
-		};
-		"DFAA9A79675E5B61B48843E5" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text";
-			"name" = ".gitignore";
-			"path" = ".gitignore";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"B215FE5E7F2B27ABCC39FF44" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.plist.xml";
-			"name" = "CLI.entitlements";
-			"path" = "MacApp/Build/CLI.entitlements";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"6A2EE271C441DA8899B921A2" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.xcconfig";
-			"name" = "Common.xcconfig";
-			"path" = "MacApp/Build/Common.xcconfig";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"8DF7399541A14930FA88EE7E" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.plist.xml";
-			"name" = "Extension-Direct.entitlements";
-			"path" = "MacApp/Build/Extension-Direct.entitlements";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"67DACA02A5D698732FBDFDEB" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.plist.xml";
-			"name" = "Extension-Info.plist";
-			"path" = "MacApp/Build/Extension-Info.plist";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"91B6BC03974DD4049A78FBEA" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.plist.xml";
-			"name" = "Extension-Local-Info.plist";
-			"path" = "MacApp/Build/Extension-Local-Info.plist";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"4B27412397CF1467EA6D3AC8" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.plist.xml";
-			"name" = "Extension-Local.entitlements";
-			"path" = "MacApp/Build/Extension-Local.entitlements";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"A6948193FD659F26DA9DFEED" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.plist.xml";
-			"name" = "Extension.entitlements";
-			"path" = "MacApp/Build/Extension.entitlements";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"D0E6229B4AA85E4F173EE6CA" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.plist.xml";
-			"name" = "Host-Direct.entitlements";
-			"path" = "MacApp/Build/Host-Direct.entitlements";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"4979DDE12A5D7D34C7CAD541" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.plist.xml";
-			"name" = "Host-Info.plist";
-			"path" = "MacApp/Build/Host-Info.plist";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"1632D523A09F75EC81A0E67B" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.plist.xml";
-			"name" = "Host-Local-Info.plist";
-			"path" = "MacApp/Build/Host-Local-Info.plist";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"69AA7140F4B70C0EF77CA252" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.plist.xml";
-			"name" = "Host-Local.entitlements";
-			"path" = "MacApp/Build/Host-Local.entitlements";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"6E02A68992F0164F61097018" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.plist.xml";
-			"name" = "Host.entitlements";
-			"path" = "MacApp/Build/Host.entitlements";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"F03D7F5D1EF306F5DEF12826" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "net.daringfireball.markdown";
-			"name" = "README.md";
-			"path" = "MacApp/Build/README.md";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"64D7E7BD628355E75E79625A" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.xcconfig";
-			"name" = "Signing.example.xcconfig";
-			"path" = "MacApp/Build/Signing.example.xcconfig";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"5907A3E2A97FEFD9C48EAA7E" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.plist.xml";
-			"name" = "Uninstaller-Direct.entitlements";
-			"path" = "MacApp/Build/Uninstaller-Direct.entitlements";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"9B150385C1B690A223D1C99D" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.plist.xml";
-			"name" = "Uninstaller-Info.plist";
-			"path" = "MacApp/Build/Uninstaller-Info.plist";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"67D6DFC741B8BFA1A6A4197D" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.plist.xml";
-			"name" = "Uninstaller-Local-Info.plist";
-			"path" = "MacApp/Build/Uninstaller-Local-Info.plist";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"5CE1F14C0EA21717C9F10C54" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.plist.xml";
-			"name" = "Uninstaller-Local.entitlements";
-			"path" = "MacApp/Build/Uninstaller-Local.entitlements";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"6ED677768624818EC6DE0A01" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "AppStoreProbe.swift";
-			"path" = "MacApp/Feasibility/AppStoreProbe.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"A278DBCA3CA22BB37DBAEBB6" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "OfflineChecks.swift";
-			"path" = "MacApp/Feasibility/OfflineChecks.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"EAC66771DAC3026562CC2779" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "net.daringfireball.markdown";
-			"name" = "README.md";
-			"path" = "MacApp/Feasibility/README.md";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"3EE00208F7206DB5925FF989" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.script.python";
-			"name" = "run.py";
-			"path" = "MacApp/Feasibility/run.py";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"F5D7903FDD8EA433C3E8AD8F" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.script.sh";
-			"name" = "postinstall";
-			"path" = "MacApp/InstallerScripts/CommandLineOff/postinstall";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"0D2B88EEF121DBBC1FDE9429" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.script.sh";
-			"name" = "preinstall";
-			"path" = "MacApp/InstallerScripts/CommandLineOn/preinstall";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"B9A880DB12B4BACA90EC9FA7" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "MakeIcon.swift";
-			"path" = "MacApp/MakeIcon.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"07280DCB92DEAADB672F9E95" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "ModelProbe.swift";
-			"path" = "MacApp/ModelProbe.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"D61366A4192F7AB146B4AAAC" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "net.daringfireball.markdown";
-			"name" = "README.md";
-			"path" = "MacApp/README.md";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"AB061E12E3F2638C8D807214" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.plist.xml";
-			"name" = "ExportOptions.plist";
-			"path" = "MacApp/Store/ExportOptions.plist";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"882890448FC689550D0A0642" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "net.daringfireball.markdown";
-			"name" = "README.md";
-			"path" = "MacApp/Store/README.md";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"0EA69702A2E612BCFC5AFDE9" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.script.python";
-			"name" = "verify.py";
-			"path" = "MacApp/Store/verify.py";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"DF3D66EA08CC14E6477F2BD3" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.script.python";
-			"name" = "BuildGraphChecks.py";
-			"path" = "MacApp/Tests/BuildGraphChecks.py";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"2DFCE6FDBD5E60755AAD0E59" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "DeadlineChecks.swift";
-			"path" = "MacApp/Tests/DeadlineChecks.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"C650A5132A111E9FC6232F74" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "DiagnosticChecks.swift";
-			"path" = "MacApp/Tests/DiagnosticChecks.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"F4661BF5B4CA91DFEE78D379" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "FilteringChecks.swift";
-			"path" = "MacApp/Tests/FilteringChecks.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"0A94E6533FF3B800008B131D" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "JunkProtectionChecks.swift";
-			"path" = "MacApp/Tests/JunkProtectionChecks.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"007E74EF93E377F19716BFCD" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "MIMEBodyChecks.swift";
-			"path" = "MacApp/Tests/MIMEBodyChecks.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"D604F75D27A089550D06EA94" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "ModelRequestChecks.swift";
-			"path" = "MacApp/Tests/ModelRequestChecks.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"2BF6BFB08BD70BF470F6BEED" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "NativeChecks.swift";
-			"path" = "MacApp/Tests/NativeChecks.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"5FF505F727B48BFD149CA338" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.script.python";
-			"name" = "PackagingChecks.py";
-			"path" = "MacApp/Tests/PackagingChecks.py";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"F9A0DAF680C37477F024BECD" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "RetryChecks.swift";
-			"path" = "MacApp/Tests/RetryChecks.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"6F337081F35C18885C7677A6" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.script.python";
-			"name" = "StorePackagingChecks.py";
-			"path" = "MacApp/Tests/StorePackagingChecks.py";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"3D1EDDF680FC61E51E2B5901" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "StoreReadinessChecks.swift";
-			"path" = "MacApp/Tests/StoreReadinessChecks.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"03971F35A8A7406E06CB9370" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.script.sh";
-			"name" = "build.sh";
-			"path" = "MacApp/build.sh";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"BC0271A04BA3304BBB776E8C" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.script.python";
-			"name" = "desktop_shortcut.py";
-			"path" = "MacApp/desktop_shortcut.py";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"041737C471AF5861DE8C183A" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.script.python";
-			"name" = "generate-project.py";
-			"path" = "MacApp/generate-project.py";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"7F7B0BA80D7D28D862282A9A" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.script.sh";
-			"name" = "notarize.sh";
-			"path" = "MacApp/notarize.sh";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"8CCDDB0362EC1F1F1B6623AB" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.script.sh";
-			"name" = "package.sh";
-			"path" = "MacApp/package.sh";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"732359E46E3EFF7F3DF28803" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.script.python";
-			"name" = "prepare-direct-products.py";
-			"path" = "MacApp/prepare-direct-products.py";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"98D747AFFD0DDA5CF407EB3E" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.script.sh";
-			"name" = "probe-model.sh";
-			"path" = "MacApp/probe-model.sh";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"65B1B824DCA8562673160FE1" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.script.sh";
-			"name" = "store-build.sh";
-			"path" = "MacApp/store-build.sh";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"289E5F772612FC3DDBF111B6" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.script.sh";
-			"name" = "test.sh";
-			"path" = "MacApp/test.sh";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"17657031D88204D9E549A836" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.script.python";
-			"name" = "verify_bundle.py";
-			"path" = "MacApp/verify_bundle.py";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"66CBAC7CD772E4093BDC3B1B" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.script.python";
-			"name" = "verify_package.py";
-			"path" = "MacApp/verify_package.py";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"BA42E1472EB2BDE594C4A014" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "Package.swift";
-			"path" = "Package.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"1A490E0C16585A4F419BED72" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "net.daringfireball.markdown";
-			"name" = "README-DEVELOPER.md";
-			"path" = "README-DEVELOPER.md";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"42C59AF8A4BAE559BC5A5D5D" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "net.daringfireball.markdown";
-			"name" = "README.md";
-			"path" = "README.md";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"B042C270B9BF87DD5C43E816" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "SafetyTests.swift";
-			"path" = "Tests/MailFilterTests/SafetyTests.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"262CACBDB1BA17FA49164E08" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.script.sh";
-			"name" = "build.sh";
-			"path" = "build.sh";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"056A6A41B42C1057E69D8F1F" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text";
-			"name" = "accounts.example.txt";
-			"path" = "config/accounts.example.txt";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"9831AFD2DA449F91AFC93069" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "net.daringfireball.markdown";
-			"name" = "README.md";
-			"path" = "docs/README.md";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"50F362E88B9EA508787E0C7A" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "file";
-			"name" = "app-store-deployment-plan.docx";
-			"path" = "docs/app-store-deployment-plan.docx";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"3E4B3EB06422AAED166090E5" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "net.daringfireball.markdown";
-			"name" = "app-store-deployment-plan.md";
-			"path" = "docs/app-store-deployment-plan.md";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"353174241C81480002A3B5EC" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.script.python";
-			"name" = "build-docx.py";
-			"path" = "docs/build-docx.py";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"2250EE41A20795D923A0C684" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "file";
-			"name" = "architecture.docx";
-			"path" = "docs/dev/architecture.docx";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"6646362DC479AA18AEF1AB2F" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "net.daringfireball.markdown";
-			"name" = "architecture.md";
-			"path" = "docs/dev/architecture.md";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"9ADB414D40BF357DF534F01F" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "file";
-			"name" = "getting-started.docx";
-			"path" = "docs/dev/getting-started.docx";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"0A9509B259C784CEB4D281B8" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "net.daringfireball.markdown";
-			"name" = "getting-started.md";
-			"path" = "docs/dev/getting-started.md";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"74FCF38993456C0CCF47F6EB" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "net.daringfireball.markdown";
-			"name" = "store-review-preparation.md";
-			"path" = "docs/store-review-preparation.md";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"A5F8D6FC80CB9210CAAC99ED" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.json";
-			"name" = "political-merchandise.json";
-			"path" = "fixtures/political-merchandise.json";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"B9A874DC198CCB98722771CC" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.json";
-			"name" = "sample.json";
-			"path" = "fixtures/sample.json";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"EF8E3557A9D4F124E8185FA3" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text";
-			"name" = "filter.txt";
-			"path" = "prompts/filter.txt";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"CD4870C936721EE98B5A18BF" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text";
-			"name" = "political-evidence.txt";
-			"path" = "prompts/political-evidence.txt";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"374A07022B489A93A218E9F9" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.script.sh";
-			"name" = "agent.sh";
-			"path" = "scripts/agent.sh";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"8CD30E65E094D80B5E5C9A43" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "text.script.sh";
-			"name" = "test.sh";
-			"path" = "test.sh";
-			"sourceTree" = "SOURCE_ROOT";
-		};
-		"5EA69888B7731A3FC8B5959A" = {
-			"isa" = "PBXGroup";
-			"children" = (
-				"056A6A41B42C1057E69D8F1F",
-			);
-			"path" = "config";
-			"sourceTree" = "<group>";
-		};
-		"18D067672033295834D2C346" = {
-			"isa" = "PBXGroup";
-			"children" = (
-				"2250EE41A20795D923A0C684",
-				"6646362DC479AA18AEF1AB2F",
-				"9ADB414D40BF357DF534F01F",
-				"0A9509B259C784CEB4D281B8",
-			);
-			"path" = "dev";
-			"sourceTree" = "<group>";
-		};
-		"BAE9AFA394D07408B11CEBFC" = {
-			"isa" = "PBXGroup";
-			"children" = (
-				"18D067672033295834D2C346",
-				"50F362E88B9EA508787E0C7A",
-				"3E4B3EB06422AAED166090E5",
-				"353174241C81480002A3B5EC",
-				"9831AFD2DA449F91AFC93069",
-				"74FCF38993456C0CCF47F6EB",
-			);
-			"path" = "docs";
-			"sourceTree" = "<group>";
-		};
-		"5D3BB217B662D7870A373268" = {
-			"isa" = "PBXGroup";
-			"children" = (
-				"A5F8D6FC80CB9210CAAC99ED",
-				"B9A874DC198CCB98722771CC",
-			);
-			"path" = "fixtures";
-			"sourceTree" = "<group>";
-		};
-		"D84E7E611DAF98B5288CA997" = {
-			"isa" = "PBXGroup";
-			"children" = (
-				"8F15B6E5C039C71ACBDC777E",
-				"E010D94CEFF87FE0FBF35464",
-				"B215FE5E7F2B27ABCC39FF44",
-				"6A2EE271C441DA8899B921A2",
-				"63185B2B25D7508453C2F9A8",
-				"0CCA558ABCCFF8FC8109E4A6",
-				"8DF7399541A14930FA88EE7E",
-				"67DACA02A5D698732FBDFDEB",
-				"91B6BC03974DD4049A78FBEA",
-				"4B27412397CF1467EA6D3AC8",
-				"A6948193FD659F26DA9DFEED",
-				"D0E6229B4AA85E4F173EE6CA",
-				"4979DDE12A5D7D34C7CAD541",
-				"1632D523A09F75EC81A0E67B",
-				"69AA7140F4B70C0EF77CA252",
-				"6E02A68992F0164F61097018",
-				"8B81B5153C68D2FDE812A661",
-				"9A112A41C85E8B40DBC8EE1F",
-				"F03D7F5D1EF306F5DEF12826",
-				"64D7E7BD628355E75E79625A",
-				"86C2901E92BDF550F9B78D19",
-				"5907A3E2A97FEFD9C48EAA7E",
-				"9B150385C1B690A223D1C99D",
-				"67D6DFC741B8BFA1A6A4197D",
-				"5CE1F14C0EA21717C9F10C54",
-			);
-			"path" = "Build";
-			"sourceTree" = "<group>";
-		};
-		"BBCDC69089BCFB7CD02E0ECA" = {
-			"isa" = "PBXGroup";
-			"children" = (
-				"6ED677768624818EC6DE0A01",
-				"A278DBCA3CA22BB37DBAEBB6",
-				"EAC66771DAC3026562CC2779",
-				"3EE00208F7206DB5925FF989",
-			);
-			"path" = "Feasibility";
-			"sourceTree" = "<group>";
-		};
-		"5C2ED9F98EAA3EDDC6B9223E" = {
-			"isa" = "PBXGroup";
-			"children" = (
-				"F5D7903FDD8EA433C3E8AD8F",
-			);
-			"path" = "CommandLineOff";
-			"sourceTree" = "<group>";
-		};
-		"63349F9B01FC0BAC5A26C2F9" = {
-			"isa" = "PBXGroup";
-			"children" = (
-				"0D2B88EEF121DBBC1FDE9429",
-			);
-			"path" = "CommandLineOn";
-			"sourceTree" = "<group>";
-		};
-		"49CCA63271EF03CFE3937E6E" = {
-			"isa" = "PBXGroup";
-			"children" = (
-				"5C2ED9F98EAA3EDDC6B9223E",
-				"63349F9B01FC0BAC5A26C2F9",
-			);
-			"path" = "InstallerScripts";
-			"sourceTree" = "<group>";
-		};
-		"016062C3206CCEB3F1758007" = {
-			"isa" = "PBXGroup";
-			"children" = (
-				"1B962942D670AF254AAA0159",
-				"D8054CD12FACFA6ACEB04AA7",
-			);
-			"path" = "Resources";
-			"sourceTree" = "<group>";
-		};
-		"1D8DBFDD4FF22839FB04374B" = {
-			"isa" = "PBXGroup";
-			"children" = (
-				"BBA95671781E6DEB8880A896",
-				"7DF53B11F35B0326533B13BE",
-				"2DC4156D5F66C5FF6911E21F",
-				"F924467C955A242D24394004",
-				"32FA5306C0DF31F3ADCACA71",
-				"3443A527845D1091CED41E2E",
-				"B280DEF19848D4BEEE440D96",
-			);
-			"path" = "Shared";
-			"sourceTree" = "<group>";
-		};
-		"CC4F86DEF33A9FE4D2912646" = {
-			"isa" = "PBXGroup";
-			"children" = (
-				"AB061E12E3F2638C8D807214",
-				"882890448FC689550D0A0642",
-				"0EA69702A2E612BCFC5AFDE9",
-			);
-			"path" = "Store";
-			"sourceTree" = "<group>";
-		};
-		"A30F2D8BA84D5FE9CA55BEB5" = {
-			"isa" = "PBXGroup";
-			"children" = (
-				"DF3D66EA08CC14E6477F2BD3",
-				"2DFCE6FDBD5E60755AAD0E59",
-				"C650A5132A111E9FC6232F74",
-				"F4661BF5B4CA91DFEE78D379",
-				"0A94E6533FF3B800008B131D",
-				"007E74EF93E377F19716BFCD",
-				"D604F75D27A089550D06EA94",
-				"2BF6BFB08BD70BF470F6BEED",
-				"5FF505F727B48BFD149CA338",
-				"F9A0DAF680C37477F024BECD",
-				"6F337081F35C18885C7677A6",
-				"3D1EDDF680FC61E51E2B5901",
-			);
-			"path" = "Tests";
-			"sourceTree" = "<group>";
-		};
-		"E23E0B51018AFE0D7E5C4E1F" = {
-			"isa" = "PBXGroup";
-			"children" = (
-				"D84E7E611DAF98B5288CA997",
-				"BBCDC69089BCFB7CD02E0ECA",
-				"49CCA63271EF03CFE3937E6E",
-				"016062C3206CCEB3F1758007",
-				"1D8DBFDD4FF22839FB04374B",
-				"CC4F86DEF33A9FE4D2912646",
-				"A30F2D8BA84D5FE9CA55BEB5",
-				"EC253747E1B9226F92DB92E1",
-				"03971F35A8A7406E06CB9370",
-				"BC0271A04BA3304BBB776E8C",
-				"E2D352830C11FA469F275050",
-				"041737C471AF5861DE8C183A",
-				"44A00F555C15EB7A64D29F2C",
-				"B9A880DB12B4BACA90EC9FA7",
-				"5DE3AEDF1CCB7EA72FB57959",
-				"07280DCB92DEAADB672F9E95",
-				"B932300D747368EBE1C1B108",
-				"604716F53C5EDC63C4268989",
-				"7F7B0BA80D7D28D862282A9A",
-				"8CCDDB0362EC1F1F1B6623AB",
-				"732359E46E3EFF7F3DF28803",
-				"98D747AFFD0DDA5CF407EB3E",
-				"D61366A4192F7AB146B4AAAC",
-				"EF154CABE95C979848B98CAC",
-				"62D14A185FB0AFD3129DF58A",
-				"B2F23CB9D416686513629B8E",
-				"24B8C1145EFC4D3D812C499E",
-				"65B1B824DCA8562673160FE1",
-				"289E5F772612FC3DDBF111B6",
-				"376D4C1B8B5049F1C6D3983D",
-				"B89782262EEC86D07762BBCD",
-				"17657031D88204D9E549A836",
-				"66CBAC7CD772E4093BDC3B1B",
-			);
-			"path" = "MacApp";
-			"sourceTree" = "<group>";
-		};
-		"5646BF22D7BF52605A24CFC9" = {
-			"isa" = "PBXGroup";
-			"children" = (
-				"EF8E3557A9D4F124E8185FA3",
-				"CD4870C936721EE98B5A18BF",
-			);
-			"path" = "prompts";
-			"sourceTree" = "<group>";
-		};
-		"3DD0EDC7500BCED0B8BD2F85" = {
-			"isa" = "PBXGroup";
-			"children" = (
-				"374A07022B489A93A218E9F9",
-			);
-			"path" = "scripts";
-			"sourceTree" = "<group>";
-		};
-		"0D450D620E551A192AD055D7" = {
-			"isa" = "PBXGroup";
-			"children" = (
-				"2DDDA7339AD08DBB81D8CA41",
-				"A553D76EF54E0B6410717921",
-				"0F9EC4F9E64A2019C7F96711",
-				"669BC498F5A0ED83833814FD",
-				"BB8764775FEF80A46897B183",
-				"964F03D4DB4E679AAFFE10A2",
-				"5D5EC16A145CBCE07DBA4551",
-			);
-			"path" = "MailFilter";
-			"sourceTree" = "<group>";
-		};
-		"5EAB3FFEE99DBEDBAFE1324F" = {
-			"isa" = "PBXGroup";
-			"children" = (
-				"0D450D620E551A192AD055D7",
-			);
-			"path" = "Sources";
-			"sourceTree" = "<group>";
-		};
-		"873C8B3C2FB5AD22D10EE4E6" = {
-			"isa" = "PBXGroup";
-			"children" = (
-				"B042C270B9BF87DD5C43E816",
-			);
-			"path" = "MailFilterTests";
-			"sourceTree" = "<group>";
-		};
-		"03EC502C927878AE40AE445C" = {
-			"isa" = "PBXGroup";
-			"children" = (
-				"873C8B3C2FB5AD22D10EE4E6",
-			);
-			"path" = "Tests";
-			"sourceTree" = "<group>";
-		};
-		"19F479106CE8C3BA8C106518" = {
-			"isa" = "PBXGroup";
-			"children" = (
-				"5EA69888B7731A3FC8B5959A",
-				"BAE9AFA394D07408B11CEBFC",
-				"5D3BB217B662D7870A373268",
-				"E23E0B51018AFE0D7E5C4E1F",
-				"5646BF22D7BF52605A24CFC9",
-				"3DD0EDC7500BCED0B8BD2F85",
-				"5EAB3FFEE99DBEDBAFE1324F",
-				"03EC502C927878AE40AE445C",
-				"DFAA9A79675E5B61B48843E5",
-				"262CACBDB1BA17FA49164E08",
-				"BA42E1472EB2BDE594C4A014",
-				"1A490E0C16585A4F419BED72",
-				"42C59AF8A4BAE559BC5A5D5D",
-				"8CD30E65E094D80B5E5C9A43",
-				"E2AA269EB967A8853A258BFA",
-				"0A3E27B8CA818264D75C8D81",
-			);
-			"sourceTree" = "<group>";
-		};
-		"244210E48437B6556980A702" = {
-			"isa" = "PBXProject";
-			"attributes" = {
-				"LastUpgradeCheck" = "2710";
-				"BuildIndependentTargetsInParallel" = "YES";
-			};
-			"buildConfigurationList" = "B4E10CAA9C5E22150B71559C";
-			"compatibilityVersion" = "Xcode 14.0";
-			"developmentRegion" = "en";
-			"knownRegions" = (
-				"en",
-				"Base",
-			);
-			"mainGroup" = "19F479106CE8C3BA8C106518";
-			"productRefGroup" = "0A3E27B8CA818264D75C8D81";
-			"projectDirPath" = "";
-			"projectRoot" = "";
-			"targets" = (
-				"098A2FAE5D6CC599A6DA7DE2",
-				"A148AD5E0608DCE6158BFF07",
-				"31C09F7DD1F3993BA13EDA4C",
-				"2C8205F9CC6BD6EC239EC3D7",
-				"B8F1C788ECC68640F20B3A54",
-				"70F1C043A995B2E84CEB1654",
-			);
-		};
+/* End XCConfigurationList section */
 	};
-	"rootObject" = "244210E48437B6556980A702";
+	rootObject = 244210E48437B6556980A702 /* Project object */;
 }

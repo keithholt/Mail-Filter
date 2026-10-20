@@ -2,11 +2,13 @@
 
 The static website source is in `site/`. It contains the public home, support and privacy pages, a shared stylesheet and a copy of the app icon. The approved public contact address is `mail@ephemeralimage.com`. Do not insert private Mail account inventories, email reports, signing settings or screenshots containing personal information.
 
-Public URLs after GitHub Pages deployment:
+Public URLs:
 
 - Home: `https://keithholt.github.io/Mail-Filter/`
 - App Store Support URL: `https://keithholt.github.io/Mail-Filter/support.html`
 - App Store Privacy Policy URL: `https://keithholt.github.io/Mail-Filter/privacy.html`
+
+Build 18 adds **Privacy Policy** and **Support** links at the top of the app's **Setup & help** page. They open these published pages in the default browser. The same URLs must be entered in App Store Connect's Privacy Policy URL and Support URL fields. Rebuild and upload the app when changing an embedded destination; editing website content alone does not require an app rebuild.
 
 In the repository's **Settings → Pages**, select **GitHub Actions** as the publishing source. `.github/workflows/pages.yml` deploys only `site/` when its files or the workflow change on `main`. It can also be run manually. No app build, installer, engineering documents or private configuration is deployed by this workflow.
 

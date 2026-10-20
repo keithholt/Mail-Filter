@@ -106,6 +106,10 @@ def configs(name, role=None):
             if role == 'Extension':
                 settings.update(APPLICATION_EXTENSION_API_ONLY='YES', SKIP_INSTALL='YES',
                                 OTHER_LDFLAGS=['$(inherited)', '-e', '_NSExtensionMain'])
+                if not direct:
+                    # App Store validation requires the executable basename to
+                    # match the .appex basename. Keep the Swift/ObjC module stable.
+                    settings['EXECUTABLE_NAME'] = '$(PRODUCT_NAME)'
             else:
                 settings.update(SKIP_INSTALL='NO' if role == 'Host' else 'YES',
                                 INSTALL_PATH='$(LOCAL_APPS_DIR)', ASSETCATALOG_COMPILER_APPICON_NAME='AppIcon')
@@ -177,7 +181,8 @@ navigation = {v['path']: key for key, v in objects.items()
 types = {'.swift': 'sourcecode.swift', '.sh': 'text.script.sh', '.py': 'text.script.python',
          '.md': 'net.daringfireball.markdown', '.json': 'text.json', '.txt': 'text',
          '.plist': 'text.plist.xml', '.entitlements': 'text.plist.xml', '.xcconfig': 'text.xcconfig',
-         '.xcprivacy': 'text.xml', '.png': 'image.png'}
+         '.xcprivacy': 'text.xml', '.png': 'image.png', '.html': 'text.html',
+         '.css': 'text.css', '.yml': 'text.yaml', '.yaml': 'text.yaml'}
 for path in inventory:
     if any(part.endswith(('.xcodeproj', '.xcworkspace', '.xcassets')) for part in Path(path).parts):
         continue
@@ -185,7 +190,7 @@ for path in inventory:
         kind = types.get(Path(path).suffix, 'file')
         if Path(path).name in ('preinstall', 'postinstall'):
             kind = 'text.script.sh'
-        elif Path(path).name == '.gitignore':
+        elif Path(path).name in ('.gitignore', '.nojekyll'):
             kind = 'text'
         navigation[path] = ref(path, kind)
 tree = {}
@@ -239,8 +244,8 @@ def scheme(configuration, targets, runnable=None, archive=None):
     return f'''<?xml version="1.0" encoding="UTF-8"?>
 <Scheme LastUpgradeVersion="2710" version="1.7">
  <BuildAction parallelizeBuildables="YES" buildImplicitDependencies="YES"><BuildActionEntries>{actions}</BuildActionEntries></BuildAction>
- <TestAction buildConfiguration="{configuration}" selectedDebuggerIdentifier="Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier="Xcode.IDEFoundation.Launcher.LLDB" shouldUseLaunchSchemeArgsEnv="YES" shouldAutocreateTestPlan="YES"/>
- <LaunchAction buildConfiguration="{configuration}" selectedDebuggerIdentifier="Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier="Xcode.IDEFoundation.Launcher.LLDB" launchStyle="0" useCustomWorkingDirectory="NO" ignoresPersistentStateOnLaunch="NO" debugDocumentVersioning="YES" debugServiceExtension="internal" allowLocationSimulation="NO">{run}{arguments}</LaunchAction>
+ <TestAction buildConfiguration="{configuration}" selectedDebuggerIdentifier="Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier="Xcode.DebuggerFoundation.Launcher.LLDB" shouldUseLaunchSchemeArgsEnv="YES" shouldAutocreateTestPlan="YES"/>
+ <LaunchAction buildConfiguration="{configuration}" selectedDebuggerIdentifier="Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier="Xcode.DebuggerFoundation.Launcher.LLDB" launchStyle="0" useCustomWorkingDirectory="NO" ignoresPersistentStateOnLaunch="NO" debugDocumentVersioning="YES" debugServiceExtension="internal" allowLocationSimulation="NO">{run}{arguments}</LaunchAction>
  <ProfileAction buildConfiguration="{configuration}" shouldUseLaunchSchemeArgsEnv="YES" savedToolIdentifier="" useCustomWorkingDirectory="NO" debugDocumentVersioning="YES">{run}</ProfileAction>
  <AnalyzeAction buildConfiguration="{configuration}"/>
  <ArchiveAction buildConfiguration="{archive or configuration}" revealArchiveInOrganizer="YES"/>
@@ -270,6 +275,7 @@ def project_matches(actual, expected):
                 obj.pop('name', None)
             if obj.get('isa') == 'PBXProject':
                 obj.get('attributes', {}).pop('LastUpgradeCheck', None)
+                obj.pop('hasScannedForEncodings', None)
         return value
     try:
         return parse(actual) == parse(expected)

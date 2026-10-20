@@ -79,7 +79,44 @@ After the paid developer team is active, register the Store app, extension and s
 
 The **Mail-Filter Store** scheme uses Development for Build/Run and Store for Archive. Those configurations share sandboxed capabilities but have separate bundle IDs and App Groups. DeveloperID uses Developer ID signing for direct downloads; Local uses ad hoc signing and retains the existing local-development settings directory. BuildCheck disables signing even when the private team file exists. The configuration files under `MacApp/Build/` define these differences; do not overwrite generated target settings with team overrides.
 
+Store archiving uses automatic development signing. App Store export applies distribution signing and final profiles; do not force Apple Distribution into the automatic archive build. Archive verification and strict distribution verification are separate stages. An archive passing its stage is not permission to upload or publish it.
+
 Before enabling a signed development extension, qualify group sharing, migration, file panels and Mail permissions in an isolated setup. Do not enable multiple filtering extensions against the same working inbox. Compilation and signature checks do not establish signed runtime or App Review acceptance.
+
+### Stage a Development extension for Mail testing
+
+Quit Mail and the development settings app before replacing or registering a test bundle. Build with **Mail-Filter Store**, **My Mac**, **Product > Build**, or use `MAIL_FILTER_TEAM_ID=YOURTEAMID ./MacApp/store-build.sh development` from the repository root. The shell workflow uses the actual Mac as its destination and lets Xcode create/download profiles and register that Mac if needed.
+
+For the first installation, copy the signed Development `Mail-Filter.app` to your user Applications folder and name the copy `Mail-Filter Development.app`. The shell build is under `.build/xcode-derived/Build/Products/Development/`; an Xcode build uses its selected Derived Data directory. For an update, replace the complete development app bundle while Mail and the settings app are closed. Preserve its separate App Group data. Do not replace the working `/Applications/Mail-Filter.app` to perform this test.
+
+Register and open the staged copy:
+
+```sh
+/usr/bin/pluginkit -a "$HOME/Applications/Mail-Filter Development.app/Contents/PlugIns/Mail-Filter.appex"
+/usr/bin/open -a "$HOME/Applications/Mail-Filter Development.app"
+```
+
+Open this settings app before reopening Mail. Confirm the saved accounts and enable Preview first. Reopen Mail, then use **Mail > Settings > Extensions** to enable **Mail-Filter Development** and disable the original filter during the controlled test. A full registry entry alone is insufficient: normal discovery with `pluginkit -m -v -p com.apple.email.extension` must list the staged copy. Registration does not silently enable it.
+
+Do not rebuild, replace or re-register the active development bundle while Mail hosts it. Re-registering during a live session caused PlugInKit error 16, "other version in use," in the October 19 qualification. A clean Mail quit, completed staging and a fresh Mail launch released the stale instance. If an extension is missing, compare normal discovery with the full registry and Mail's logs rather than repeatedly sending test emails.
+
+The original settings app and development settings app have separate counters. Incoming callbacks normally increase by two for one message: before and after the body is fetched. Self-mail should be kept. A Preview positive appears in Activity without a Junk action request; turn Preview off and save only for the controlled move test. Also verify restoring a moved message, restarting Mail and receiving mail with the settings app closed. The dated results are in the deployment plan.
+
+### Archive and export for App Store Connect
+
+Use **Mail-Filter Store > Product > Archive** in Xcode for the production identity, then use Organizer for validation and distribution. The shell equivalents create local artifacts:
+
+```sh
+export MAIL_FILTER_TEAM_ID=YOURTEAMID
+./MacApp/store-build.sh archive
+./MacApp/store-build.sh export
+```
+
+The archive is `outputs/store/Mail-Filter.xcarchive`; the exported package is `outputs/store/export/Mail-Filter.pkg`. The commands refuse to overwrite an existing archive or export directory. Preserve completed artifacts before creating a replacement. Automatic provisioning can create/download signing assets; export uses the explicit local `destination=export` setting and does not upload.
+
+The archive's development signature is checked with the verifier's explicit archive mode. The exported package passes a separate strict verifier that checks its installer signature, matching signing team, distribution-signed app/extension, unexpired App Store profiles, no debugging permission, provisioned group, privacy manifests and engineering-payload exclusions. Never treat a development archive as a validated distribution package.
+
+Create the App Store Connect app record before upload, using the production bundle ID. Confirm current agreements and publisher roles. Local package verification is distinct from App Store Connect validation, TestFlight, App Review and release approval. Public support/privacy URLs, screenshots and a reproducible synthetic review demonstration remain publisher preparation tasks.
 
 ### Use the same targets from Terminal
 

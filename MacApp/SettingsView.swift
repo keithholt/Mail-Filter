@@ -313,6 +313,11 @@ struct SettingsView: View {
 
     private var help: some View {
         VStack(alignment: .leading, spacing: 18) {
+            HStack(spacing: 18) {
+                Link("Privacy Policy", destination: URL(string: "https://keithholt.github.io/Mail-Filter/privacy.html")!)
+                Link("Support", destination: URL(string: "https://keithholt.github.io/Mail-Filter/support.html")!)
+            }
+            .font(.callout)
             helpItem("1. Choose accounts and save", "Read Mail accounts on the Filtering page, or enter all your addresses manually. Include aliases and accounts you will not filter so mail from you stays protected. Select inboxes and save.")
             helpItem("2. Enable the Mail extension", "Open Mail → Settings → Extensions, then check Mail-Filter.")
             Button("Open Mail", action: model.openMail)

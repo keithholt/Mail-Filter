@@ -1,9 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Scheme LastUpgradeVersion="2710" version="1.7">
- <BuildAction parallelizeBuildables="YES" buildImplicitDependencies="YES"><BuildActionEntries><BuildActionEntry buildForTesting="NO" buildForRunning="YES" buildForProfiling="NO" buildForArchiving="NO" buildForAnalyzing="YES"><BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="098A2FAE5D6CC599A6DA7DE2" BuildableName="Mail-Filter.app" BlueprintName="MailFilter" ReferencedContainer="container:Mail-Filter.xcodeproj"/></BuildActionEntry></BuildActionEntries></BuildAction>
- <TestAction buildConfiguration="BuildCheck" selectedDebuggerIdentifier="Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier="Xcode.IDEFoundation.Launcher.LLDB" shouldUseLaunchSchemeArgsEnv="YES" shouldAutocreateTestPlan="YES"/>
- <LaunchAction buildConfiguration="BuildCheck" selectedDebuggerIdentifier="Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier="Xcode.IDEFoundation.Launcher.LLDB" launchStyle="0" useCustomWorkingDirectory="NO" ignoresPersistentStateOnLaunch="NO" debugDocumentVersioning="YES" debugServiceExtension="internal" allowLocationSimulation="NO"></LaunchAction>
- <ProfileAction buildConfiguration="BuildCheck" shouldUseLaunchSchemeArgsEnv="YES" savedToolIdentifier="" useCustomWorkingDirectory="NO" debugDocumentVersioning="YES"></ProfileAction>
- <AnalyzeAction buildConfiguration="BuildCheck"/>
- <ArchiveAction buildConfiguration="BuildCheck" revealArchiveInOrganizer="YES"/>
+<Scheme
+   LastUpgradeVersion = "2710"
+   version = "1.7">
+   <BuildAction
+      parallelizeBuildables = "YES"
+      buildImplicitDependencies = "YES">
+      <BuildActionEntries>
+         <BuildActionEntry
+            buildForTesting = "NO"
+            buildForRunning = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "098A2FAE5D6CC599A6DA7DE2"
+               BuildableName = "Mail-Filter.app"
+               BlueprintName = "MailFilter"
+               ReferencedContainer = "container:Mail-Filter.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+      </BuildActionEntries>
+   </BuildAction>
+   <TestAction
+      buildConfiguration = "BuildCheck"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      shouldAutocreateTestPlan = "YES">
+   </TestAction>
+   <LaunchAction
+      buildConfiguration = "BuildCheck"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      launchStyle = "0"
+      useCustomWorkingDirectory = "NO"
+      ignoresPersistentStateOnLaunch = "NO"
+      debugDocumentVersioning = "YES"
+      debugServiceExtension = "internal"
+      allowLocationSimulation = "NO">
+   </LaunchAction>
+   <ProfileAction
+      buildConfiguration = "BuildCheck"
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      savedToolIdentifier = ""
+      useCustomWorkingDirectory = "NO"
+      debugDocumentVersioning = "YES">
+   </ProfileAction>
+   <AnalyzeAction
+      buildConfiguration = "BuildCheck">
+   </AnalyzeAction>
+   <ArchiveAction
+      buildConfiguration = "BuildCheck"
+      revealArchiveInOrganizer = "YES">
+   </ArchiveAction>
 </Scheme>

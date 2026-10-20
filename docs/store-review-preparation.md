@@ -1,14 +1,37 @@
 # Mail Filter Store Review Preparation
 
-This checklist prepares the publisher and engineering team for the first submission. The application is not ready for submission while signing and runtime qualification are outstanding. Complete the deployment plan's release gates before uploading a candidate.
+This checklist records preparation for the first submission and provides the workflow for future candidates. Signed Development tests and local archive/export validation passed on October 19, 2026. Build 18 processed successfully in App Store Connect, and the publisher reported submitting version 2.1.0 for review that day. Apple approval, final Store runtime and clean-install/update checks remain open.
 
 Create the review candidate from the root `Mail-Filter.xcodeproj` using **Mail-Filter Store → Product → Archive**, or `./MacApp/store-build.sh archive`. Both use the same Store configuration and exclude engineering tools. The Local Installer scheme creates a direct-install test package; use the provisioned Store archive for App Store validation. See [Store build workflow](../MacApp/Store/README.md) for signing and export.
 
 ## Publisher information
 
-Apple enrollment is processing. Once approved, confirm the legal seller identity, team identifier, app and group identifier availability, App Store Connect roles and signing assets. The publisher must choose the app's price, territories and EU trader status, accept the required agreements, and supply any applicable tax/banking information. These decisions have not been made by the build scripts.
+Paid developer-team access is active, and Development certificates/profiles have been exercised. Confirm the legal seller identity, production identifiers, App Store Connect roles and final distribution assets. The publisher must choose the app's price, territories and EU trader status, accept the required agreements, and supply any applicable tax/banking information. These decisions have not been made by the build scripts.
 
-Provide a stable public support URL, privacy-policy URL and reviewer contact. No placeholder URL or personal email address is embedded in the project. Prepare screenshots of setup, filtering controls and activity using synthetic addresses. Complete age-rating, export-compliance and privacy questionnaires against the final product and actual support process. The current build declares only platform encryption use; confirm the final export-compliance answer if dependencies or services change.
+The current [App Store Connect app record](https://appstoreconnect.apple.com/apps/6824658566/distribution) was created on October 19. Its setup values are shown below; use the existing record for Mail-Filter updates. For a different new app, open **Apps → + → New App** and adapt these fields:
+
+| Field | Value |
+|---|---|
+| Platforms | macOS |
+| Name | Mail-Filter |
+| Primary language | English (U.S.) |
+| Bundle ID | `org.mail-filter.app` |
+| SKU | `Mail-Filter-macOS` |
+| User Access | Full Access, unless access should be restricted to specific team members |
+
+For a new record, choose **Create** after reviewing the fields. Record creation does not upload, submit or publish an app. If the production bundle ID is absent, check the selected developer team and its registered identifiers; do not substitute the Development ID. The Account Holder must accept current agreements before record creation. See [Apple's new-app procedure](https://developer.apple.com/help/app-store-connect/create-an-app-record/add-a-new-app/).
+
+Build 16 includes the approved host copyright notice: "Copyright © 2026 Keith Holt. All rights reserved." The payload verifier rejects a missing or blank notice. This resolves the specific metadata omission found in build 15; App Store Connect must still validate the final submission. See [Preparing your app for distribution](https://developer.apple.com/documentation/xcode/preparing-your-app-for-distribution).
+
+The public [support page](https://keithholt.github.io/Mail-Filter/support.html) and [privacy policy](https://keithholt.github.io/Mail-Filter/privacy.html) use the publisher-approved contact address. Build 18 links to them from Setup & help. Four screenshots with private account information obscured and a synthetic reviewer demonstration were prepared for the submission. Keep age-rating, export-compliance and privacy answers aligned with the final product and actual support process. The current build declares only platform encryption use; reassess if dependencies or services change.
+
+## Upload validation and replacement packages
+
+The initial build-16 upload failed with App Store error 90362: `Mail-Filter.appex` declared `MailFilterExtension` as its executable, while Apple requires the executable name to match the extension directory basename. Build 17 sets the sandboxed extension executable to `Mail-Filter`, retains its Swift module/principal class, and adds validation and a regression check for this constraint. Local archive/export checks do not establish App Store acceptance. Add the replacement package as a new Transporter item rather than retrying a cached rejected package, select the successfully processed build in App Store Connect, and update the build number in review notes.
+
+Build 18 completed upload processing and was selected for version 2.1.0. The publisher reported completing review submission on October 19. App Review acceptance remains pending. Productivity is the primary category and Utilities the secondary category. Automatic release after approval is selected.
+
+The review notes include this Content Rights clarification: Mail-Filter processes email already received in the user's mailbox, with the user's authorization. It does not provide a third-party content catalog or publish users' messages.
 
 ## Proposed product description
 
@@ -28,7 +51,7 @@ This draft requires publisher contact information, the intended support procedur
 
 ## Entitlement justification draft
 
-The host requests the Mail-targeted Apple Events exception to discover account names, identifiers and addresses during explicit setup and to read one selected message's source for user-requested diagnostics. Mail's scripting dictionary provides a compose access group that does not cover these received-message/account operations. The desktop compose-only probe failed a read-only metadata script with privilege error -10004; the targeted exception succeeded for account and selection counts. Full operations still require signed qualification.
+The host requests the Mail-targeted Apple Events exception to discover account names, identifiers and addresses during explicit setup and to read one selected message's source for user-requested diagnostics. Mail's scripting dictionary provides a compose access group that does not cover these received-message/account operations. The desktop compose-only probe failed a read-only metadata script with privilege error -10004; the targeted exception succeeded. Signed Development account discovery and selected-message analysis subsequently passed. Denial behavior, final Store runtime and App Review entitlement acceptance remain separate checks.
 
 Automatic incoming filtering uses public MailKit APIs. The extension does not use Apple Events and requests no Mail automation or broad filesystem exception. Host and extension use their provisioned App Group. The user can finish address-based setup and analyze an `.eml` file without granting Mail automation. Permission denial does not authorize any alternative mailbox action.
 
