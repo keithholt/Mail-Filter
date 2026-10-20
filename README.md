@@ -22,6 +22,8 @@ You need macOS 26 or later, an Apple silicon Mac supporting Apple Intelligence, 
 
 The package installs into Applications for all users. Each user's account selections, settings and extension enablement are separate. Installing or updating copies the apps without reading messages or enabling filtering automatically. Compatible settings and protection records survive reinstalls and updates.
 
+The running app's version and build number appear at the bottom of the left sidebar on every page.
+
 ## Set up filtering
 
 1. Open Mail and let your accounts finish syncing.

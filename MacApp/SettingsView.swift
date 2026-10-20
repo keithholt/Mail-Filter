@@ -3,19 +3,26 @@ import SwiftUI
 struct SettingsView: View {
     @ObservedObject var model: SettingsModel
     private var page: String { model.page }
+    private let appName = Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ?? "Mail-Filter"
+    private let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "Unknown"
+    private let appBuild = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "Unknown"
 
     var body: some View {
         HStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 22) {
-                Label("Mail-Filter", systemImage: "envelope.fill").font(.headline)
+                Label(appName, systemImage: "envelope.fill").font(.headline)
+                    .fixedSize(horizontal: false, vertical: true)
                 VStack(spacing: 6) {
                     navigation("Filtering", symbol: "line.3.horizontal.decrease.circle")
                     navigation("Activity", symbol: "clock")
                     navigation("Setup & help", symbol: "questionmark.circle")
                 }
                 Spacer()
-                Text("On-device filtering\nAnalysis stays on this Mac.")
-                    .font(.caption).foregroundStyle(.secondary).lineSpacing(3)
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("On-device filtering\nAnalysis stays on this Mac.").lineSpacing(3)
+                    Text("Version \(appVersion)\nBuild \(appBuild)")
+                        .lineSpacing(3).textSelection(.enabled)
+                }.font(.caption).foregroundStyle(.secondary)
             }.padding(20).frame(width: 175).frame(maxHeight: .infinity).background(.quaternary.opacity(0.4))
             Divider()
             ScrollView {
