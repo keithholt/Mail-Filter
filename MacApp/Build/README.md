@@ -14,4 +14,10 @@ Copy `Signing.example.xcconfig` to the ignored `Signing.local.xcconfig` to set a
 
 Native builds regenerate Word documentation. Direct packaging stages the native app, CLI and uninstaller, embeds engineering resources only in the staged direct app, and reseals the signature before verification. Store schemes exclude these engineering products.
 
+## Application icon
+
+`MacApp/Resources/PoliticalAdFilter.icns` preserves the supplied icon package. The ten PNG slots in `Assets.xcassets/AppIcon.appiconset` are imported from that package and compiled by Xcode for the app and uninstaller across build configurations. The original ICNS is a source reference, not an extra runtime resource.
+
+To unpack a replacement package, run `iconutil --convert iconset MacApp/Resources/PoliticalAdFilter.icns --output /tmp/Mail-Filter.iconset`, then update every PNG named in the catalog's `Contents.json`. Preserve supplied sizes; a slot missing from the package can reuse an image with the same pixel dimensions or be resized with `sips`. This package supplies eight slots: the 32-pixel image also fills `icon_32x32.png`, and a copy resized to 16 pixels fills `icon_16x16.png`. Keep the source package and catalog images together in source control. Builds use the checked-in catalog directly.
+
 See [Developer Getting Started](../../docs/dev/getting-started.md) for building, testing and packaging; see [Store workflow](../Store/README.md) for signed archive/export steps.

@@ -217,6 +217,7 @@
 		8CD30E65E094D80B5E5C9A43 /* test.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = test.sh; sourceTree = SOURCE_ROOT; };
 		8DF7399541A14930FA88EE7E /* Extension-Direct.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Extension-Direct.entitlements"; path = "MacApp/Build/Extension-Direct.entitlements"; sourceTree = SOURCE_ROOT; };
 		8F15B6E5C039C71ACBDC777E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = MacApp/Build/Assets.xcassets; sourceTree = SOURCE_ROOT; };
+		9F4E6C21478DF2D79C854E81 /* PoliticalAdFilter.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = PoliticalAdFilter.icns; path = MacApp/Resources/PoliticalAdFilter.icns; sourceTree = SOURCE_ROOT; };
 		91B6BC03974DD4049A78FBEA /* Extension-Local-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Extension-Local-Info.plist"; path = "MacApp/Build/Extension-Local-Info.plist"; sourceTree = SOURCE_ROOT; };
 		964F03D4DB4E679AAFFE10A2 /* PoliticalModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PoliticalModel.swift; path = Sources/MailFilter/PoliticalModel.swift; sourceTree = SOURCE_ROOT; };
 		9831AFD2DA449F91AFC93069 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = docs/README.md; sourceTree = SOURCE_ROOT; };
@@ -238,7 +239,6 @@
 		B89782262EEC86D07762BBCD /* UninstallPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = UninstallPlan.swift; path = MacApp/UninstallPlan.swift; sourceTree = SOURCE_ROOT; };
 		B932300D747368EBE1C1B108 /* NativeClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NativeClassifier.swift; path = MacApp/NativeClassifier.swift; sourceTree = SOURCE_ROOT; };
 		B9A874DC198CCB98722771CC /* sample.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = sample.json; path = fixtures/sample.json; sourceTree = SOURCE_ROOT; };
-		B9A880DB12B4BACA90EC9FA7 /* MakeIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MakeIcon.swift; path = MacApp/MakeIcon.swift; sourceTree = SOURCE_ROOT; };
 		BA42E1472EB2BDE594C4A014 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = SOURCE_ROOT; };
 		BB8764775FEF80A46897B183 /* MailFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MailFilter.swift; path = Sources/MailFilter/MailFilter.swift; sourceTree = SOURCE_ROOT; };
 		BBA95671781E6DEB8880A896 /* AnalysisDeadline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AnalysisDeadline.swift; path = MacApp/Shared/AnalysisDeadline.swift; sourceTree = SOURCE_ROOT; };
@@ -297,6 +297,7 @@
 			children = (
 				1B962942D670AF254AAA0159 /* filter.txt */,
 				D8054CD12FACFA6ACEB04AA7 /* political-evidence.txt */,
+				9F4E6C21478DF2D79C854E81 /* PoliticalAdFilter.icns */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -582,7 +583,6 @@
 				E2D352830C11FA469F275050 /* DiagnosticReport.swift */,
 				041737C471AF5861DE8C183A /* generate-project.py */,
 				44A00F555C15EB7A64D29F2C /* MailFilterApp.swift */,
-				B9A880DB12B4BACA90EC9FA7 /* MakeIcon.swift */,
 				5DE3AEDF1CCB7EA72FB57959 /* MessageDiagnostics.swift */,
 				07280DCB92DEAADB672F9E95 /* ModelProbe.swift */,
 				B932300D747368EBE1C1B108 /* NativeClassifier.swift */,

@@ -181,7 +181,7 @@ navigation = {v['path']: key for key, v in objects.items()
 types = {'.swift': 'sourcecode.swift', '.sh': 'text.script.sh', '.py': 'text.script.python',
          '.md': 'net.daringfireball.markdown', '.json': 'text.json', '.txt': 'text',
          '.plist': 'text.plist.xml', '.entitlements': 'text.plist.xml', '.xcconfig': 'text.xcconfig',
-         '.xcprivacy': 'text.xml', '.png': 'image.png', '.html': 'text.html',
+         '.xcprivacy': 'text.xml', '.png': 'image.png', '.icns': 'image.icns', '.html': 'text.html',
          '.css': 'text.css', '.yml': 'text.yaml', '.yaml': 'text.yaml'}
 for path in inventory:
     if any(part.endswith(('.xcodeproj', '.xcworkspace', '.xcassets')) for part in Path(path).parts):
