@@ -1,6 +1,6 @@
 # Mail-Filter
 
-Mail-Filter analyzes incoming Apple Mail messages on your Mac and moves verified political solicitations to Junk. It recognizes political fundraising, campaign advertising, advocacy and political mass polls. Ordinary commercial marketing is outside the filter. AI analysis runs on your Mac using Apple's on-device model.
+Mail-Filter analyzes incoming Apple Mail messages on your Mac and moves verified political solicitations to Junk by default. It recognizes political fundraising, campaign advertising, advocacy and political mass polls. Ordinary commercial marketing is outside the filter. AI analysis runs on your Mac using Apple's on-device model. Preview is optional and is off for a new setup.
 
 For setup help and contact information, see [Support](https://keithholt.github.io/Mail-Filter/support.html). Read the [Privacy Policy](https://keithholt.github.io/Mail-Filter/privacy.html) for on-device processing, local data and optional exports.
 
@@ -29,7 +29,7 @@ The running app's version and build number appear at the bottom of the left side
 1. Open Mail and let your accounts finish syncing.
 2. Open **Mail-Filter** and click **Read Mail Accounts**. Allow it to control Mail if macOS asks. This reads account names and addresses, not messages. Alternatively, choose **Enter Addresses…** and enter every account you own, including accounts you will not filter. Use one line per account and separate aliases with commas.
 3. Select the accounts you want filtered and click **Save Settings**. An account such as **example.org** is only an example; select your own accounts in the app.
-4. Leave **Preview** off to move verified political messages to Junk. Turn it on and save to test classifications while leaving messages in place.
+4. Keep **Preview without moving messages** **OFF** (the default) to move verified political messages to Junk. Turn it **ON** and save only when you want to test classifications while leaving messages in place.
 5. In Mail, open **Settings**, then **Extensions**, and check **Mail-Filter**. Restart Mail if the extension is missing after installation or an update.
 6. Keep **Enable filtering** switched **ON** (to the right) for analysis to run. **OFF** pauses it. This switch saves immediately; account, Preview and rule changes require **Save Settings**.
 
@@ -79,7 +79,7 @@ In the destination installation, choose **Import Setup…** and select the expor
 
 Review the imported preferences and click **Confirm Imported Setup** before filtering can resume. Confirmation preserves the imported ON/OFF choice. Keep original data and exports until incoming filtering and restored-message protection have been verified. Enable only one filtering extension during a transition.
 
-Reinstalling or updating this app retains compatible account selections, custom rules, Preview, the saved ON/OFF choice, activity and protection records. A new setup defaults **Enable filtering** to ON. An incompatible or damaged settings file produces an error without overwriting it. If a future version changes where settings are stored, import the previous setup before enabling filtering.
+Reinstalling or updating this app retains compatible account selections, custom rules, Preview, the saved ON/OFF choice, activity and protection records. A new setup defaults **Enable filtering** to **ON** and **Preview without moving messages** to **OFF**. A previously saved Preview choice is preserved during updates. An incompatible or damaged settings file produces an error without overwriting it. If a future version changes where settings are stored, import the previous setup before enabling filtering.
 
 ## Pause, resume or uninstall
 
