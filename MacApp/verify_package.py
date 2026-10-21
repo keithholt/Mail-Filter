@@ -1,6 +1,7 @@
 """Expand and inspect an installer; never install it or access real mail."""
 from pathlib import Path
 import subprocess
+import plistlib
 import sys
 import tempfile
 import xml.etree.ElementTree as ET
@@ -12,6 +13,8 @@ with tempfile.TemporaryDirectory(prefix='mail-filter-package-check-') as directo
     distribution = ET.parse(root/'Distribution').getroot()
     assert distribution.find('title').text == 'Mail-Filter'
     assert distribution.find('options').attrib['customize'] == 'always'
+    close = distribution.findall("./pkg-ref[@id='org.mail-filter.installer']/must-close/app")
+    assert {item.attrib['id'] for item in close} == {'com.apple.mail','org.mail-filter.app','org.mail-filter.uninstaller'}
     choices = {choice.attrib['id']: choice for choice in distribution.findall('choice')}
     assert set(choices) == {'app','commandLine','commandLineOff'}
     assert choices['app'].attrib['selected'] == 'true'
@@ -32,7 +35,13 @@ with tempfile.TemporaryDirectory(prefix='mail-filter-package-check-') as directo
     assert {p.name for p in payload.iterdir()} == {'Mail-Filter.app','Uninstall Mail-Filter.app'}
     for path in payload.rglob('*'):
         assert path.name not in ('configuration.json','settings.json','accounts.txt','processed.json','junk-protection.json','activity.json'), path
-    assert not (app/'Scripts').exists(), 'Main package must not run scripts'
+    assert {p.name for p in (app/'Scripts').iterdir()} == {'preinstall'}
+    assert (app/'Scripts/preinstall').read_bytes() == (scripts/'App/preinstall').read_bytes()
+    host_info = plistlib.loads((payload/'Mail-Filter.app/Contents/Info.plist').read_bytes())
+    extension_info = plistlib.loads((payload/'Mail-Filter.app/Contents/PlugIns/Mail-Filter.appex/Contents/Info.plist').read_bytes())
+    assert host_info['CFBundleVersion'] == extension_info['CFBundleVersion']
+    assert host_info['CFBundleShortVersionString'] == extension_info['CFBundleShortVersionString']
+    assert extension_info['CFBundleDisplayName'] == host_info['CFBundleDisplayName'] + ' (build ' + host_info['CFBundleVersion'] + ')'
     for path in payload.glob('*.app'):
         subprocess.run(['/usr/bin/codesign','--verify','--deep','--strict',str(path)],check=True)
     cli = payload/'Mail-Filter.app/Contents/Resources/DeveloperTools'

@@ -139,6 +139,9 @@ struct NativeActivityLog: Codable {
     // Optional fields keep existing version-5 activity files compatible.
     var receivedCallbacks: Int? = nil
     var lastCallback: Date? = nil
+    // Retain startup identity even after it leaves the bounded recent-event list.
+    // A recorded start is historical evidence, not a process liveness check.
+    var lastExtensionStart: NativeActivity? = nil
 }
 
 enum NativeOutcome: String {
@@ -412,14 +415,15 @@ final class SharedStore {
 
     func record(outcome: String, category: String, processed: Bool = false, junkRequested: Bool = false,
                 traceID: String? = nil, receivedCallback: Bool = false, attempt: Int? = nil,
-                failureDomain: String? = nil, failureCode: Int? = nil) throws {
+                failureDomain: String? = nil, failureCode: Int? = nil, bundle: Bundle = .main) throws {
         try locked {
             var event = NativeActivity(outcome: outcome, category: category, traceID: traceID,
                 attempt: attempt, failureDomain: failureDomain, failureCode: failureCode)
-            event.build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String
-            event.channel = Bundle.main.object(forInfoDictionaryKey: "MailFilterDistribution") as? String
+            event.build = bundle.object(forInfoDictionaryKey: "CFBundleVersion") as? String
+            event.channel = bundle.object(forInfoDictionaryKey: "MailFilterDistribution") as? String
             guard Self.validEvent(event) else { throw NativeStoreError.invalidActivity }
             var activity = try loadActivity()
+            if outcome == "extensionStarted" { activity.lastExtensionStart = event }
             if processed { activity.processed += 1 }
             if junkRequested { activity.junkRequested += 1 }
             if receivedCallback {
@@ -459,6 +463,7 @@ final class SharedStore {
             let activity = try JSONDecoder().decode(NativeActivityLog.self, from: boundedData(activityURL, maximum: 1_024 * 1_024))
             guard activity.schemaVersion == 1, activity.processed >= 0, activity.junkRequested >= 0, activity.recent.count <= NativeActivityLog.maximumRecent,
                   (activity.receivedCallbacks ?? 0) >= 0,
+                  activity.lastExtensionStart.map({ $0.outcome == "extensionStarted" && Self.validEvent($0) }) != false,
                   activity.recent.allSatisfy({
                       $0.outcome.count <= 80 && $0.category.count <= 100
                       && ($0.traceID == nil || ($0.traceID!.count == 12 && $0.traceID!.utf8.allSatisfy({ (48...57).contains($0) || (97...102).contains($0) })))

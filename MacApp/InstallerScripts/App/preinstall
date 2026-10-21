@@ -1,0 +1,23 @@
+#!/bin/sh
+set -eu
+# GUI Installer's must-close prompt handles normal updates. Check again here
+# before payload replacement, including command-line installs and other users.
+# Never terminate a process or touch private filtering data from this script.
+processes=$(/bin/ps -axo comm=) || {
+    printf '%s\n' 'Mail-Filter could not check running applications. Installation stopped before replacing the app.' >&2
+    exit 1
+}
+while IFS= read -r executable; do
+    case "$executable" in
+        */Mail.app/Contents/MacOS/Mail|\
+        */Mail-Filter.app/Contents/MacOS/MailFilter|\
+        */Mail-Filter.app/Contents/PlugIns/Mail-Filter.appex/Contents/MacOS/MailFilterExtension|\
+        */Mail-Filter.app/Contents/PlugIns/Mail-Filter.appex/Contents/MacOS/Mail-Filter|\
+        */Uninstall\ Mail-Filter.app/Contents/MacOS/MailFilterUninstaller)
+            printf '%s\n' 'Quit Mail, Mail-Filter and its uninstaller before installing this update. If their extension is still running after Mail quits, wait for it to exit or restart the Mac, then retry. No app files have been replaced.' >&2
+            exit 1
+            ;;
+    esac
+done <<EOF
+$processes
+EOF

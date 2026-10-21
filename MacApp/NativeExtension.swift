@@ -7,7 +7,17 @@ import OSLog
 final class MailFilterExtension: NSObject, MEExtension {
     override init() {
         super.init()
-        Logger(subsystem: "org.mail-filter.app", category: "Lifecycle").notice("Mail-Filter extension initialized (build 13)")
+        let bundle = Bundle(for: MailFilterExtension.self)
+        let version = bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "unknown"
+        let build = bundle.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "unknown"
+        let processID = ProcessInfo.processInfo.processIdentifier
+        let logger = Logger(subsystem: "org.mail-filter.app", category: "Lifecycle")
+        logger.notice("Mail-Filter extension initialized: version \(version, privacy: .public); build \(build, privacy: .public); process \(processID)")
+        do {
+            try SharedStore.production(bundle: bundle).record(outcome: "extensionStarted", category: "pid-\(processID)", bundle: bundle)
+        } catch {
+            logger.error("Extension startup activity could not be saved; check private settings access")
+        }
     }
     func handlerForMessageActions() -> any MEMessageActionHandler { NativeMessageHandler() }
 }

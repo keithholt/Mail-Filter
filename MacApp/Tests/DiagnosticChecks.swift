@@ -58,6 +58,7 @@ struct DiagnosticChecks {
             modelStatus: "Ready", settings: settings, activity: NativeActivityLog())
         try check(oldReport.contains("not recorded by earlier builds"),
                   "missing legacy callback counters are not represented as measured zero")
+        try check(oldReport.contains("Last recorded extension start: unavailable"), "legacy diagnostics do not confuse installed metadata with running identity")
         try check(!oldReport.contains("private-id-marker") && !oldReport.contains("private-name-marker")
                   && !oldReport.contains("private-address@example.org") && oldReport.contains("Selected accounts: 1"),
                   "report includes account count without publishing private account details")
@@ -69,6 +70,12 @@ struct DiagnosticChecks {
             modelStatus: "Ready", settings: settings, activity: activity)
         try check(report.contains("Received callbacks: 2") && report.contains("key=012345abcdef"),
                   "activity stages and the diagnostic key remain shareable")
+        activity.lastExtensionStart = NativeActivity(outcome: "extensionStarted", category: "pid-123", build: "20", channel: "direct")
+        let mismatch = DiagnosticReport.summary(build: "21", extensionBuild: "21", mailRunning: true,
+            modelStatus: "Ready", settings: settings, activity: activity)
+        try check(mismatch.contains("Installed extension build: 21") && mismatch.contains("Last recorded extension start: build 20; pid-123")
+                  && mismatch.contains("differs from this app's build"), "a replaced on-disk extension does not conceal the previous startup build")
+        try check(mismatch.contains("not a check that the process is still running"), "historical startup identity is not presented as a live process test")
         print("Passed \(count) diagnostic collection, timeout, responsiveness and privacy checks; no Mail or clipboard actions")
     }
 }

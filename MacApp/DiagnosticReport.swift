@@ -6,6 +6,15 @@ enum DiagnosticReport {
                         settings: NativeSettings?, activity: NativeActivityLog) -> String {
         let formatter = ISO8601DateFormatter()
         var report = "Mail-Filter diagnostic report\nBuild: \(build)\nInstalled extension build: \(extensionBuild ?? "unknown")\nMail running: \(mailRunning)\nModel: \(modelStatus)\n"
+        if let start = activity.lastExtensionStart {
+            report += "Last recorded extension start: build \(start.build ?? "unknown"); \(start.category); \(formatter.string(from: start.date))\n"
+            if let startedBuild = start.build, startedBuild != build {
+                report += "Last recorded extension start differs from this app's build. Quit Mail before installing an update, then reopen Mail.\n"
+            }
+            report += "Startup identity is recorded history, not a check that the process is still running.\n"
+        } else {
+            report += "Last recorded extension start: unavailable (earlier builds did not record startup identity)\n"
+        }
         if let settings {
             report += "Filtering paused: \(settings.paused)\nMode: \(settings.configuration?.mode ?? "setup required")\nSelected accounts: \(settings.selectedAccountIDs.count)\n"
             if settings.activationRequired == true { report += "Imported setup: waiting for confirmation; no Junk actions permitted\n" }
@@ -14,6 +23,7 @@ enum DiagnosticReport {
         for event in activity.recent.prefix(30) {
             report += "\(formatter.string(from: event.date)) \(event.outcome) \(event.category) key=\(event.traceID ?? "unavailable")"
             if let attempt = event.attempt { report += " attempt=\(attempt)" }
+            if let build = event.build { report += " build=\(build)" }
             if let domain = event.failureDomain, let code = event.failureCode { report += " error=\(domain):\(code)" }
             report += "\n"
         }

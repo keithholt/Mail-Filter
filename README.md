@@ -16,13 +16,13 @@ You can also open **Mail-Filter.xcodeproj** at the project root, select **Mail-F
 
 ## Install
 
-Double-click **Mail-Filter Installer.pkg** on your Desktop, or open it from the project's **outputs** folder. Follow macOS Installer, then open **Mail-Filter** from Applications. The installer also adds **Uninstall Mail-Filter** to Applications.
+Quit **Mail**, **Mail-Filter** and its uninstaller before installing or updating. Double-click **Mail-Filter Installer.pkg** on your Desktop, or open it from the project's **outputs** folder. Installer asks you to close running apps and stops before replacing files if a Mail-Filter extension process remains. If Mail has quit but its extension does not exit, restart the Mac before retrying. After installation, open **Mail-Filter** from Applications, then reopen Mail. The installer also adds **Uninstall Mail-Filter** to Applications.
 
 You need macOS 26 or later, an Apple silicon Mac supporting Apple Intelligence, and Apple Intelligence enabled with its model available. No developer account is needed to use the local build. The current local installer is not Developer ID signed or notarized; macOS may require approval before opening it. End users do not need Xcode, Git, Python or Terminal.
 
 The package installs into Applications for all users. Each user's account selections, settings and extension enablement are separate. Installing or updating copies the apps without reading messages or enabling filtering automatically. Compatible settings and protection records survive reinstalls and updates.
 
-The running app's version and build number appear at the bottom of the left sidebar on every page.
+The running app's version and build number appear at the bottom of the left sidebar on every page. Mail's **Settings > Extensions** lists the extension as **Mail-Filter (build 21)**, for example, so you can compare both builds. The version remains a separate value such as **2.1.0**.
 
 ## Set up filtering
 
@@ -45,7 +45,7 @@ You can edit the filtering instructions and political evidence terms under **Fil
 
 Verification words support a positive AI decision; they do not flag messages by themselves. The standard verification vocabulary includes **campaign**, **Vice President** and **Paid for by**. Sponsorship wording can verify a political appeal even when it does not explicitly say election or donation. The standard policy explicitly covers unsolicited mass advocacy about the **Second Amendment** and **abortion**, as well as campaign appeals, advertising and political polls. Personal correspondence, medical information, neutral news and ordinary commercial marketing remain protected. Opening an update refreshes only the unchanged standard policy and word list; customized policies remain yours to edit.
 
-The **Activity** page shows recent decisions, errors, and totals. Its Junk count records actions requested from Mail; check your Junk mailbox to confirm delivery. Activity contains no email subjects, addresses or bodies. If there is no activity, confirm that Mail is running, the extension's checkbox is checked, your account is selected, and **Enable filtering** is ON.
+The **Activity** page shows recent decisions, errors, totals, and the last recorded extension startup build and time. Startup history does not prove that the process is still running. Application diagnostics also include its process ID; earlier builds have no startup record. Its Junk count records actions requested from Mail; check your Junk mailbox to confirm delivery. Activity contains no email subjects, addresses or bodies. If there is no activity, confirm that Mail is running, the extension's checkbox is checked, your account is selected, and **Enable filtering** is ON.
 
 ## Diagnose a missed message
 
@@ -63,7 +63,7 @@ Classification uses Apple's supported permissive **string-response** mode and re
 
 Both incoming analysis and the read-only test allow **up to three total attempts**, fresh sessions, a 20-second attempt limit, one/two-second backoff and a **60-second overall deadline**. A context-limit retry reduces section sizes. Temporary generation failures, decoding errors and timeouts can retry. A valid negative, refusal, unsupported request or unverifiable positive stays in Inbox without repeating it. Instructions that alone exceed the available budget require shortening. After exhaustion or the overall deadline, processing continues with the next email; cancelled or late results cannot move mail.
 
-After an app update, quit and reopen Mail-Filter and Mail so both run the new build. Open Mail-Filter to load any standard-policy update, and keep its extension checked in Mail's settings. Existing missed Inbox messages are not automatically reanalyzed by installing an update.
+Quit Mail-Filter and Mail **before** installing an app update, then reopen both after installation. Replacing a loaded extension can leave Mail unable to start the replacement even though its checkbox remains checked. Open Mail-Filter to load any standard-policy update, and keep its extension checked in Mail's settings. Existing missed Inbox messages are not automatically reanalyzed by installing an update.
 
 ## Recover an incorrectly filtered email
 

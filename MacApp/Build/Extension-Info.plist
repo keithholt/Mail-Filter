@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>$(MAIL_FILTER_DISPLAY_NAME)</string>
+	<string>$(MAIL_FILTER_DISPLAY_NAME) (build $(CURRENT_PROJECT_VERSION))</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

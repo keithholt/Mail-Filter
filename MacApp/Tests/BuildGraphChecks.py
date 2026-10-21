@@ -67,6 +67,10 @@ for key in extension_configurations:
 for role in ('Host', 'Extension', 'Uninstaller'):
     info = plistlib.loads((root / 'MacApp/Build' / (role + '-Local-Info.plist')).read_bytes())
     assert 'MailFilterAppGroup' not in info, 'Local storage must not acquire a group dependency'
+for filename in ('Extension-Info.plist', 'Extension-Local-Info.plist'):
+    info = plistlib.loads((root/'MacApp/Build'/filename).read_bytes())
+    assert info['CFBundleDisplayName'] == '$(MAIL_FILTER_DISPLAY_NAME) (build $(CURRENT_PROJECT_VERSION))'
+    assert info['CFBundleShortVersionString'] == '$(MARKETING_VERSION)', 'Keep Store version syntax numeric'
 local_extension = plistlib.loads((root / 'MacApp/Build/Extension-Local.entitlements').read_bytes())
 assert local_extension['com.apple.security.temporary-exception.files.home-relative-path.read-write'] == ['/Library/Application Support/Mail-Filter Local/']
 # Xcode rewrites project syntax and upgrade metadata during ordinary editing.

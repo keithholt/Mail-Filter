@@ -45,7 +45,7 @@ for component in components:
 path.write_bytes(plistlib.dumps(components))
 (work/'requirements.plist').write_bytes(plistlib.dumps({'os':['26.0'],'arch':['arm64']}))
 PY
-pkgbuild --root "$work/Payload" --component-plist "$work/components.plist" \
+pkgbuild --root "$work/Payload" --component-plist "$work/components.plist" --scripts "$root/MacApp/InstallerScripts/App" \
     --identifier org.mail-filter.installer --version "$version" --install-location /Applications \
     "$work/MailFilterComponents.pkg"
 pkgbuild --root "$work/CommandLinePayload" --ownership recommended --scripts "$root/MacApp/InstallerScripts/CommandLineOn" \
@@ -79,11 +79,16 @@ ET.SubElement(root,'title').text = 'Mail-Filter'
 ET.SubElement(root,'welcome',{'file':'Welcome.html','mime-type':'text/html'})
 ET.SubElement(root,'conclusion',{'file':'Finished.html','mime-type':'text/html'})
 ET.SubElement(root,'domains',{'enable_localSystem':'true','enable_currentUserHome':'false','enable_anywhere':'false'})
+# Installer merges pkg-ref entries with the same ID. Keep must-close separate
+# from the reference whose text is the package URL (Apple's Distribution schema).
+close = ET.SubElement(ET.SubElement(root, 'pkg-ref', {'id':'org.mail-filter.installer'}), 'must-close')
+for identifier in ('com.apple.mail', 'org.mail-filter.app', 'org.mail-filter.uninstaller'):
+    ET.SubElement(close, 'app', {'id':identifier})
 tree.write(work/'Distribution.xml',encoding='utf-8',xml_declaration=True)
 local = '<p><b>Local test build:</b> this package is not signed with Developer ID or notarized by Apple. Public distribution will use those protections.</p>' if sys.argv[2] == 'local' else ''
 header = '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head><body style="font-family:-apple-system;font-size:14px">'
-(work/'Resources/Welcome.html').write_text(header+'<h2>Mail-Filter</h2><p>Analyze incoming Apple Mail messages on your Mac and move verified political solicitations to Junk.</p><p>Requires macOS 26 or later, an Apple Intelligence-capable Mac, and Apple Intelligence enabled with the on-device model available.</p><p>This installer places Mail-Filter and Uninstall Mail-Filter in Applications. The optional command-line PATH entry can be added or removed during installation. It does not read or move messages, change account settings, or enable extensions.</p>'+local+'</body></html>', encoding='utf-8')
-(work/'Resources/Finished.html').write_text(header+'<h2>Next: open Mail-Filter</h2><ol><li>Open Mail-Filter from Applications.</li><li>Read Mail accounts, select the inboxes to filter, and save.</li><li>In Mail, open Settings, then Extensions, and enable Mail-Filter.</li></ol><p>If migrating, import your previous setup and protection records and leave any earlier filtering extension disabled.</p><p>Keep Mail running and your Mac awake. The Mail-Filter settings app can quit; its window does not need to stay open.</p><p>Open a new Terminal window for command-line PATH changes to take effect.</p><p>Use Uninstall Mail-Filter in Applications for removal. Existing private settings and protection records survive upgrades.</p></body></html>', encoding='utf-8')
+(work/'Resources/Welcome.html').write_text(header+'<h2>Mail-Filter</h2><p>Analyze incoming Apple Mail messages on your Mac and move verified political solicitations to Junk.</p><p>Requires macOS 26 or later, an Apple Intelligence-capable Mac, and Apple Intelligence enabled with the on-device model available.</p><p><b>Before installing or updating:</b> quit Mail, Mail-Filter and its uninstaller. Replacing an extension while Mail is using it can stop incoming filtering. Installer will ask you to close these apps and will stop if an old extension process remains.</p><p>This installer places Mail-Filter and Uninstall Mail-Filter in Applications. The optional command-line PATH entry can be added or removed during installation. It does not read or move messages, change account settings, or enable extensions.</p>'+local+'</body></html>', encoding='utf-8')
+(work/'Resources/Finished.html').write_text(header+'<h2>Next: open Mail-Filter</h2><ol><li>Open Mail-Filter from Applications.</li><li>For an update, confirm the retained settings. For a new setup, read Mail accounts, select the inboxes to filter, and save.</li><li>Reopen Mail. Open Settings, then Extensions, and enable Mail-Filter. Its name includes the build number; compare it with the version and build in the Mail-Filter sidebar.</li></ol><p>If migrating, import your previous setup and protection records and leave any earlier filtering extension disabled.</p><p>Keep Mail running and your Mac awake. The Mail-Filter settings app can quit; its window does not need to stay open.</p><p>Open a new Terminal window for command-line PATH changes to take effect.</p><p>Use Uninstall Mail-Filter in Applications for removal. Existing private settings and protection records survive upgrades.</p></body></html>', encoding='utf-8')
 PY
 sign_options=()
 [[ "$mode" == release ]] && sign_options=(--sign "$MAIL_FILTER_INSTALLER_IDENTITY" --timestamp)

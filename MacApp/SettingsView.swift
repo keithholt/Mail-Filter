@@ -173,6 +173,12 @@ struct SettingsView: View {
             if let date = model.activity.lastCallback {
                 Text("Last incoming callback: \(date.formatted(date: .abbreviated, time: .standard))").font(.caption)
             }
+            if let start = model.activity.lastExtensionStart {
+                Text("Last extension start: build \(start.build ?? "unknown") — \(start.date.formatted(date: .abbreviated, time: .standard))")
+                    .font(.caption)
+                Text("Recorded startup history; this does not confirm that the extension is still running.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
             GroupBox("Selected email analysis") {
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
@@ -257,6 +263,7 @@ struct SettingsView: View {
 
     private func activityTitle(_ outcome: String) -> String {
         switch outcome {
+        case "extensionStarted": return "Mail started the extension"
         case "junkRequested": return "Political — Junk move requested"
         case "previewPolitical": return "Political — preview only"
         case "notPolitical": return "Not political — kept"
@@ -276,6 +283,7 @@ struct SettingsView: View {
     }
 
     private func categoryDescription(_ category: String) -> String {
+        if category.hasPrefix("pid-") { return "Extension startup recorded (process \(category.dropFirst(4)))." }
         switch category {
         case "selfMail": return "Sender matches one of your own addresses."
         case "emptyBody": return "No readable message body."
@@ -326,14 +334,14 @@ struct SettingsView: View {
             }
             .font(.callout)
             helpItem("1. Choose accounts and save", "Read Mail accounts on the Filtering page, or enter all your addresses manually. Include aliases and accounts you will not filter so mail from you stays protected. Select inboxes and save.")
-            helpItem("2. Enable the Mail extension", "Open Mail → Settings → Extensions, then check Mail-Filter.")
+            helpItem("2. Enable the Mail extension", "Open Mail → Settings → Extensions, then check Mail-Filter. Its name includes a build number; compare it with the build in this app’s sidebar.")
             Button("Open Mail", action: model.openMail)
             helpItem("3. Keep Mail running", "Mail-Filter's settings window can be closed, and this app can quit. Incoming mail is handled by the extension while Mail is running and your Mac is awake.")
             helpItem("Pause filtering", "Turn the Enable filtering switch off to leave new messages in place. Turn it on to resume. This switch is saved immediately; it does not require Save Settings. Keep Mail-Filter enabled in Mail's Extensions settings.")
             helpItem("Recover a false positive", "Move it from Junk back to Inbox. Its saved identity prevents another Junk move, including after restarts and settings changes. Junk moves already requested cannot be recalled by turning filtering off.")
             helpItem("Update or uninstall", model.storeDistribution
                 ? "Install updates through the App Store. Remove the app using Finder. Private settings and restored-message protection are stored separately from the app."
-                : "Install a newer version over this one. Settings and restored-message protection are kept outside the app. Use Uninstall Mail-Filter to remove the app, with an option to erase its private data.")
+                : "Quit Mail and Mail-Filter before installing a newer version, then reopen both. Installer will stop if an old extension process remains. Settings and restored-message protection are kept outside the app. Use Uninstall Mail-Filter to remove the app, with an option to erase its private data.")
             helpItem("Move your setup", "Export Setup includes account selections, filtering instructions, preview and pause preferences, and restored-message protection. Import it in the new installation, review the settings, then confirm. Keep the private export and original data until the transition is verified.")
             DisclosureGroup("Privacy") {
                 Text("Mail-Filter processes email on this Mac using Apple's on-device model. It does not upload email or include analytics. Private activity contains opaque message keys and processing categories, and file history is bounded to three 1 MiB files with a seven-day reporting window. Setup exports contain addresses and recovery records. Email reports contain full message source and filtering instructions; create and share them only when you choose. Removing the app does not erase private data automatically.")
