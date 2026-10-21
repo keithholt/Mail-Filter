@@ -33,6 +33,20 @@ Build 18 completed upload processing and was selected for version 2.1.0. The pub
 
 The review notes include this Content Rights clarification: Mail-Filter processes email already received in the user's mailbox, with the user's authorization. It does not provide a third-party content catalog or publish users' messages.
 
+## Submission audit and metadata corrections — October 21, 2026
+
+The portal showed version **2.1.0, build 18** as **Waiting for Review**. Its original package passed the export verifier again, including installer and bundle signatures, matching team/profiles, provisioned App Groups, extension executable naming, privacy manifests, and exclusion of developer tools. This is package validation, not a Store runtime or approval result.
+
+The formal **App Sandbox Information** entry now explains the host's `com.apple.security.temporary-exception.apple-events` array value `com.apple.mail`: explicit account discovery, explicit single-message diagnostics, the compose-only probe failure, the manual alternatives, and how the reviewer can assess the reads. Automatic incoming Junk actions remain MailKit operations without that exception in the extension. Apple requests a Feedback reference when an exception compensates for missing sandbox functionality; keep the actual submitted reference in the review entry, not a draft identifier. See [App Sandbox information](https://developer.apple.com/help/app-store-connect/reference/app-uploads/app-sandbox-information/).
+
+The reviewer ZIP's README incorrectly identified build 16. Its label was corrected to build 18 and the attachment replaced; the two fictional `.eml` files were unchanged. ZIP integrity, MIME parsing and CRLF line endings were checked. Review notes now name the two files and their expected political/nonpolitical results and explain that file analysis never moves mail. These expectations do not assert a live-model test of the final Store package.
+
+The publisher completed the DSA declaration; App Store Connect then reported regulatory requirements complete. The existing Data Not Collected privacy label, public support/privacy URLs, product requirements and review instructions were checked against the submitted app. These checks do not establish App Review acceptance.
+
+These corrections retain build 18 and its existing review submission. To substitute another binary, Apple requires removing the version from review; resubmission starts the review process over. Keep later development builds separate until a replacement or subsequent release is deliberately chosen. See [Remove a submission from review](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/remove-a-submission-from-review/).
+
+Final Store/TestFlight runtime qualification, clean-install and compatible-update checks remain outstanding. Do not treat the earlier signed Development tests or these metadata corrections as completing those checks.
+
 ## Proposed product description
 
 Mail-Filter analyzes incoming Apple Mail messages on the Mac using Apple's on-device model and requests Junk moves for verified political solicitations. The user chooses which address groups are filtered, can edit the policy, and can preview decisions without moving mail. Messages from the user's configured own addresses and messages previously selected for Junk are protected against repeated moves.
