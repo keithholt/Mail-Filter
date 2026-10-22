@@ -92,14 +92,12 @@ final class SettingsModel: ObservableObject {
         busy = true; error = nil
         defer { busy = false }
         do {
-            let selectedAddresses = accounts.isEmpty ? Set(loaded.configuration?.selectedRecipientAddresses ?? [])
-                : Set(accounts.filter { selection.contains($0.id) }.flatMap(\.addresses).map(normalizedEmailAddress))
-            let protectedAddresses = Set((loaded.configuration?.ownAddresses ?? []) + accounts.flatMap(\.addresses).map(normalizedEmailAddress))
             let discovered = try AccountInventory.read()
-            let missing = protectedAddresses.subtracting(discovered.flatMap(\.addresses).map(normalizedEmailAddress)).sorted()
-            accounts = discovered + (missing.isEmpty ? [] : try NativeAccount.manualGroups(missing.joined(separator: "\n")))
-            selection = Set(accounts.filter { !selectedAddresses.isDisjoint(with: $0.addresses.map(normalizedEmailAddress)) }.map(\.id))
-            message = "Mail accounts loaded. Choose the accounts to filter, then Save Settings. Messages were not read."
+            let refreshed = NativeAccount.refreshed(discovered, replacing: accounts, selectedIDs: selection,
+                fallbackSelectedAddresses: loaded.configuration?.selectedRecipientAddresses ?? [])
+            accounts = refreshed.accounts
+            selection = refreshed.selection
+            message = "Mail's current accounts loaded. Accounts and manual addresses absent from Mail were removed from this list. Choose the accounts to filter, then Save Settings to apply. Messages were not read."
         } catch {
             self.error = "Couldn't read Mail accounts. Open Mail and check Automation permission in System Settings, or use Enter Addresses to configure accounts manually."
         }

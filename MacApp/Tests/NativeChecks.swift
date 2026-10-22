@@ -18,7 +18,50 @@ struct NativeChecks {
         try require(failed, name)
     }
 
+    static func checkAccountRefresh() throws {
+        let previous = [NativeAccount(id: "active", name: "Personal", addresses: ["old@example.com"]),
+            NativeAccount(id: "retired", name: "Alumni", addresses: ["alumni@example.edu"]),
+            NativeAccount(id: "unchecked", name: "Personal", addresses: ["work@example.net"])]
+        let discovered = [NativeAccount(id: "active", name: "Renamed", addresses: ["new@example.com"]),
+            NativeAccount(id: "unchecked", name: "Personal", addresses: ["old@example.com", "work@example.net"]),
+            NativeAccount(id: "new", name: "New account", addresses: ["new@example.org"])]
+        let refreshed = NativeAccount.refreshed(discovered, replacing: previous, selectedIDs: ["active", "retired"],
+            fallbackSelectedAddresses: ["alumni@example.edu"])
+        try require(refreshed.accounts == discovered, "refresh replaces inventory without recreating deleted accounts or aliases")
+        try require(refreshed.selection == ["active"], "stable selection survives rename and alias changes without enabling unchecked or new accounts")
+        let deselected = NativeAccount.refreshed(discovered, replacing: previous, selectedIDs: [],
+            fallbackSelectedAddresses: ["new@example.com"])
+        try require(deselected.selection.isEmpty, "refresh does not undo unsaved deselection using old saved settings")
+        let removedSelection = NativeAccount.refreshed(discovered, replacing: previous, selectedIDs: ["retired"])
+        try require(removedSelection.selection.isEmpty, "removing the selected account never selects an unrelated replacement")
+        let manual = try NativeAccount.manualGroups("NEW@example.com, extra@example.com\nalumni@example.edu")
+        let fromManual = NativeAccount.refreshed(discovered, replacing: manual, selectedIDs: [manual[0].id])
+        try require(fromManual.accounts == discovered && fromManual.selection == ["active"], "manual setup maps selected addresses to current Mail accounts without retaining missing manual groups")
+        let restored = NativeAccount.refreshed(discovered, replacing: [], selectedIDs: [], fallbackSelectedAddresses: ["NEW@EXAMPLE.COM"])
+        try require(restored.selection == ["active"], "legacy address selection maps to discovered accounts using normalized addresses")
+        let repeated = NativeAccount.refreshed(discovered, replacing: refreshed.accounts, selectedIDs: refreshed.selection,
+            fallbackSelectedAddresses: ["alumni@example.edu"])
+        try require(repeated.accounts == refreshed.accounts && repeated.selection == refreshed.selection, "repeated refresh never resurrects old saved addresses")
+
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("account-refresh-" + UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = SharedStore(directory: root)
+        _ = try store.protection.reserve(messageID: "restored@example.org")
+        var settings = NativeSettings()
+        settings.inventory = refreshed.accounts
+        settings.selectedAccountIDs = refreshed.selection.sorted()
+        settings.configuration = try FilteringConfiguration.make(selectedNames: settings.selectedAccountIDs,
+            inventory: settings.inventory.map { FilteringAccount(id: $0.id, name: $0.id, addresses: $0.addresses) },
+            rules: "Political solicitations", evidenceTerms: ["campaign"])
+        try store.save(settings)
+        let saved = try store.settings()
+        try require(saved.inventory == discovered && !saved.configuration!.ownAddresses.contains("alumni@example.edu"), "saving refresh removes retired addresses from persisted inventory and own-sender policy")
+        try require(saved.configuration!.ownAddresses.contains("work@example.net"), "refresh still protects current unchecked accounts")
+        try require(try store.protection.contains(messageID: "restored@example.org"), "account refresh and save preserve restored-message protection")
+    }
+
     static func main() throws {
+        try checkAccountRefresh()
         let root = FileManager.default.temporaryDirectory.appendingPathComponent("native-checks-" + UUID().uuidString)
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
         defer { try? FileManager.default.removeItem(at: root) }

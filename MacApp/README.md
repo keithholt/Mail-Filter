@@ -33,6 +33,8 @@ The Activity page shows recent decisions, processing errors, the number classifi
 
 If account discovery is denied, allow **Mail-Filter** under **System Settings → Privacy & Security → Automation → Mail**, then retry. This permission belongs to the app and is separate from a Terminal permission used by the prototype/CLI. The app reports model availability rather than silently attempting classification without a model.
 
+**Refresh Accounts** replaces the displayed inventory with Mail's current accounts, removing deleted accounts and manual addresses absent from Mail. Stable account IDs retain both checked and unchecked choices, including after account renames or alias changes. Address matching maps a prior manual setup to newly discovered Mail accounts. Review selections and click **Save Settings** to apply; extra manual aliases can be entered afterward. Failed discovery leaves the current inventory unchanged. Settings saves rebuild own-sender addresses from the displayed inventory while preserving restored-message protection.
+
 ## Import an earlier setup
 
 Use **Export Setup…** in the source installation, then **Import Setup…** in the destination. The current UI accepts a complete setup archive or a selected data folder containing both `settings.json` and `junk-protection.json`. It preserves accounts, aliases, policy, pause/Preview choices and recovery records, merges destination protection, and creates a private destination backup. Review the result and choose **Confirm Imported Setup** before filtering can resume. Confirmation retains the imported ON/OFF preference.

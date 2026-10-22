@@ -19,6 +19,22 @@ struct NativeAccount: Codable, Identifiable, Equatable {
     let name: String
     let addresses: [String]
 
+    /// Mail's successful inventory replaces the displayed list, including manual
+    /// groups from an earlier refresh. Never resurrect removed addresses as accounts.
+    static func refreshed(_ discovered: [NativeAccount], replacing previous: [NativeAccount], selectedIDs: Set<String>,
+                          fallbackSelectedAddresses: [String] = []) -> (accounts: [NativeAccount], selection: Set<String>) {
+        let previousIDs = Set(previous.map(\.id))
+        let selectedAddresses = Set((previous.isEmpty ? fallbackSelectedAddresses
+            : previous.filter { selectedIDs.contains($0.id) }.flatMap(\.addresses)).map(normalizedEmailAddress))
+        let selection = Set(discovered.filter { account in
+            // Stable Mail IDs retain checked AND unchecked choices even when
+            // aliases change. Address matching supports a prior manual setup.
+            previousIDs.contains(account.id) ? selectedIDs.contains(account.id)
+                : !selectedAddresses.isDisjoint(with: account.addresses.map(normalizedEmailAddress))
+        }.map(\.id))
+        return (discovered, selection)
+    }
+
     /// Each line is one local address group, with aliases separated by commas.
     /// IDs remain local; they are never presented as Mail account identifiers.
     static func manualGroups(_ text: String) throws -> [NativeAccount] {

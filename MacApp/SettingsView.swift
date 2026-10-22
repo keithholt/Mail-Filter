@@ -87,6 +87,7 @@ struct SettingsView: View {
                     Spacer()
                     Button("Enter Addresses…", action: model.beginManualAddresses)
                     Button(model.accounts.isEmpty ? "Read Mail Accounts" : "Refresh Accounts", action: model.readAccounts).disabled(model.busy)
+                        .help("Replace the list with Mail's current accounts. Save Settings to apply; enter any extra aliases afterward using Enter Addresses.")
                 }
                 if model.editingAddresses {
                     Text("Enter every account you own, including accounts you will not filter. Use one line per account and separate aliases with commas.")

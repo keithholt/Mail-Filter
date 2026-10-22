@@ -93,6 +93,8 @@ The classifier performs these stages in order:
 
 **Account selection is an approximation in MailKit.** The handler does not receive the CLI's exact Mail account ID. It routes by delivered-to/original-to headers or visible recipients, so aliases, forwarding, Bcc, shared addresses and delivery into several accounts can be ambiguous. The UI selects stable account IDs, then saves their recipient addresses. All addresses from the collected inventory protect own-sender mail, including accounts not selected for filtering. Refresh the inventory when accounts or aliases change.
 
+Account refresh treats a successful Mail inventory as authoritative. `NativeAccount.refreshed` replaces the displayed list, retaining checked and unchecked choices by stable ID even when names or aliases change. Address matching supports transition from manual setup to discovered accounts. Removed accounts and missing manual aliases are not recreated from saved own-sender addresses. Discovery failure leaves the current list intact. Refresh changes the UI draft; **Save Settings** rebuilds recipient and own-sender addresses from that draft without clearing restored-message protection.
+
 ## 4 MIME extraction and input limits
 
 The decoder accepts plain text and HTML and handles common multipart structures and transfer encodings. For alternatives it prefers a readable nonempty plain-text representation, then another readable representation. A malformed optional alternative can be skipped when a valid sibling exists; global resource limits remain fatal. Related messages use their root document, and signed messages use the first content part.
