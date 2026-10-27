@@ -1,6 +1,6 @@
 # Mail Filter Store Review Preparation
 
-This checklist records preparation for the first submission and provides the workflow for future candidates. Signed Development tests and local archive/export validation passed on October 19, 2026. Build 18 processed successfully in App Store Connect, and the publisher reported submitting version 2.1.0 for review that day. Apple approval, final Store runtime and clean-install/update checks remain open.
+This checklist records preparation for the first submission and provides the workflow for future candidates. Signed Development tests and local archive/export validation passed on October 19, 2026. Build 18 processed successfully in App Store Connect, and the publisher reported submitting version 2.1.0 for review that day. On October 27 the publisher reported Apple approval without requested changes; App Store Connect confirmed **Ready for Distribution**. Final Store runtime and clean-install/update checks remain separate from that approval.
 
 Create the review candidate from the root `Mail-Filter.xcodeproj` using **Mail-Filter Store → Product → Archive**, or `./MacApp/store-build.sh archive`. Both use the same Store configuration and exclude engineering tools. The Local Installer scheme creates a direct-install test package; use the provisioned Store archive for App Store validation. See [Store build workflow](../MacApp/Store/README.md) for signing and export.
 
@@ -29,7 +29,7 @@ The public [support page](https://keithholt.github.io/Mail-Filter/support.html) 
 
 The initial build-16 upload failed with App Store error 90362: `Mail-Filter.appex` declared `MailFilterExtension` as its executable, while Apple requires the executable name to match the extension directory basename. Build 17 sets the sandboxed extension executable to `Mail-Filter`, retains its Swift module/principal class, and adds validation and a regression check for this constraint. Local archive/export checks do not establish App Store acceptance. Add the replacement package as a new Transporter item rather than retrying a cached rejected package, select the successfully processed build in App Store Connect, and update the build number in review notes.
 
-Build 18 completed upload processing and was selected for version 2.1.0. The publisher reported completing review submission on October 19. App Review acceptance remains pending. Productivity is the primary category and Utilities the secondary category. Automatic release after approval is selected.
+Build 18 completed upload processing and was selected for version 2.1.0. The publisher reported completing review submission on October 19 and Apple approval on October 27. Productivity is the primary category and Utilities the secondary category. Automatic release after approval was selected.
 
 The review notes include this Content Rights clarification: Mail-Filter processes email already received in the user's mailbox, with the user's authorization. It does not provide a third-party content catalog or publish users' messages.
 
@@ -48,6 +48,24 @@ The publisher completed the DSA declaration; App Store Connect then reported reg
 These corrections retain build 18 and its existing review submission. To substitute another binary, Apple requires removing the version from review; resubmission starts the review process over. Keep later development builds separate until a replacement or subsequent release is deliberately chosen. See [Remove a submission from review](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/remove-a-submission-from-review/).
 
 Final Store/TestFlight runtime qualification, clean-install and compatible-update checks remain outstanding. Do not treat the earlier signed Development tests or these metadata corrections as completing those checks.
+
+## First update submission — October 27, 2026
+
+Version **2.1.1, build 23** includes the account-refresh correction from local build 22, the settings sidebar's version/build display, matching extension build labels, persistent extension-start diagnostics and the updated application icon. Classification policy, Mail access scope and the provisioned App Group remain unchanged from the approved Store release. The direct installer's update guards are engineering distribution changes and are not part of the Store package.
+
+The approved version 2.1.0 build-18 archive and export are preserved under `outputs/store/approved-2.1.0-build-18/`; the versioned build-18 upload package remains in `outputs/store/`. Rebuild and distribution validation use the existing Store workflow. Keep the replacement candidate's package, review attachment and submission status distinct from the approved release.
+
+Saved What's New text:
+
+- Fixed Refresh Accounts so accounts removed from Apple Mail disappear from the list while remaining account selections are preserved.
+- Added visible version and build information for the app and Mail extension.
+- Improved extension startup diagnostics and refreshed the app icon.
+
+Create the new version only after App Store Connect reports the current version as **Ready for Distribution**. Storefront visibility can lag that status. Retain the current support/privacy information, review instructions and narrow Mail entitlement justification; update their version/build references and attach the corresponding synthetic reviewer samples. Record upload processing and review submission only after the portal confirms each step.
+
+The October 27 native test suite, signed Store archive and distribution export checks passed. The uploaded package is `outputs/store/Mail-Filter-2.1.1-build-23.pkg` (SHA-256 `a1278f1c1a771f7ac740d75a972644373a7c73c4ce5c9cf91b679786b856e4dc`). No real mail was moved for these checks. The update retains the approved screenshots/description, uses the release notes above, and includes updated review instructions and sandbox justification referencing **FB25276458**, plus `Mail-Filter-Review-Samples-2.1.1.zip`. Automatic release after approval and the existing privacy declarations are retained.
+
+Transporter confirmed delivery on October 27 at 1:02 p.m. Pacific. After processing completed, build **23** was selected for version **2.1.1**, added for review and submitted at **1:06 p.m. Pacific**. The [submission record](https://appstoreconnect.apple.com/apps/6824658566/distribution/reviewsubmissions/details/df9a8e55-522a-418d-9085-f06f365e4d72) confirmed **Waiting for Review**, with one item, **2.1.1 (23)**. Submission ID: `df9a8e55-522a-418d-9085-f06f365e4d72`. The approved **2.1.0 (18)** remains **Ready for Distribution**; submitting the update did not replace or withdraw that release. Approval of 2.1.1 is pending.
 
 ## Proposed product description
 
