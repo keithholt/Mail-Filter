@@ -174,26 +174,95 @@ struct Classification: Decodable {
 }
 
 struct ModelLabelError: LocalizedError {
-    enum Kind { case refusal, invalidLabel }
+    enum Kind { case refusal, emptyResponse, invalidLabel }
     let kind: Kind
     let response: String
     var errorDescription: String? {
-        kind == .refusal ? "The model refused to classify the email; left in place." : "The model did not return one valid classification label; left in place."
+        switch kind {
+        case .refusal: return "The model refused to classify the email; left in place."
+        case .emptyResponse: return "The model returned no classification text; left in place."
+        case .invalidLabel: return "The model returned text outside the accepted political/not-political label format; left in place."
+        }
+    }
+
+    // Explicit email analysis only; never include response text in routine logs.
+    var diagnosticReply: String {
+        let scalars = response.unicodeScalars.prefix(128).map { String(format: "U+%04X", $0.value) }.joined(separator: " ")
+        return "Model reply (shown only here):\n\(response)\nReply Unicode scalars (first 128, shown only here): \(scalars.isEmpty ? "(empty)" : scalars)"
     }
 }
 
 func parsePoliticalLabel(_ response: String) throws -> Classification.Decision {
-    var label = response.trimmingCharacters(in: .whitespacesAndNewlines)
+    // Ignore only boundary presentation marks, never search prose for a label
+    // or remove characters from inside a word (including a negative label).
+    let boundary = CharacterSet.whitespacesAndNewlines.union(CharacterSet(charactersIn: "\u{FEFF}\u{200E}\u{200F}\u{2060}"))
+    func trim(_ value: String) -> String { value.trimmingCharacters(in: boundary) }
+    var label = trim(response)
+    guard !label.isEmpty else { throw ModelLabelError(kind: .emptyResponse, response: String(response.prefix(2048))) }
     if label.hasPrefix("```") {
-        let lines = label.components(separatedBy: "\n")
+        let lines = label.replacingOccurrences(of: "\r\n", with: "\n").components(separatedBy: "\n").map(trim)
         if lines.count == 3, ["```", "```text"].contains(lines[0].lowercased()), lines[2] == "```" { label = lines[1] }
     }
-    label = label.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-    if label.hasPrefix("\""), label.hasSuffix("\""), label.count >= 2 { label = String(label.dropFirst().dropLast()) }
+    label = trim(label).lowercased()
+    if label.hasPrefix("\""), label.hasSuffix("\""), label.count >= 2 { label = trim(String(label.dropFirst().dropLast())) }
     if label == "not political" || label == "not_political" { label = "not-political" }
     if let decision = Classification.Decision(rawValue: label) { return decision }
     let refusal = ["sorry", "i cannot", "i can't", "i can’t", "i am unable", "i'm unable", "i’m unable", "i'm sorry", "i’m sorry"].contains { label.hasPrefix($0) }
     throw ModelLabelError(kind: refusal ? .refusal : .invalidLabel, response: String(response.prefix(2048)))
+}
+
+/// Content-free measurements only. Optional fields preserve older activity files.
+struct ModelRequestMetrics: Codable, Equatable, Sendable {
+    enum Status: String, Codable, Sendable {
+        case started, political, notPolitical, emptyResponse, blankResponse, invalidLabel, refusal, generationError
+    }
+    var status: Status
+    let section: Int
+    let sections: Int
+    let excerptCharacters: Int
+    let sectionCharacters: Int
+    let maximumSectionCharacters: Int
+    let instructionTokens: Int
+    let promptTokens: Int
+    let tokenCountEstimated: Bool
+    let contextTokens: Int
+    let responseTokenLimit: Int
+    var elapsedMilliseconds: Int? = nil
+    var responseCharacters: Int? = nil
+    var responseBytes: Int? = nil
+    var inputTokens: Int? = nil
+    var outputTokens: Int? = nil
+    var reasoningTokens: Int? = nil
+    var physicalMemoryMiB: Int? = nil
+    var memoryPressure: String? = nil
+    var thermalState: String? = nil
+
+    var valid: Bool {
+        let values = [excerptCharacters, sectionCharacters, maximumSectionCharacters, instructionTokens, promptTokens, contextTokens, responseTokenLimit]
+            + [elapsedMilliseconds, responseCharacters, responseBytes, inputTokens, outputTokens, reasoningTokens, physicalMemoryMiB].compactMap { $0 }
+        return (1...12).contains(sections) && (1...sections).contains(section)
+            && values.allSatisfy { (0...1_000_000_000).contains($0) }
+            && sectionCharacters <= excerptCharacters && maximumSectionCharacters > 0 && responseTokenLimit > 0
+            && (memoryPressure == nil || ["unknown", "normal", "warning", "critical"].contains(memoryPressure!))
+            && (thermalState == nil || ["unknown", "nominal", "fair", "serious", "critical"].contains(thermalState!))
+            && (reasoningTokens == nil || (outputTokens != nil && reasoningTokens! <= outputTokens!))
+    }
+
+    var summary: String {
+        guard valid else { return "metrics=invalid" }
+        var fields = ["responseStatus=\(status.rawValue)", "section=\(section)/\(sections)",
+            "excerptChars=\(excerptCharacters)", "sectionChars=\(sectionCharacters)", "sectionLimit=\(maximumSectionCharacters)",
+            "instructionTokens=\(instructionTokens)", "promptTokens=\(promptTokens)", "tokenCountEstimated=\(tokenCountEstimated)",
+            "contextTokens=\(contextTokens)", "responseLimit=\(responseTokenLimit)"]
+        for (name, value) in [("elapsedMs", elapsedMilliseconds), ("responseChars", responseCharacters), ("responseBytes", responseBytes),
+                              ("inputTokens", inputTokens), ("outputTokens", outputTokens), ("reasoningTokens", reasoningTokens), ("physicalMemoryMiB", physicalMemoryMiB)] {
+            if let value { fields.append("\(name)=\(value)") }
+        }
+        if let outputTokens { fields.append("outputLimitReached=\(outputTokens >= responseTokenLimit)") }
+        if let memoryPressure { fields.append("memoryPressure=\(memoryPressure)") }
+        if let thermalState { fields.append("thermalState=\(thermalState)") }
+        return fields.joined(separator: " ")
+    }
 }
 
 func parseClassification(_ response: String) throws -> Classification {
@@ -282,7 +351,6 @@ extension Report {
 
 func politicalEvidenceTerms(_ text: String) throws -> [String] {
     let terms = text.components(separatedBy: .newlines).map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty && !$0.hasPrefix("#") }
-    guard !terms.isEmpty else { throw ToolError("Political evidence term list is empty; no messages may be moved") }
     return terms
 }
 
@@ -316,6 +384,9 @@ func hasPoliticalTerm(_ text: String, terms: [String]) -> Bool {
 @discardableResult
 func validatePoliticalEvidence(_ classification: Classification, message: MailMessage, terms: [String]) throws -> String? {
     guard classification.decision == .political else { return nil }
+    // An explicitly empty list disables only the secondary keyword safeguard.
+    // The model must still return a valid positive label.
+    guard !terms.isEmpty else { return nil }
     let evidence = classification.evidence?.trimmingCharacters(in: .whitespacesAndNewlines)
         .trimmingCharacters(in: CharacterSet(charactersIn: "\"“”")) ?? ""
     if !evidence.isEmpty, evidence.count <= 1500, hasPoliticalTerm(evidence, terms: terms) {

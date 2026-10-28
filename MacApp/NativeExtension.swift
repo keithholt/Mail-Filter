@@ -32,7 +32,8 @@ final class NativeMessageHandler: NSObject, MEMessageActionHandler {
         logger.notice("Mail received-message callback")
         let messageID = message.headers?.first { $0.key.lowercased() == "message-id" }?.value.first
         let hasBody = message.rawData != nil
-        Task { @MainActor in NativeClassifier.shared.callbackReceived(messageID: messageID, hasBody: hasBody) }
+        let bodyWait = hasBody ? tracker.receivedBody(messageID: messageID) : nil
+        Task { @MainActor in NativeClassifier.shared.callbackReceived(messageID: messageID, hasBody: hasBody, bodyWaitMilliseconds: bodyWait) }
         if tracker.shouldRequestBody(messageID: messageID, hasRawData: message.rawData != nil) {
             completionHandler(.invokeAgainWithBody)
             return

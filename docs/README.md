@@ -22,3 +22,5 @@ The root [README](../README.md) remains the end-user guide. [README-DEVELOPER](.
 Native development starts with `Mail-Filter.xcodeproj` at the repository root. The [build configuration guide](../MacApp/Build/README.md) maps its local, installer, sandboxed check, Store and CLI workflows; the getting-started guide above provides the detailed Xcode steps. The CLI's separate Swift package remains available for standalone engineering builds.
 
 The [Store build workflow](../MacApp/Store/README.md) covers unsigned checks, isolated signing configurations, archiving and local export. [Store review preparation](store-review-preparation.md) is a Markdown publisher worksheet with privacy and entitlement drafts; it remains separate from the generated engineering guides. `./MacApp/store-build.sh` also regenerates the registered Word documents before compilation.
+
+The [build 24 model qualification record](model-reliability-qualification.md) documents fault injection, the synthetic model comparison, Dev isolation and the limits of those tests.

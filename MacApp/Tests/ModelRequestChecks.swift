@@ -28,6 +28,34 @@ struct ModelRequestChecks {
         try require(try validatePoliticalEvidence(negative, message: campaignMessage, terms: ["campaign"]) == nil, "campaign vocabulary cannot promote a negative")
         try require(!hasPoliticalTerm("utm_campaign=retail", terms: ["campaign"]), "tracking parameter names are not mistaken for campaign text")
         try require(try parsePoliticalLabel("```text\npolitical\n```") == .political && parsePoliticalLabel("not political") == .notPolitical, "harmless label formatting is accepted")
+        for text in ["", " \n\t\r"] {
+            do { _ = try parsePoliticalLabel(text); throw ToolError("empty model text accepted") }
+            catch let error as ModelLabelError {
+                try require(error.kind == .emptyResponse, "empty and blank replies have a distinct failure")
+            }
+        }
+        for label in ["\u{FEFF}political\u{200E}", "\u{2060}\" political \"\u{200F}", "```text\r\npolitical\r\n```"] {
+            try require(try parsePoliticalLabel(label) == .political, "boundary formatting preserves a whole positive label")
+        }
+        try require(try parsePoliticalLabel("\u{FEFF}not-political\u{200E}") == .notPolitical,
+                    "boundary normalization cannot promote a negative")
+        do { _ = try parsePoliticalLabel("polit\u{200E}ical"); throw ToolError("internal invisible accepted") }
+        catch let error as ModelLabelError {
+            try require(error.kind == .invalidLabel && error.diagnosticReply.contains("U+200E"), "explicit diagnostics expose invisible suffixes without guessing a label")
+        }
+        var metrics = ModelRequestMetrics(status: .emptyResponse, section: 1, sections: 2, excerptCharacters: 6000,
+            sectionCharacters: 3000, maximumSectionCharacters: 3000, instructionTokens: 500, promptTokens: 1000,
+            tokenCountEstimated: false, contextTokens: 4096, responseTokenLimit: 64,
+            elapsedMilliseconds: 5000, responseCharacters: 0, responseBytes: 0, inputTokens: 1500, outputTokens: 64,
+            reasoningTokens: 64, physicalMemoryMiB: 18432, memoryPressure: "unknown", thermalState: "nominal")
+        try require(metrics.valid && metrics.summary.contains("responseChars=0") && metrics.summary.contains("outputLimitReached=true")
+            && metrics.summary.contains("reasoningTokens=64"), "empty response measurements distinguish token use from visible output")
+        try require(try JSONDecoder().decode(ModelRequestMetrics.self, from: JSONEncoder().encode(metrics)) == metrics,
+                    "content-free request measurements round trip")
+        metrics.memoryPressure = "private-email-content"
+        try require(!metrics.valid && metrics.summary == "metrics=invalid", "arbitrary content cannot enter measurement summaries")
+        try require(ClassificationRequest.responseTokens == 256 && (1...3).map(ClassificationRequest.sectionCharacters(forAttempt:)) == [3000, 1500, 1500],
+                    "new generation budgets reserve output headroom and retain bounded retries")
         var invalidRejected = false
         do {
             _ = try parsePoliticalLabel("junk")
@@ -56,6 +84,12 @@ struct ModelRequestChecks {
         }
         try require(body.prefix(6000).allSatisfy { char in sections.contains { $0.contains(char) } }, "all first 6000 characters remain covered")
         try require(!sections.contains { $0.contains(body.last!) }, "content after the approved excerpt is excluded")
+        for attempt in 1...3 {
+            let retried = try await longRequest.sections(promptBudget: 20_000,
+                maximumCharacters: ClassificationRequest.sectionCharacters(forAttempt: attempt), tokenCount: { $0.count / 4 })
+            try require(retried.count <= ClassificationRequest.maximumSections && body.prefix(6000).allSatisfy { char in retried.contains { $0.contains(char) } },
+                        "every retry covers the complete first 6000 characters within the section bound")
+        }
         let divided = try longRequest.prompt(body: sections[0], divided: true)
         try require(divided.contains("openingContext") && divided.contains("closingContext"), "divided requests retain solicitation and sponsorship context")
         let forced = try await longRequest.sections(promptBudget: 20_000, maximumCharacters: 1500, tokenCount: { $0.count / 4 })
@@ -90,6 +124,26 @@ struct ModelRequestChecks {
         try require(upgraded.paused && upgraded.configuration!.mode == "dry-run" && upgraded.inventory == settings.inventory && upgraded.selectedAccountIDs == settings.selectedAccountIDs, "policy upgrade retains all operational settings")
         try require(try store.protection.contains(messageID: "returned@example.com"), "policy upgrade retains restored-message protection")
         try require(try !store.updateStandardPrompt("Other standard") && !store.updateStandardVerificationWords(), "custom prompts and repeated upgrades remain unchanged")
+        let sourceRoot = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        let bundled = try String(contentsOf: sourceRoot.appendingPathComponent("MacApp/Resources/filter.txt"), encoding: .utf8)
+        let cliPolicy = try String(contentsOf: sourceRoot.appendingPathComponent("prompts/filter.txt"), encoding: .utf8)
+        try require(bundled == cliPolicy && !bundled.contains("Return a decision and a short explanation"),
+                    "native and CLI defaults do not conflict with the whole-label contract")
+        let oldPolicy = bundled.replacingOccurrences(of: "The application controls the response format and separately verifies source evidence when keywords are configured before moving a positive to Junk.",
+            with: "Return a decision and a short explanation of the message's purpose. The application separately verifies evidence before moving a positive to Junk.")
+        let policyStore = SharedStore(directory: storeURL.appendingPathComponent("format-migration"))
+        var prior = settings
+        prior.configuration = try FilteringConfiguration.make(selectedNames: ["Sample"], inventory: [.init(id: "sample", name: "Sample", addresses: ["me@example.com"])],
+            rules: oldPolicy, evidenceTerms: [], mode: "dry-run")
+        try policyStore.save(prior)
+        _ = try policyStore.protection.reserve(messageID: "retained@example.org")
+        try require(try policyStore.updateStandardPrompt(bundled), "actual previous shipped policy receives the response-format correction")
+        let migrated = try policyStore.settings()
+        try require(migrated.configuration!.rules == bundled && migrated.configuration!.evidenceTerms.isEmpty
+                    && migrated.paused && migrated.configuration!.mode == "dry-run" && migrated.revision != prior.revision,
+                    "format migration preserves empty keywords and operating preferences while invalidating in-flight work")
+        try require(try policyStore.protection.contains(messageID: "retained@example.org") && !policyStore.updateStandardPrompt(bundled),
+                    "format migration preserves recovery and is idempotent")
         let version11Store = SharedStore(directory: storeURL.appendingPathComponent("version11"))
         var version11Settings = settings
         version11Settings.configuration = try FilteringConfiguration.make(selectedNames: ["Sample"], inventory: [.init(id: "sample", name: "Sample", addresses: ["me@example.com"])],

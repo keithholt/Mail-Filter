@@ -63,6 +63,18 @@ struct NativeSettings: Codable {
     // commits atomically with imported settings and is independent of log expiry.
     var importedProtection: [String]? = nil
     var activationRequired: Bool? = nil
+    #if MAIL_FILTER_DEV
+    // Dev-only, opt-in and backward compatible with existing private settings.
+    var filterOwnMailForTesting: Bool? = nil
+    #endif
+
+    var allowsOwnMailForTesting: Bool {
+        #if MAIL_FILTER_DEV
+        return filterOwnMailForTesting == true
+        #else
+        return false
+        #endif
+    }
 
     func validate() throws {
         guard schemaVersion == 1, UUID(uuidString: revision) != nil,
@@ -142,12 +154,22 @@ struct NativeActivity: Codable, Identifiable, Sendable {
     var attempt: Int? = nil
     var failureDomain: String? = nil
     var failureCode: Int? = nil
+    var modelMetrics: ModelRequestMetrics? = nil
+    var bodyWaitMilliseconds: Int? = nil
     var build: String? = nil
     var channel: String? = nil
+
+    var measurementSummary: String {
+        var values: [String] = []
+        if let modelMetrics { values.append(modelMetrics.summary) }
+        if let bodyWaitMilliseconds { values.append("bodyWaitMs=\(bodyWaitMilliseconds)") }
+        return values.joined(separator: " ")
+    }
 }
 
 struct NativeActivityLog: Codable {
     static let maximumRecent = 500
+    static let maximumBytes = 1_024 * 1_024
     var schemaVersion = 1
     var processed = 0
     var junkRequested = 0
@@ -244,12 +266,16 @@ final class SharedStore {
 
     /// Refresh only the prior untouched standard prompt. Edited policies survive
     /// upgrades, as do all accounts, pause/preview and restored-mail protection.
-    func updateStandardPrompt(_ rules: String, replacingDigest: String = "818fba6fb1f6c4fc2ae6869b24ba55e50bf356ee28d86eb07c161ce912264968") throws -> Bool {
+    func updateStandardPrompt(_ rules: String, replacingDigest: String? = nil) throws -> Bool {
         try locked {
             var settings = try loadSettings()
             guard let original = settings.configuration else { return false }
             let digest = SHA256.hash(data: Data(original.rules.trimmingCharacters(in: .whitespacesAndNewlines).utf8)).map { String(format: "%02x", $0) }.joined()
-            guard digest == replacingDigest, original.rules != rules else { return false }
+            let recognized = replacingDigest.map { [$0] } ?? [
+                "818fba6fb1f6c4fc2ae6869b24ba55e50bf356ee28d86eb07c161ce912264968",
+                "4f12418bfe71184f37662f5a1b06a8d6ac2aa13c643c51dd4989cb5baccbe26f"
+            ]
+            guard recognized.contains(digest), original.rules != rules else { return false }
             settings.configuration = FilteringConfiguration(schemaVersion: original.schemaVersion, mode: original.mode,
                 selectedRecipientAddresses: original.selectedRecipientAddresses, ownAddresses: original.ownAddresses,
                 rules: rules, evidenceTerms: original.evidenceTerms, legacyAccountIDs: original.legacyAccountIDs,
@@ -336,7 +362,8 @@ final class SharedStore {
         try locked {
             let current = try loadSettings()
             guard !current.paused, current.activationRequired != true, current.revision == revision, let configuration = current.configuration else { return .settingsChanged }
-            guard decision == .political, let evidence, !evidence.isEmpty else { return .notPolitical }
+            guard decision == .political else { return .notPolitical }
+            guard configuration.evidenceTerms.isEmpty || evidence?.isEmpty == false else { return .notPolitical }
             if try (current.importedProtection ?? []).contains(JunkIdentity.key(messageID)) || JunkIdentity.protectedByCLI(messageID: messageID, accountIDs: configuration.legacyAccountIDs,
                                               identities: configuration.protectedCLIIdentities) || protection.contains(messageID: messageID) { return .protected }
             if configuration.mode == "dry-run" { return .previewPolitical }
@@ -381,6 +408,8 @@ final class SharedStore {
             && (event.failureDomain == nil || token(event.failureDomain!, limit: 200))
             && (event.build == nil || token(event.build!, limit: 50))
             && (event.channel == nil || token(event.channel!, limit: 50))
+            && (event.modelMetrics == nil || event.modelMetrics!.valid)
+            && (event.bodyWaitMilliseconds == nil || (0...1_000_000_000).contains(event.bodyWaitMilliseconds!))
     }
 
     static let diagnosticFileLimit = 1_024 * 1_024
@@ -431,10 +460,12 @@ final class SharedStore {
 
     func record(outcome: String, category: String, processed: Bool = false, junkRequested: Bool = false,
                 traceID: String? = nil, receivedCallback: Bool = false, attempt: Int? = nil,
-                failureDomain: String? = nil, failureCode: Int? = nil, bundle: Bundle = .main) throws {
+                failureDomain: String? = nil, failureCode: Int? = nil, modelMetrics: ModelRequestMetrics? = nil,
+                bodyWaitMilliseconds: Int? = nil, bundle: Bundle = .main) throws {
         try locked {
             var event = NativeActivity(outcome: outcome, category: category, traceID: traceID,
-                attempt: attempt, failureDomain: failureDomain, failureCode: failureCode)
+                attempt: attempt, failureDomain: failureDomain, failureCode: failureCode,
+                modelMetrics: modelMetrics, bodyWaitMilliseconds: bodyWaitMilliseconds)
             event.build = bundle.object(forInfoDictionaryKey: "CFBundleVersion") as? String
             event.channel = bundle.object(forInfoDictionaryKey: "MailFilterDistribution") as? String
             guard Self.validEvent(event) else { throw NativeStoreError.invalidActivity }
@@ -448,7 +479,16 @@ final class SharedStore {
             }
             activity.recent.insert(event, at: 0)
             activity.recent = Array(activity.recent.prefix(NativeActivityLog.maximumRecent))
-            try write(activity, to: activityURL)
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+            var data = try encoder.encode(activity)
+            while data.count > NativeActivityLog.maximumBytes && !activity.recent.isEmpty {
+                activity.recent.removeLast(min(50, activity.recent.count))
+                data = try encoder.encode(activity)
+            }
+            guard data.count <= NativeActivityLog.maximumBytes else { throw NativeStoreError.invalidActivity }
+            try data.write(to: activityURL, options: .atomic)
+            try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: activityURL.path)
             // File history supplements activity; failure must not discard an
             // otherwise valid activity record or change a classification result.
             try? appendDiagnostic(event)
@@ -476,17 +516,11 @@ final class SharedStore {
     private func loadActivity() throws -> NativeActivityLog {
         guard FileManager.default.fileExists(atPath: activityURL.path) else { return NativeActivityLog() }
         do {
-            let activity = try JSONDecoder().decode(NativeActivityLog.self, from: boundedData(activityURL, maximum: 1_024 * 1_024))
+            let activity = try JSONDecoder().decode(NativeActivityLog.self, from: boundedData(activityURL, maximum: NativeActivityLog.maximumBytes))
             guard activity.schemaVersion == 1, activity.processed >= 0, activity.junkRequested >= 0, activity.recent.count <= NativeActivityLog.maximumRecent,
                   (activity.receivedCallbacks ?? 0) >= 0,
                   activity.lastExtensionStart.map({ $0.outcome == "extensionStarted" && Self.validEvent($0) }) != false,
-                  activity.recent.allSatisfy({
-                      $0.outcome.count <= 80 && $0.category.count <= 100
-                      && ($0.traceID == nil || ($0.traceID!.count == 12 && $0.traceID!.utf8.allSatisfy({ (48...57).contains($0) || (97...102).contains($0) })))
-                      && ($0.attempt == nil || (1...10).contains($0.attempt!))
-                      && (($0.failureDomain == nil) == ($0.failureCode == nil))
-                      && ($0.failureDomain == nil || ($0.failureDomain!.count <= 200 && $0.failureDomain!.range(of: "^[A-Za-z0-9._-]+$", options: .regularExpression) != nil))
-                  }) else { throw NativeStoreError.invalidActivity }
+                  activity.recent.allSatisfy(Self.validEvent) else { throw NativeStoreError.invalidActivity }
             return activity
         } catch { throw NativeStoreError.invalidActivity }
     }

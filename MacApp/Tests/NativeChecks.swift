@@ -186,6 +186,57 @@ struct NativeChecks {
         try require(stages.receivedCallbacks == 1 && stages.lastCallback != nil, "callbacks are persisted before classification finishes")
         try require(stages.recent.count == 2 && stages.recent.allSatisfy({ $0.traceID == "012345abcdef" }), "opaque trace connects callback and analysis stages")
         try require(stages.processed == 0 && stages.junkRequested == 0, "diagnostic stages do not claim classifications or moves")
+        let measurements = ModelRequestMetrics(status: .emptyResponse, section: 1, sections: 1,
+            excerptCharacters: 5600, sectionCharacters: 5600, maximumSectionCharacters: 6000,
+            instructionTokens: 500, promptTokens: 1800, tokenCountEstimated: false, contextTokens: 4096,
+            responseTokenLimit: 64, elapsedMilliseconds: 5100, responseCharacters: 0, responseBytes: 0,
+            inputTokens: 2300, outputTokens: 64, reasoningTokens: 64, physicalMemoryMiB: 18432, memoryPressure: "unknown")
+        try diagnosticStore.record(outcome: "modelRequestFinished", category: "emptyResponse", traceID: "012345abcdef",
+                                   attempt: 1, modelMetrics: measurements)
+        let measuredEvent = try diagnosticStore.activity().recent[0]
+        try require(measuredEvent.modelMetrics == measurements && measuredEvent.measurementSummary.contains("responseBytes=0"),
+                    "request metrics survive activity persistence and reload")
+        let storedMetrics = try diagnosticStore.diagnosticEvents().last
+        try require(storedMetrics?.modelMetrics == measurements, "bounded private history retains numeric model measurements")
+        var invalidMeasurements = measurements
+        invalidMeasurements.elapsedMilliseconds = -1
+        do {
+            try diagnosticStore.record(outcome: "modelRequestFinished", category: "emptyResponse", modelMetrics: invalidMeasurements)
+            throw ToolError("negative timing accepted")
+        } catch NativeStoreError.invalidActivity { count += 1 }
+        let oldEvent = try JSONDecoder().decode(NativeActivity.self, from: JSONEncoder().encode(NativeActivity(outcome: "review", category: "invalidModelResponse")))
+        try require(oldEvent.modelMetrics == nil && oldEvent.bodyWaitMilliseconds == nil, "older activity without optional measurements remains readable")
+        let largeStore = SharedStore(directory: root.appendingPathComponent("large-activity"))
+        try largeStore.record(outcome: "extensionStarted", category: "pid-123")
+        var large = try largeStore.activity()
+        large.processed = 123
+        var largeMetrics = measurements
+        largeMetrics.thermalState = "critical"
+        let largeEvent = NativeActivity(outcome: String(repeating: "x", count: 80), category: String(repeating: "c", count: 100),
+            traceID: "012345abcdef", attempt: 3, failureDomain: String(repeating: "d", count: 200), failureCode: 1,
+            modelMetrics: largeMetrics, bodyWaitMilliseconds: 1_000_000_000,
+            build: String(repeating: "b", count: 50), channel: String(repeating: "c", count: 50))
+        large.recent = Array(repeating: largeEvent, count: 499)
+        let compact = try JSONEncoder().encode(large)
+        try require(compact.count < NativeActivityLog.maximumBytes, "stress fixture fits historical activity read budget")
+        try compact.write(to: largeStore.activityURL)
+        try largeStore.record(outcome: "modelRequestFinished", category: "emptyResponse", modelMetrics: largeMetrics)
+        let bounded = try largeStore.activity()
+        try require(try Data(contentsOf: largeStore.activityURL).count <= NativeActivityLog.maximumBytes,
+                    "rich activity metrics are bounded by bytes before saving")
+        try require(bounded.processed == 123 && bounded.recent.first?.outcome == "modelRequestFinished"
+                    && bounded.lastExtensionStart != nil, "activity byte eviction preserves counters, newest event and startup identity")
+        let emptyWords = SharedStore(directory: root.appendingPathComponent("empty-keywords"))
+        var emptySettings = settings
+        emptySettings.configuration = try FilteringConfiguration.make(selectedNames: ["first"], inventory: accounts,
+            rules: "Custom policy", evidenceTerms: politicalEvidenceTerms("\n # optional keyword validation\n\t"))
+        try emptyWords.save(emptySettings)
+        try require(try emptyWords.settings().configuration!.evidenceTerms.isEmpty, "empty and comment-only keyword editor saves and reloads")
+        try require(try !emptyWords.updateStandardVerificationWords(), "opening an empty custom list never silently restores keywords")
+        try require(try emptyWords.finish(messageID: "positive@example.org", revision: emptySettings.revision,
+            decision: .political, evidence: nil) == .junkRequested, "empty list permits a valid AI positive without keyword evidence")
+        try require(try emptyWords.finish(messageID: "negative@example.org", revision: emptySettings.revision,
+            decision: .notPolitical, evidence: nil) == .notPolitical, "empty list cannot move AI negatives")
         let selectedID = "selected@example.com"
         let selectedKey = String(try JunkIdentity.key(selectedID).prefix(12))
         try diagnosticStore.record(outcome: "review", category: "invalidModelResponse", traceID: selectedKey, attempt: 3)

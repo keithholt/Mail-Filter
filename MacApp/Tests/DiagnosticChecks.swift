@@ -76,6 +76,17 @@ struct DiagnosticChecks {
         try check(mismatch.contains("Installed extension build: 21") && mismatch.contains("Last recorded extension start: build 20; pid-123")
                   && mismatch.contains("differs from this app's build"), "a replaced on-disk extension does not conceal the previous startup build")
         try check(mismatch.contains("not a check that the process is still running"), "historical startup identity is not presented as a live process test")
+        let now = Date()
+        let waiting = NativeActivity(date: now.addingTimeInterval(-60), outcome: "callbackReceived", category: "bodyRequested", traceID: "012345abcdef")
+        let ready = NativeActivity(date: now.addingTimeInterval(-10), outcome: "callbackReceived", category: "bodyReady", traceID: "012345abcdef", bodyWaitMilliseconds: 50000)
+        try check(DiagnosticReport.pendingBodies([waiting], now: now).contains("waitingSeconds=60"), "retained history identifies a pending body without a background timer")
+        try check(DiagnosticReport.pendingBodies([ready, waiting], now: now).isEmpty, "a matching newer body callback resolves the pending diagnostic")
+        let failedBody = NativeActivity(date: now.addingTimeInterval(-5), outcome: "review", category: "bodyUnavailable", traceID: "012345abcdef")
+        try check(DiagnosticReport.pendingBodies([waiting, failedBody], now: now).isEmpty, "terminal body failure resolves pending state even if events are unsorted")
+        try check(DiagnosticReport.pendingBodies([waiting], now: now.addingTimeInterval(-40)).isEmpty, "recent requests are not described as stalled")
+        activity.recent = [ready]
+        let measured = DiagnosticReport.summary(build: "24", extensionBuild: "24", mailRunning: true, modelStatus: "Ready", settings: settings, activity: activity)
+        try check(measured.contains("bodyWaitMs=50000") && measured.contains("Physical memory:") && measured.contains("macOS:"), "support reports show body latency and system context")
         print("Passed \(count) diagnostic collection, timeout, responsiveness and privacy checks; no Mail or clipboard actions")
     }
 }

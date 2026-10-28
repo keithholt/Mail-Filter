@@ -22,7 +22,13 @@ struct ModelFailureDetails {
     private static func classify(_ error: Error) -> (String, Bool) {
         if error is AnalysisDeadlineError { return ("modelTimedOut", true) }
         if error is CancellationError { return ("analysisCancelled", false) }
-        if let label = error as? ModelLabelError { return label.kind == .refusal ? ("modelRefusal", false) : ("invalidModelResponse", true) }
+        if let label = error as? ModelLabelError {
+            switch label.kind {
+            case .refusal: return ("modelRefusal", false)
+            case .emptyResponse: return ("modelEmptyResponse", true)
+            case .invalidLabel: return ("invalidModelResponse", true)
+            }
+        }
         if let request = error as? ClassificationRequestError {
             switch request {
             case .instructionsTooLong: return ("promptContextLimit", false)

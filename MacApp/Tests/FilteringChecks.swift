@@ -40,6 +40,8 @@ struct DryRunChecks {
         do { _ = try validatePoliticalEvidence(result, message: ordinary, terms: configuration.evidenceTerms) }
         catch { rejected = true }
         try require(rejected, "generic marketing cannot pass positive political verification")
+        try require(try validatePoliticalEvidence(result, message: ordinary, terms: []) == nil,
+                    "empty list explicitly bypasses secondary evidence validation")
         let negative = try parseClassification("{\"decision\":\"not-political\",\"reason\":\"Ordinary correspondence\",\"evidence\":\"\"}")
         try require(try validatePoliticalEvidence(negative, message: candidate, terms: configuration.evidenceTerms) == nil, "keyword cannot promote a negative model decision")
         var pac = candidate

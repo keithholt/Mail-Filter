@@ -33,7 +33,7 @@ struct FilteringConfiguration: Codable {
 
     func validate() throws {
         guard schemaVersion == 2, ["apply", "dry-run"].contains(mode), !rules.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-              rules.count <= 32_000, !evidenceTerms.isEmpty, evidenceTerms.count <= 512,
+              rules.count <= 32_000, evidenceTerms.count <= 512,
               evidenceTerms.allSatisfy({ !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && $0.count <= 200 }),
               !selectedRecipientAddresses.isEmpty, !ownAddresses.isEmpty, ownAddresses.count <= 1_024,
               selectedRecipientAddresses.count <= 1_024, !legacyAccountIDs.isEmpty, legacyAccountIDs.count <= 1_024,
@@ -94,10 +94,22 @@ struct FilteringConfiguration: Codable {
     }
 
     func input(messageID: String?, sender: String, subject: String, recipients: [String], body: DecodedMailBody) -> FilteringInput {
+        evaluate(messageID: messageID, sender: sender, subject: subject, recipients: recipients, body: body, protectSelf: true)
+    }
+
+    #if MAIL_FILTER_DEV
+    func developmentInput(messageID: String?, sender: String, subject: String, recipients: [String], body: DecodedMailBody,
+                          allowOwnMail: Bool) -> FilteringInput {
+        evaluate(messageID: messageID, sender: sender, subject: subject, recipients: recipients, body: body, protectSelf: !allowOwnMail)
+    }
+    #endif
+
+    private func evaluate(messageID: String?, sender: String, subject: String, recipients: [String], body: DecodedMailBody,
+                          protectSelf: Bool) -> FilteringInput {
         let message = MailMessage(accountID: "mailkit", account: "MailKit", id: 0,
             messageID: messageID ?? "", subject: subject, sender: sender,
             body: body.text, truncated: body.truncated, ownAddresses: ownAddresses)
-        if message.isFromSelf { return .skip(.selfMail) }
+        if protectSelf && message.isFromSelf { return .skip(.selfMail) }
         let selected = Set(selectedRecipientAddresses.map(normalizedEmailAddress))
         guard recipients.contains(where: { selected.contains(normalizedEmailAddress($0)) }) else { return .skip(.recipientNotSelected) }
         if !message.hasMeaningfulBody { return .skip(.emptyBody) }

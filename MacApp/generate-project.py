@@ -258,6 +258,7 @@ outputs = {PROJECT / 'project.pbxproj': '// !$*UTF8*$!\n' + serialize(dict(
 for name, value in {
     'Mail-Filter Local': scheme('Local', ['host', 'cli', 'uninstaller'], runnable='host'),
     'Mail-Filter Local Installer': scheme('Local', ['local-installer']),
+    'Mail-Filter Dev': scheme('Development', ['host'], runnable='host'),
     'Mail-Filter Store': scheme('Development', ['host'], runnable='host', archive='Store'),
     'Mail-Filter Build Check': scheme('BuildCheck', ['host']),
     'mail-filter CLI': scheme('Local', ['cli'], runnable='cli'),

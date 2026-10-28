@@ -68,7 +68,8 @@ enum MessageDiagnostics {
         let date = ISO8601DateFormatter()
         let lines = events.reversed().map { event in
             let attempt = event.attempt.map { " attempt=\($0)" } ?? ""
-            return "\(date.string(from: event.date)) \(event.outcome) \(event.category)\(attempt)"
+            let metrics = event.measurementSummary.isEmpty ? "" : " " + event.measurementSummary
+            return "\(date.string(from: event.date)) \(event.outcome) \(event.category)\(attempt)\(metrics)"
         }
         return "Original automatic processing history (retained records):\n" + lines.joined(separator: "\n") + "\n\nCurrent read-only analysis follows:\n"
     }
@@ -113,7 +114,7 @@ enum MessageDiagnostics {
     static func analyze(_ selection: Selection, settings: NativeSettings, activity: NativeActivityLog) async throws -> String {
         guard let configuration = settings.configuration else { throw ToolError("Save filtering settings first.") }
         var message = selection.message
-        message.ownAddresses = configuration.ownAddresses
+        message.ownAddresses = settings.allowsOwnMailForTesting ? nil : configuration.ownAddresses
         let trace = (try? JunkIdentity.key(message.messageID)).map { String($0.prefix(12)) } ?? "unavailable"
         let prefix = "Read-only test: no messages were moved.\nDiagnostic message key: \(trace)\nSubject: \(message.subject)\n"
             + automaticHistory(messageID: message.messageID, activity: activity)
@@ -136,17 +137,21 @@ enum MessageDiagnostics {
         guard case .available = model.availability else { return prefix + "Apple's on-device model is unavailable." }
         message.ownAddresses = nil
         let response: PoliticalModel.Result
+        var requestMeasurements: [String] = []
         do {
             response = try await ClassificationRetry.run(shouldRetry: { error in
                 PoliticalModel.isContextLimit(error) || ModelFailureDetails.describe(error).retryable
             }, operation: { attempt in
                 try await PoliticalModel.classify(message, rules: configuration.rules, model: model,
-                    maximumCharacters: 6000 / (1 << (attempt - 1)))
+                    maximumCharacters: ClassificationRequest.sectionCharacters(forAttempt: attempt), onRequest: { metrics in
+                        requestMeasurements.append("attempt=\(attempt) " + metrics.summary)
+                    })
             })
         } catch {
             let details = ModelFailureDetails.describe(error)
-            let reply = (error as? ModelLabelError).map { "\nModel reply (shown only here):\n\($0.response)" } ?? ""
+            let reply = (error as? ModelLabelError).map { "\n" + $0.diagnosticReply } ?? ""
             return prefix + "Classification failed: \(details.category)\nError: \(details.domain) (\(details.code))\n\(error.localizedDescription)" + reply
+                + "\nRequest measurements:\n" + requestMeasurements.joined(separator: "\n")
                 + "\nAnalyzed MIME body excerpt (shown only here):\n\(message.body)"
         }
         let result = response.classification
@@ -155,11 +160,13 @@ enum MessageDiagnostics {
             + "Model decision: \(decision)\nReason: \(result.reason)\nMIME excerpt: \(message.body.count) characters; model sections: \(response.sections)"
         do {
             let evidence = try validatePoliticalEvidence(result, message: message, terms: configuration.evidenceTerms)
+            if configuration.evidenceTerms.isEmpty { text += "\nKeyword validation: disabled (empty list)." }
             if let evidence { text += "\nVerified political evidence: \(evidence)" }
         } catch {
             text += "\nThe model's positive did not pass evidence verification. Normal filtering would leave it in Inbox."
         }
         if message.truncated { text += "\nOnly the first 6,000 body characters were analyzed." }
+        text += "\nRequest measurements:\n" + requestMeasurements.joined(separator: "\n")
         if result.decision == .notPolitical { text += "\nAnalyzed MIME body excerpt (shown only here):\n\(message.body)" }
         return text
     }

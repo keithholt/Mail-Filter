@@ -15,6 +15,12 @@ struct RetryChecks {
         error is AnalysisDeadlineError || (error as? ClassificationAttemptFailure)?.retryable == true
     }
     static func main() async throws {
+        let empty = ModelLabelError(kind: .emptyResponse, response: "")
+        let malformed = ModelLabelError(kind: .invalidLabel, response: "private-model-response")
+        try check(ModelFailureDetails.describe(empty).category == "modelEmptyResponse" && ModelFailureDetails.describe(empty).retryable,
+                  "empty replies are distinctly diagnosed and remain retryable")
+        try check(ModelFailureDetails.describe(malformed).category == "invalidModelResponse" && !ModelFailureDetails.describe(malformed).domain.contains("private"),
+                  "malformed labels remain distinct without exposing the reply")
         var attempts = 0
         let first = try await ClassificationRetry.run(delay: { _ in }, shouldRetry: retryable) { _ in
             attempts += 1; return 42

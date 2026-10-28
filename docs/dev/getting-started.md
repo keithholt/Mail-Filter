@@ -1,6 +1,6 @@
 # Mail Filter Developer Getting Started
 
-This guide is for developers who need to build, navigate, test and package Mail-Filter. Start with the scripted local build and synthetic checks, then use read-only diagnostics to investigate model behavior before testing actions in Mail. `docs/dev/architecture.md` explains subsystem contracts and invariants; the root `README.md` is the end-user guide. Detailed CLI and development timer instructions remain in `README-DEVELOPER.md`.
+This guide is for developers who need to build, navigate, test and package Mail-Filter. Start with the isolated signed Dev build and synthetic checks, then use read-only diagnostics to investigate model behavior before testing actions in Mail. `docs/dev/architecture.md` explains subsystem contracts and invariants; the root `README.md` is the end-user guide. Detailed CLI and development timer instructions remain in `README-DEVELOPER.md`.
 
 Markdown is the source of truth. This guide and the architecture guide have generated Word copies beside their sources, following the same documentation process as Photo-Archival. Edit the `.md` files and regenerate both formats together.
 
@@ -33,7 +33,7 @@ python3 --version
 
 Read `docs/dev/architecture.md` before changing routing, concurrency, model generation or protection. Begin UI work in `SettingsView.swift` and `SettingsModel.swift`; incoming work in `NativeExtension.swift` and `NativeClassifier.swift`; model work in `PoliticalModel.swift`, `ClassificationRequest.swift` and `Core.swift`. Those files live under `MacApp/` or `Sources/MailFilter/` as shown in the architecture source map.
 
-The native app saves local-test state under `~/Library/Application Support/Mail-Filter Local/`; release builds use an App Group container. Configure accounts through the app, not by committing personal settings. The CLI independently reads `~/.config/mail-filter/accounts.txt` and stores state under `~/.local/state/mail-filter/`. Its default prompt/evidence files come from `prompts/`, or the installed DeveloperTools resources.
+The legacy Local configuration saves state under `~/Library/Application Support/Mail-Filter Local/`. Mail-Filter Dev and Store use different provisioned App Group containers, so their setup, activity and recovery files remain separate. Configure accounts through the app, not by committing personal settings. The CLI independently reads `~/.config/mail-filter/accounts.txt` and stores state under `~/.local/state/mail-filter/`. Its default prompt/evidence files come from `prompts/`, or the installed DeveloperTools resources.
 
 Never delete private protection files to simplify a test on a working installation. Prefer temporary fixture stores or a separate macOS user. A storage-mode or signing-group change requires migration rather than an implicit reset.
 
@@ -51,7 +51,8 @@ The same `MailFilter` and `MailFilterExtension` targets build every app variant.
 
 | Scheme | Purpose |
 |---|---|
-| Mail-Filter Local | Build direct app, extension, CLI and uninstaller; Run launches the settings app. |
+| Mail-Filter Dev | Build and run the signed sandboxed app with separate settings and extension beside Store. |
+| Mail-Filter Local | Build the legacy direct app, extension, CLI and uninstaller; shares the production app identity. |
 | Mail-Filter Local Installer | Build native direct products, then create and verify the installer. |
 | Mail-Filter Store | Signed sandboxed Development for Build/Run; Store configuration for Archive. |
 | Mail-Filter Build Check | Unsigned sandboxed app/extension compilation with development identities; no runnable. |
@@ -59,7 +60,7 @@ The same `MailFilter` and `MailFilterExtension` targets build every app variant.
 
 Only the Store scheme enables Archive. Use the installer or release packaging scripts for direct distribution.
 
-For ordinary local work, select **Mail-Filter Local**, choose **My Mac**, and press Command-B. Run launches an ad hoc signed app with the same identity and private storage as the existing local installation. It can read saved settings when opened; quit Mail before deliberately testing a replacement extension. Building alone does not install or activate the extension or change filtering settings. Xcode records built app paths with Launch Services, so use a separate macOS test user for live extension qualification.
+For development beside Store, select **Mail-Filter Dev**, choose **My Mac**, and press Command-B. Run launches the signed Development app with separate identifiers and storage. The legacy Local scheme retains the production identity and must not replace or compete with a working Store installation. Quit Mail before deliberately testing a replacement extension. Building alone does not install or activate the extension or change filtering settings. Xcode records built app paths with Launch Services, so use a separate macOS test user for live extension qualification.
 
 Select **Mail-Filter Build Check** for unsigned sandboxed compilation without an Apple Account or certificates. This scheme uses isolated development identifiers and has no runnable. It cannot qualify runtime permissions or shared App Group access. Use the Issue navigator with Command-5 to inspect build errors.
 
@@ -71,7 +72,7 @@ Select **Mail-Filter Local Installer**, then choose **Product > Build** or press
 
 The output is `outputs/Mail-Filter Installer.pkg`. The packager maintains a Desktop shortcut to that same file and leaves unrelated Desktop items untouched. Building creates the package; open it yourself to install. It does not launch Installer, change installed apps, filtering settings or PATH, or enable extensions. The package uses ad hoc signing and requires no paid developer membership.
 
-Each explicit installer build reruns packaging. Use **Mail-Filter Local** for normal incremental development or **Mail-Filter Build Check** for unsigned Store compilation. Only the packaging helper disables Xcode's build-script sandbox, because it writes repository outputs and the Desktop shortcut. This is separate from the app's runtime sandbox, which is controlled by its distribution configuration.
+Each explicit installer build reruns packaging. Use **Mail-Filter Dev** for normal signed incremental development or **Mail-Filter Build Check** for unsigned Store compilation. Only the packaging helper disables Xcode's build-script sandbox, because it writes repository outputs and the Desktop shortcut. This is separate from the app's runtime sandbox, which is controlled by its distribution configuration.
 
 ### Configure signed Xcode builds
 
@@ -85,18 +86,20 @@ Before enabling a signed development extension, qualify group sharing, migration
 
 ### Stage a Development extension for Mail testing
 
-Quit Mail and the development settings app before replacing or registering a test bundle. Build with **Mail-Filter Store**, **My Mac**, **Product > Build**, or use `MAIL_FILTER_TEAM_ID=YOURTEAMID ./MacApp/store-build.sh development` from the repository root. The shell workflow uses the actual Mac as its destination and lets Xcode create/download profiles and register that Mac if needed.
+Quit Mail and the development settings app before replacing or registering a test bundle. Build with **Mail-Filter Dev**, **My Mac**, **Product > Build**, or use `MAIL_FILTER_TEAM_ID=YOURTEAMID ./MacApp/store-build.sh development` from the repository root. The shell workflow uses the actual Mac as its destination and lets Xcode create/download profiles and register that Mac if needed.
 
-For the first installation, copy the signed Development `Mail-Filter.app` to your user Applications folder and name the copy `Mail-Filter Development.app`. The shell build is under `.build/xcode-derived/Build/Products/Development/`; an Xcode build uses its selected Derived Data directory. For an update, replace the complete development app bundle while Mail and the settings app are closed. Preserve its separate App Group data. Do not replace the working `/Applications/Mail-Filter.app` to perform this test.
+Prefer `MAIL_FILTER_TEAM_ID=YOURTEAMID ./MacApp/install-dev.sh` to build, verify and stage the isolated app. Use `--no-build` to stage an already verified Development product. The script preserves an existing staged copy under ignored outputs/development, rejects replacement of an in-use Dev bundle and never activates the extension or imports settings.
+
+For manual first installation, copy the signed Development `Mail-Filter.app` to your user Applications folder and name the copy `Mail-Filter Dev.app`. The shell build is under `.build/xcode-derived/Build/Products/Development/`; an Xcode build uses its selected Derived Data directory. For an update, replace the complete development app bundle while Mail and the settings app are closed. Preserve its separate App Group data. Do not replace the working `/Applications/Mail-Filter.app` to perform this test.
 
 Register and open the staged copy:
 
 ```sh
-/usr/bin/pluginkit -a "$HOME/Applications/Mail-Filter Development.app/Contents/PlugIns/Mail-Filter.appex"
-/usr/bin/open -a "$HOME/Applications/Mail-Filter Development.app"
+/usr/bin/pluginkit -a "$HOME/Applications/Mail-Filter Dev.app/Contents/PlugIns/Mail-Filter.appex"
+/usr/bin/open -a "$HOME/Applications/Mail-Filter Dev.app"
 ```
 
-Open this settings app before reopening Mail. Confirm the saved accounts and enable Preview first. Reopen Mail, then use **Mail > Settings > Extensions** to enable **Mail-Filter Development** and disable the original filter during the controlled test. A full registry entry alone is insufficient: normal discovery with `pluginkit -m -v -p com.apple.email.extension` must list the staged copy. Registration does not silently enable it.
+Open this settings app before reopening Mail. Confirm the saved accounts and enable Preview first. Reopen Mail, then use **Mail > Settings > Extensions** to enable **Mail-Filter Dev** and disable the original filter during the controlled test. A full registry entry alone is insufficient: normal discovery with `pluginkit -m -v -p com.apple.email.extension` must list the staged copy. Registration does not silently enable it.
 
 Do not rebuild, replace or re-register the active development bundle while Mail hosts it. Re-registering during a live session caused PlugInKit error 16, "other version in use," in the October 19 qualification. A clean Mail quit, completed staging and a fresh Mail launch released the stale instance. If an extension is missing, compare normal discovery with the full registry and Mail's logs rather than repeatedly sending test emails.
 
@@ -149,7 +152,7 @@ The generated project and shared schemes are checked in. Git's inventory supplie
 ./test.sh
 ```
 
-Native checks compile small Swift executables and use synthetic messages and temporary stores. They cover configuration, own-sender guards, MIME extraction, scheduling, deadlines, retries, evidence, recovery protection, migration, activity/export privacy and uninstall/PATH planning. The Swift package tests cover CLI options, parsing, evidence and state behavior. Python packaging checks verify the narrowly scoped PATH scripts against fixtures.
+Native checks compile small Swift executables and use synthetic messages and temporary stores. FailureInjectionChecks exercises the real production pipeline with scripted empty/blank/malformed replies, refusals, context and temporary errors, missing keyword evidence, attempt/overall timeouts, uncooperative late positives, duplicate bursts, queue overflow, cancellation and settings/protection changes during inference. It also verifies that an empty keyword list disables only keyword validation, and preserves negative/error, Preview and identity guards. No actual model or Mail call occurs in these fault scenarios. They cover configuration, own-sender guards, MIME extraction, scheduling, deadlines, retries, evidence, recovery protection, migration, activity/export privacy and uninstall/PATH planning. The Swift package tests cover CLI options, parsing, evidence and state behavior. Python packaging checks verify the narrowly scoped PATH scripts against fixtures.
 
 | Change area | Checks to prioritize |
 |---|---|
@@ -161,6 +164,36 @@ Native checks compile small Swift executables and use synthetic messages and tem
 | Installer or PATH | Packaging fixtures, bundle/package verification and controlled install/update/remove checks. |
 
 Synthetic tests do not generate real model responses or prove MailKit delivered an action. A successful build also does not prove extension activation, Automation permission or shared storage access in a real session. Run the affected checks, then broaden only if new failures or changes justify it.
+
+### Test mail sent to yourself
+
+In **Mail-Filter Dev**, open Filtering and turn on **Filter mail from my own addresses (testing)**, then **Save Settings**. This switch is off by default and appears only in the signed Development configuration. It allows mail from any configured own address, including unchecked accounts, to reach classification when delivered to a selected recipient. Preview, keyword validation, meaningful-body and recovery checks still apply. For actual Junk moves, turn Preview off and save; enable only the Dev extension for the designated test setup. Send a fresh message for each action test because previously moved/restored messages remain protected. Turn the testing switch off and save when finished.
+
+The Store build has no self-mail switch and ignores its saved key if present in an imported Dev setup. The native suite compiles the injected pipeline twice, checking production exclusion and Dev opt-in, cross-account self-mail, Preview, evidence, pause, recovery and settings changes during inference. It never moves real mail.
+
+### Compare response and section budgets
+
+Build 24 records content-free per-request measurements in support reports. `modelEmptyResponse` means zero or whitespace-only classification text; `invalidModelResponse` means nonempty text outside the accepted label format. On macOS 27, compare visible response length with actual output and reasoning token counts. The output-limit flag does not itself prove truncation or a model defect. Memory-pressure notifications may be unknown; installed RAM alone does not establish pressure.
+
+Use a normal Terminal session on the affected Mac for this read-only controlled comparison:
+
+```sh
+./MacApp/probe-model.sh --compare-request-budgets REPORT.json
+```
+
+Pass an explicit selected-email export to avoid picking up other Desktop reports. The experiment compares 6,000 versus 3,000-character section limits and 64 versus 256 output tokens, with the same exported policy and content. It also runs short and long synthetic receipt/campaign controls. It does not retry each trial; each generated section has its own measurements. Trial order and model warm-up can influence timing, so repeat comparisons before attributing a difference to one setting.
+
+For synthetic inputs only, without reading email reports or accessing Mail:
+
+```sh
+./MacApp/probe-model.sh --compare-request-budgets --synthetic-only
+./MacApp/probe-model.sh --stress-model --synthetic-only
+./MacApp/probe-model.sh --probe-output-limits --synthetic-only
+```
+
+The owner-only output is `~/Desktop/Mail-Filter Request Budget Comparison.json`. Real-email comparisons contain private message/model text; keep them outside Git. Share the explicit report together with the normal support report when investigating a failure. Build 24 production uses the 3,000-character/256-token combination, with retries at 1,500 characters and unchanged 20/60-second deadlines; this command changes no filtering settings or mailbox contents. The local synthetic matrix does not reproduce or prove resolution of the original failure. Keep review on hold until a plausible matching failure has been reproduced and the mitigation demonstrated. If local synthetic tests keep passing, collect an explicit affected-email export and a read-only comparison from the affected Mac before making a root-cause claim.
+
+The stress probe compares the exact previous standard policy with the candidate policy, captures response scalars and evaluates the approved build's parser. The output-limit probe intentionally uses tiny response limits as a truncation control; failure at one or two tokens is not evidence that the shipped 64-token budget caused a failure. Reports are private Desktop files and must not become committed email fixtures. The 48 local stress trials passed without reproducing the affected Mac's first-attempt failure. Review remains on hold until a plausible matching scenario is recreated and a mitigation is demonstrated; passing injected faults alone does not satisfy that gate.
 
 ## 5 Package and install a local build
 

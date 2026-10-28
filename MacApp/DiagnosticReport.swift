@@ -6,6 +6,7 @@ enum DiagnosticReport {
                         settings: NativeSettings?, activity: NativeActivityLog) -> String {
         let formatter = ISO8601DateFormatter()
         var report = "Mail-Filter diagnostic report\nBuild: \(build)\nInstalled extension build: \(extensionBuild ?? "unknown")\nMail running: \(mailRunning)\nModel: \(modelStatus)\n"
+        report += "macOS: \(ProcessInfo.processInfo.operatingSystemVersionString)\nPhysical memory: \(ProcessInfo.processInfo.physicalMemory / 1_048_576) MiB\n"
         if let start = activity.lastExtensionStart {
             report += "Last recorded extension start: build \(start.build ?? "unknown"); \(start.category); \(formatter.string(from: start.date))\n"
             if let startedBuild = start.build, startedBuild != build {
@@ -17,6 +18,9 @@ enum DiagnosticReport {
         }
         if let settings {
             report += "Filtering paused: \(settings.paused)\nMode: \(settings.configuration?.mode ?? "setup required")\nSelected accounts: \(settings.selectedAccountIDs.count)\n"
+            #if MAIL_FILTER_DEV
+            report += "Dev self-mail testing: \(settings.allowsOwnMailForTesting)\n"
+            #endif
             if settings.activationRequired == true { report += "Imported setup: waiting for confirmation; no Junk actions permitted\n" }
         } else { report += "Saved filtering settings: unavailable\n" }
         report += "Received callbacks: \(activity.receivedCallbacks.map(String.init) ?? "not recorded by earlier builds")\nLast callback: \(activity.lastCallback.map(formatter.string) ?? "not recorded")\nClassified: \(activity.processed)\nJunk actions requested: \(activity.junkRequested)\n"
@@ -25,9 +29,27 @@ enum DiagnosticReport {
             if let attempt = event.attempt { report += " attempt=\(attempt)" }
             if let build = event.build { report += " build=\(build)" }
             if let domain = event.failureDomain, let code = event.failureCode { report += " error=\(domain):\(code)" }
+            if !event.measurementSummary.isEmpty { report += " " + event.measurementSummary }
             report += "\n"
         }
+        report += pendingBodies(activity.recent)
         return report
+    }
+
+    static func pendingBodies(_ events: [NativeActivity], now: Date = Date()) -> String {
+        // Derive this from retained history; no timer or background Mail access.
+        var newest: [String: NativeActivity] = [:]
+        for event in events where event.outcome == "callbackReceived" || (event.outcome == "review" && event.category == "bodyUnavailable") {
+            if let key = event.traceID, newest[key] == nil || event.date > newest[key]!.date { newest[key] = event }
+        }
+        let pending = newest.values.filter { $0.category == "bodyRequested" && now.timeIntervalSince($0.date) >= 30 }
+            .sorted { $0.date < $1.date }
+        guard !pending.isEmpty else { return "" }
+        var text = "\nBody callbacks pending in retained history (30 seconds or longer): \(pending.count)\n"
+        for event in pending.prefix(10) {
+            text += "key=\(event.traceID!) waitingSeconds=\(Int(max(0, now.timeIntervalSince(event.date))))\n"
+        }
+        return text + "No matching body-ready callback is retained. This does not establish why it is missing; history is bounded and process restarts are possible.\n"
     }
 }
 

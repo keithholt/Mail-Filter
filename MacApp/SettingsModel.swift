@@ -13,6 +13,9 @@ final class SettingsModel: ObservableObject {
     @Published var evidenceText = ""
     @Published var preview = false
     @Published var paused = false
+    #if MAIL_FILTER_DEV
+    @Published var filterOwnMailForTesting = false
+    #endif
     @Published var saved = false
     @Published var busy = false
     @Published var message = "Select accounts, save settings, then enable Mail-Filter in Mail."
@@ -60,6 +63,9 @@ final class SettingsModel: ObservableObject {
         accounts = loaded.inventory
         selection = Set(loaded.selectedAccountIDs)
         paused = loaded.paused
+        #if MAIL_FILTER_DEV
+        filterOwnMailForTesting = loaded.allowsOwnMailForTesting
+        #endif
         activationRequired = loaded.activationRequired == true
         saved = loaded.configuration != nil
         if let configuration = loaded.configuration {
@@ -137,6 +143,9 @@ final class SettingsModel: ObservableObject {
             settings.configuration = configuration
             settings.inventory = accounts
             settings.selectedAccountIDs = selection.sorted()
+            #if MAIL_FILTER_DEV
+            settings.filterOwnMailForTesting = filterOwnMailForTesting
+            #endif
             try store.save(settings)
             loaded = settings; saved = true
             message = "Settings saved. New messages use these settings without a restart. You can close this window."
@@ -149,6 +158,20 @@ final class SettingsModel: ObservableObject {
             default: error = "Check the selected accounts, filtering instructions and political evidence terms."
             }
         } catch { self.error = error.localizedDescription }
+    }
+
+    func restoreFilteringDefaults() {
+        let defaultRules = resource("filter")
+        let defaultTerms = resource("political-evidence")
+        guard !defaultRules.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              !defaultTerms.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            error = "The bundled filtering defaults could not be loaded. Your text was preserved."
+            return
+        }
+        rules = defaultRules
+        evidenceText = defaultTerms
+        error = nil
+        message = "Default filtering instructions and keywords restored in the editors. Click Save Settings to apply."
     }
 
     func setFilteringEnabled(_ enabled: Bool) {
@@ -226,6 +249,7 @@ final class SettingsModel: ObservableObject {
                 if let build = event.build { line += " build=\(build)" }
                 if let channel = event.channel { line += " channel=\(channel)" }
                 if let domain = event.failureDomain, let code = event.failureCode { line += " error=\(domain):\(code)" }
+                if !event.measurementSummary.isEmpty { line += " " + event.measurementSummary }
                 return line
             }.joined(separator: "\n")
             let emptyHistory = events == nil ? "Private file history unavailable; saved activity above is still usable.\n" : "No additional records available.\n"

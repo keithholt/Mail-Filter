@@ -1756,6 +1756,13 @@
 			"path" = "MacApp/Tests/DiagnosticChecks.swift";
 			"sourceTree" = "SOURCE_ROOT";
 		};
+		"B6E8CCE36E88EF933BF9288B" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "FailureInjectionChecks.swift";
+			"path" = "MacApp/Tests/FailureInjectionChecks.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
 		"F4661BF5B4CA91DFEE78D379" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -1838,6 +1845,13 @@
 			"lastKnownFileType" = "text.script.python";
 			"name" = "generate-project.py";
 			"path" = "MacApp/generate-project.py";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"0988C2597FE545428EE607F0" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.script.sh";
+			"name" = "install-dev.sh";
+			"path" = "MacApp/install-dev.sh";
 			"sourceTree" = "SOURCE_ROOT";
 		};
 		"7F7B0BA80D7D28D862282A9A" = {
@@ -1994,6 +2008,13 @@
 			"path" = "docs/dev/getting-started.md";
 			"sourceTree" = "SOURCE_ROOT";
 		};
+		"D18330B876D0542F4B1F2B1C" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "net.daringfireball.markdown";
+			"name" = "model-reliability-qualification.md";
+			"path" = "docs/model-reliability-qualification.md";
+			"sourceTree" = "SOURCE_ROOT";
+		};
 		"74FCF38993456C0CCF47F6EB" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "net.daringfireball.markdown";
@@ -2134,6 +2155,7 @@
 				"50F362E88B9EA508787E0C7A",
 				"3E4B3EB06422AAED166090E5",
 				"353174241C81480002A3B5EC",
+				"D18330B876D0542F4B1F2B1C",
 				"9831AFD2DA449F91AFC93069",
 				"74FCF38993456C0CCF47F6EB",
 				"1779378023456FE0B1C1682D",
@@ -2268,6 +2290,7 @@
 				"DF3D66EA08CC14E6477F2BD3",
 				"2DFCE6FDBD5E60755AAD0E59",
 				"C650A5132A111E9FC6232F74",
+				"B6E8CCE36E88EF933BF9288B",
 				"F4661BF5B4CA91DFEE78D379",
 				"0A94E6533FF3B800008B131D",
 				"007E74EF93E377F19716BFCD",
@@ -2296,6 +2319,7 @@
 				"BC0271A04BA3304BBB776E8C",
 				"E2D352830C11FA469F275050",
 				"041737C471AF5861DE8C183A",
+				"0988C2597FE545428EE607F0",
 				"44A00F555C15EB7A64D29F2C",
 				"5DE3AEDF1CCB7EA72FB57959",
 				"07280DCB92DEAADB672F9E95",

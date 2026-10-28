@@ -113,8 +113,17 @@ struct SettingsView: View {
                         }.toggleStyle(.checkbox)
                     }
                 }
+                #if MAIL_FILTER_DEV
+                Toggle("Filter mail from my own addresses (testing)", isOn: $model.filterOwnMailForTesting)
+                    .toggleStyle(.switch)
+                Text(model.filterOwnMailForTesting
+                     ? "Dev testing: mail from your own addresses can be classified and moved to Junk. Account selection, Preview, keyword validation and recovery protection still apply. Save Settings to apply."
+                     : "Mail from all your configured addresses is protected. Turn on this Dev-only option to test with mail sent to yourself, then Save Settings.")
+                    .font(.caption).foregroundStyle(.secondary)
+                #else
                 Text("Mail from any of your configured addresses is protected, including accounts you leave unchecked.")
                     .font(.caption).foregroundStyle(.secondary)
+                #endif
             }.padding(18).background(.quaternary.opacity(0.3), in: RoundedRectangle(cornerRadius: 12))
             Toggle(isOn: $model.preview) {
                 VStack(alignment: .leading, spacing: 3) {
@@ -125,12 +134,16 @@ struct SettingsView: View {
             }.toggleStyle(.switch)
             DisclosureGroup("Filtering instructions", isExpanded: $model.advanced) {
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("Change the instructions used for future messages. The political evidence safeguard still applies.").font(.caption).foregroundStyle(.secondary)
+                    Text("Change the instructions used for future messages. Save Settings to apply your edits.").font(.caption).foregroundStyle(.secondary)
                     TextEditor(text: $model.rules).font(.body).frame(height: 200).padding(8)
                         .background(.background, in: RoundedRectangle(cornerRadius: 8)).overlay(RoundedRectangle(cornerRadius: 8).stroke(.quaternary))
                     Text("Political evidence terms").font(.subheadline.bold())
+                    Text("One keyword or phrase per line. Leave this list empty to disable keyword validation and move every message the AI flags, subject to Preview, account selection and restored-message protection.")
+                        .font(.caption).foregroundStyle(.secondary)
                     TextEditor(text: $model.evidenceText).font(.body).frame(height: 100).padding(8)
                         .overlay(RoundedRectangle(cornerRadius: 8).stroke(.quaternary))
+                    Button("Restore defaults", action: model.restoreFilteringDefaults)
+                    Text("Restores both text fields. Click Save Settings to apply.").font(.caption).foregroundStyle(.secondary)
                 }.padding(.top, 10)
             }
             HStack {
@@ -276,6 +289,8 @@ struct SettingsView: View {
         case "queued": return "Waiting for analysis"
         case "analysisStarted": return "Analysis started"
         case "analysisSection": return "Analyzing a section of the email"
+        case "modelRequestStarted": return "Model request started"
+        case "modelRequestFinished": return "Model response measured"
         case "retryScheduled": return "Classification failed — retry scheduled"
         case "modelPolitical": return "Model classified the message as political"
         case "modelNotPolitical": return "Model classified the message as not political"
@@ -319,6 +334,14 @@ struct SettingsView: View {
         case "duplicateCallback": return "This callback was already processed or queued."
         case "invalidClassificationOrEvidence": return "A political decision couldn't be verified."
         case "invalidModelResponse": return "The model did not return a valid classification."
+        case "modelEmptyResponse": return "The model returned no classification text."
+        case "started": return "Model request started; measurements recorded."
+        case "emptyResponse", "blankResponse": return "The model returned empty or whitespace-only text."
+        case "invalidLabel": return "The model returned text outside the accepted label format."
+        case "political": return "A valid political label was returned."
+        case "notPolitical": return "A valid not-political label was returned."
+        case "refusal": return "The model refused the request."
+        case "generationError": return "The model request failed before returning text."
         case "evidenceRejected": return "The model said political, but its evidence could not be verified."
         case "queueFull": return "Too many messages arrived at once."
         case "protectionState", "protectionWriteOrSettingsChanged": return "Recovery records couldn't be used, or settings changed."

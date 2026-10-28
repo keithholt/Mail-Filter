@@ -43,6 +43,17 @@ store_graph = closure(build_ids(store))
 assert store_graph == {targets[name] for name in ('MailFilter', 'MailFilterExtension', 'MailFilterDocumentation')}
 assert store.find('LaunchAction').attrib['buildConfiguration'] == 'Development'
 assert store.find('ArchiveAction').attrib['buildConfiguration'] == 'Store'
+development = (root / 'MacApp/Build/Development.xcconfig').read_text()
+production = (root / 'MacApp/Build/Store.xcconfig').read_text()
+assert 'MAIL_FILTER_DISPLAY_NAME = Mail-Filter Dev\n' in development
+assert 'MAIL_FILTER_BUNDLE_ID = org.mail-filter.development\n' in development
+assert 'MAIL_FILTER_APP_GROUP = group.org.mail-filter.development.shared\n' in development
+assert 'SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) APP_STORE MAIL_FILTER_DEV\n' in development
+for config in (root / 'MacApp/Build').glob('*.xcconfig'):
+    if config.name not in ('Development.xcconfig', 'Signing.local.xcconfig'):
+        assert 'MAIL_FILTER_DEV' not in config.read_text(), f'Dev self-mail bypass leaked into {config.name}'
+assert 'MAIL_FILTER_BUNDLE_ID = org.mail-filter.app\n' in production
+assert 'MAIL_FILTER_APP_GROUP = group.org.mail-filter.shared\n' in production
 installer_graph = closure(build_ids(scheme('Mail-Filter Local Installer')))
 assert installer_graph == set(targets.values()), 'Installer must build every direct product before packaging'
 assert closure(build_ids(scheme('Mail-Filter Local'))) == installer_graph - {targets['MailFilterLocalInstaller']}

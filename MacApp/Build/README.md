@@ -2,7 +2,9 @@
 
 Open `Mail-Filter.xcodeproj` at the repository root. `MacApp/generate-project.py` defines all native targets and generates the checked-in project and shared schemes. Source files remain in their existing repository folders.
 
-Use **Mail-Filter Local** for normal development, **Mail-Filter Local Installer** to create the clickable package, **Mail-Filter Store** for signed sandboxed development and Store archives, **Mail-Filter Build Check** for unsigned sandboxed compilation, or **mail-filter CLI** for engineering work. Build the host to automatically build and embed its MailKit extension.
+Use **Mail-Filter Dev** for signed sandboxed development beside an installed Store app, **Mail-Filter Store** for Store archives, **Mail-Filter Local** and **Mail-Filter Local Installer** for the legacy direct distribution, **Mail-Filter Build Check** for unsigned sandboxed compilation, or **mail-filter CLI** for engineering work. Build the host to automatically build and embed its MailKit extension.
+
+The Dev configuration displays **Mail-Filter Dev** in the app and Mail extension. `./MacApp/install-dev.sh` builds and stages it at `~/Applications/Mail-Filter Dev.app`, preserving a previous staged copy under ignored `outputs/development/`. Its app/extension identifiers and App Group differ from Store, so settings, activity and recovery records remain separate. It never replaces `/Applications/Mail-Filter.app`, imports setup or enables an extension. The Local installer retains the production bundle identity and is unsuitable for side-by-side testing with the Store app.
 
 `Common.xcconfig` holds shared defaults; the five named configurations define signing, identifiers, storage and compilation conditions. Local preserves the installed direct app's identity and private settings path. DeveloperID preserves the direct release group. Development and Store use their separate sandboxed groups. BuildCheck disables signing and never launches an app.
 
@@ -13,6 +15,10 @@ Keep build-setting changes in these configuration files or the project generator
 Copy `Signing.example.xcconfig` to the ignored `Signing.local.xcconfig` to set a private developer team for signed configurations. Local and BuildCheck do not use it. An existing file under the former Store directory belongs here now. Never commit certificates, profiles or personal signing overrides.
 
 Native builds regenerate Word documentation. Direct packaging stages the native app, CLI and uninstaller, embeds engineering resources only in the staged direct app, and reseals the signature before verification. Store schemes exclude these engineering products.
+
+## Dev self-mail testing
+
+Only `Development.xcconfig` defines `MAIL_FILTER_DEV`. The signed Dev app exposes **Filter mail from my own addresses (testing)**, off by default. Save Settings applies the switch to the Dev extension and read-only analysis. Production builds omit the saved field and bypass entry point, so an imported Dev setting cannot disable Store self-mail protection. Preview, recipient selection, body/identity checks, evidence and recovery remain active. See the developer guide for the fresh-message test procedure.
 
 ## Application icon
 

@@ -7,8 +7,21 @@ import OSLog
 final class NativeClassifier {
     static let shared = NativeClassifier()
     private let logger = Logger(subsystem: "org.mail-filter.app", category: "Classification")
-    private let scheduler = InspectionScheduler()
+    private let scheduler: InspectionScheduler
     private var store: SharedStore?
+    private let engine: PoliticalModel.Engine?
+    private let attemptSeconds: TimeInterval
+    private let totalSeconds: TimeInterval
+    private let retryDelay: @MainActor (Int) async throws -> Void
+
+    init(store: SharedStore? = nil, engine: PoliticalModel.Engine? = nil,
+         scheduler: InspectionScheduler? = nil,
+         attemptSeconds: TimeInterval = ClassificationRetry.attemptSeconds,
+         totalSeconds: TimeInterval = ClassificationRetry.totalSeconds,
+         retryDelay: @escaping @MainActor (Int) async throws -> Void = { try await Task.sleep(for: .seconds(Double($0))) }) {
+        self.store = store; self.engine = engine; self.scheduler = scheduler ?? InspectionScheduler()
+        self.attemptSeconds = attemptSeconds; self.totalSeconds = totalSeconds; self.retryDelay = retryDelay
+    }
 
     func inspect(messageID: String?, sender: String, subject: String, recipients: [String], body: DecodedMailBody) async -> Bool {
         let traceID = Self.trace(messageID)
@@ -29,7 +42,13 @@ final class NativeClassifier {
             return false
         }
         let message: MailMessage
-        switch configuration.input(messageID: messageID, sender: sender, subject: subject, recipients: recipients, body: body) {
+        #if MAIL_FILTER_DEV
+        let input = configuration.developmentInput(messageID: messageID, sender: sender, subject: subject,
+            recipients: recipients, body: body, allowOwnMail: settings.allowsOwnMailForTesting)
+        #else
+        let input = configuration.input(messageID: messageID, sender: sender, subject: subject, recipients: recipients, body: body)
+        #endif
+        switch input {
         case .skip(let reason): record(store, outcome: "skipped", category: reason.rawValue, traceID: traceID); return false
         case .classify(let candidate): message = candidate
         }
@@ -81,11 +100,11 @@ final class NativeClassifier {
         return String(hash.prefix(12))
     }
 
-    func callbackReceived(messageID: String?, hasBody: Bool) {
+    func callbackReceived(messageID: String?, hasBody: Bool, bodyWaitMilliseconds: Int? = nil) {
         if store == nil { store = try? SharedStore.production() }
         if let store {
             record(store, outcome: "callbackReceived", category: hasBody ? "bodyReady" : "bodyRequested",
-                   traceID: Self.trace(messageID), callback: true)
+                   traceID: Self.trace(messageID), callback: true, bodyWaitMilliseconds: bodyWaitMilliseconds)
         } else { logger.error("Incoming callback could not access private settings") }
     }
 
@@ -97,13 +116,19 @@ final class NativeClassifier {
 
     private func generate(message: MailMessage, configuration: FilteringConfiguration, store: SharedStore,
                           onAttempt: @escaping @MainActor () -> Void) async -> (decision: Classification.Decision, evidence: String?, attempt: Int)? {
-        let model = SystemLanguageModel(guardrails: .permissiveContentTransformations)
-        guard case .available = model.availability else { record(store, outcome: "review", category: "modelUnavailable", traceID: Self.trace(message.messageID)); return nil }
+        let selectedEngine: PoliticalModel.Engine
+        if let engine { selectedEngine = engine }
+        else {
+            let model = SystemLanguageModel(guardrails: .permissiveContentTransformations)
+            guard case .available = model.availability else { record(store, outcome: "review", category: "modelUnavailable", traceID: Self.trace(message.messageID)); return nil }
+            selectedEngine = .system(model)
+        }
         let traceID = Self.trace(message.messageID)
         var activeAttempt = 0
         var finalFailureRecorded = false
         do {
             return try await ClassificationRetry.run(
+                attemptSeconds: attemptSeconds, totalSeconds: totalSeconds, delay: retryDelay,
                 shouldRetry: { error in
                     if error is AnalysisDeadlineError { return true }
                     if case ClassificationAttemptFailure.generation(let underlying) = error,
@@ -123,13 +148,16 @@ final class NativeClassifier {
                     activeAttempt = attempt
                     onAttempt()
                     self.record(store, outcome: "analysisStarted", category: "onDeviceModel", traceID: traceID, attempt: attempt)
-                    // A context failure retries with smaller sections of the
-                    // same excerpt, rather than repeating an oversized request.
+                    // Begin at the previously successful fallback size. Retain
+                    // all excerpt content and bounded retries for smaller parts.
                     let result: Classification
                     do {
-                        result = try await PoliticalModel.classify(message, rules: configuration.rules, model: model,
-                            maximumCharacters: 6000 / (1 << (attempt - 1)), onSection: { section, count in
+                        result = try await PoliticalModel.classify(message, rules: configuration.rules, engine: selectedEngine,
+                            maximumCharacters: ClassificationRequest.sectionCharacters(forAttempt: attempt), onSection: { section, count in
                                 self.record(store, outcome: "analysisSection", category: "section\(section)Of\(count)", traceID: traceID, attempt: attempt)
+                            }, onRequest: { metrics in
+                                self.record(store, outcome: metrics.status == .started ? "modelRequestStarted" : "modelRequestFinished",
+                                    category: metrics.status.rawValue, traceID: traceID, attempt: attempt, metrics: metrics)
                             }).classification
                     } catch { throw ClassificationAttemptFailure.generation(error) }
                     try Task.checkCancellation()
@@ -150,11 +178,13 @@ final class NativeClassifier {
     }
 
     private func record(_ store: SharedStore, outcome: String, category: String, processed: Bool = false, requested: Bool = false,
-                        traceID: String? = nil, callback: Bool = false, attempt: Int? = nil, details: ModelFailureDetails? = nil) {
+                        traceID: String? = nil, callback: Bool = false, attempt: Int? = nil, details: ModelFailureDetails? = nil,
+                        metrics: ModelRequestMetrics? = nil, bodyWaitMilliseconds: Int? = nil) {
         logger.notice("Mail decision: \(outcome, privacy: .public); category: \(category, privacy: .public); key: \(traceID ?? "unavailable", privacy: .public); attempt: \(attempt ?? 0, privacy: .public); error domain: \(details?.domain ?? "", privacy: .public); error code: \(details?.code ?? 0, privacy: .public); Junk action requested: \(requested, privacy: .public)")
         do { try store.record(outcome: outcome, category: category, processed: processed, junkRequested: requested,
                               traceID: traceID, receivedCallback: callback, attempt: attempt,
-                              failureDomain: details?.domain, failureCode: details?.code) }
+                              failureDomain: details?.domain, failureCode: details?.code, modelMetrics: metrics,
+                              bodyWaitMilliseconds: bodyWaitMilliseconds) }
         catch { logger.error("Recent activity could not be saved; category: activityStorage") }
     }
 }

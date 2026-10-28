@@ -79,6 +79,11 @@ struct DecoderChecks {
         try require(request.shouldRequestBody(messageID: "<other@example.com>", hasRawData: false), "body tracker continues past capacity")
         try require(!request.shouldRequestBody(messageID: "<other@example.com>", hasRawData: false), "newest retry identity stays protected")
         try require(request.shouldRequestBody(messageID: "<sample@example.com>", hasRawData: false), "oldest request evicted within memory bound")
-        print("Passed 33 MIME extraction and body-request checks (synthetic messages only)")
+        let timed = BodyRequestTracker(capacity: 1)
+        try require(timed.shouldRequestBody(messageID: "timed@example.com", hasRawData: false, now: 100), "start body wait")
+        try require(timed.receivedBody(messageID: "timed@example.com", now: 102.5) == 2500, "body callback timing uses monotonic elapsed time")
+        try require(timed.receivedBody(messageID: "timed@example.com", now: 103) == nil, "body wait consumed once")
+        try require(timed.receivedBody(messageID: "unknown@example.com", now: 104) == nil, "body supplied without a request has unknown wait")
+        print("Passed MIME extraction and body-request checks (synthetic messages only)")
     }
 }

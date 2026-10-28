@@ -54,3 +54,14 @@ xcrun swiftc -swift-version 5 -parse-as-library -target arm64-apple-macos26.0 \
     "$root/MacApp/Shared/MIMEBodyDecoder.swift" "$root/MacApp/Shared/FilteringConfiguration.swift" "$root/MacApp/Shared/JunkProtection.swift" \
     "$root/MacApp/SharedStore.swift" "$root/MacApp/Tests/ModelRequestChecks.swift" -o "$out/model-request-checks"
 "$out/model-request-checks"
+
+for variant in production development; do
+flags=()
+[[ "$variant" != development ]] || flags=(-DMAIL_FILTER_DEV)
+xcrun swiftc -swift-version 5 -parse-as-library -target arm64-apple-macos26.0 "${flags[@]}" \
+    "${shared[@]}" "$root/Sources/MailFilter/ClassificationRequest.swift" "$root/Sources/MailFilter/PoliticalModel.swift" \
+    "$root/MacApp/Shared/AnalysisDeadline.swift" "$root/MacApp/Shared/ClassificationRetry.swift" \
+    "$root/MacApp/Shared/InspectionScheduler.swift" "$root/MacApp/SharedStore.swift" "$root/MacApp/NativeClassifier.swift" \
+    "$root/MacApp/Tests/FailureInjectionChecks.swift" -o "$out/failure-injection-checks-$variant"
+"$out/failure-injection-checks-$variant"
+done
