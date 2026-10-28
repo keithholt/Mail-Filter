@@ -2050,6 +2050,13 @@
 			"path" = "docs/dev/getting-started.md";
 			"sourceTree" = "SOURCE_ROOT";
 		};
+		"CF97AB0D25CC1E2F7688234B" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "net.daringfireball.markdown";
+			"name" = "model-failure-history.md";
+			"path" = "docs/model-failure-history.md";
+			"sourceTree" = "SOURCE_ROOT";
+		};
 		"D18330B876D0542F4B1F2B1C" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "net.daringfireball.markdown";
@@ -2204,6 +2211,7 @@
 				"50F362E88B9EA508787E0C7A",
 				"3E4B3EB06422AAED166090E5",
 				"353174241C81480002A3B5EC",
+				"CF97AB0D25CC1E2F7688234B",
 				"D18330B876D0542F4B1F2B1C",
 				"9482C05A05EA76F96FBBF37F",
 				"9831AFD2DA449F91AFC93069",

@@ -14,6 +14,12 @@ Apple states that the public API cannot select the on-device model variant; the 
 
 The local `./MacApp/probe-model.sh --environment` command performs no generation, Mail access, account lookup or email-file scan. The shared collector also has an optional standalone [Model Check helper](../MacApp/ModelCheck/README.md). Its local UI is tested; portable signing/notarization is paused and is not a prerequisite for this investigation.
 
+## Historical local failures take priority
+
+The [October 28 history audit](model-failure-history.md) confirms real context-limit and repeated invalid-response failures on this same host on October 12. The first retry implementation resent the same JSON payload; a later change added token planning and progressively smaller sections. Store build 18 retains that fix. The remote report’s first-invalid/smaller-retry-success sequence plausibly belongs to the same request-size-sensitive failure family, although the historical local response contract differed and failing bytes were not retained.
+
+Prioritize those request shapes and full-duration native retry timing before further hardware speculation. The 80-trial fictional frozen-budget run exercised single-section inputs at most 2,008 tokens, not the historical context boundary or a four-section negative under the 20-second whole-attempt deadline. Preserve context-limit, invalid-response and actual timeout categories separately. Additional successful short controls cannot establish that the old problem is resolved.
+
 ## Local test sequence
 
 1. Verify the evidence collector with deterministic checks, including partial multi-section failures and private journal retention.

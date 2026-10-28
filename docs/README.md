@@ -26,3 +26,5 @@ The [Store build workflow](../MacApp/Store/README.md) covers unsigned checks, is
 The [build 24 model qualification record](model-reliability-qualification.md) documents fault injection, the synthetic model comparison, Dev isolation and the limits of those tests.
 
 The [local reproduction plan](model-reproduction-plan.md) covers frozen-request replay, durable private evidence, controlled comparisons and local Dev qualification. Debugging takes place on the publisher’s Mac; a remote family member is only an optional beta tester. The plan records hardware-emulation limits and the outstanding release gate.
+
+The [model-failure history audit](model-failure-history.md) traces the original failures on this host, the introduction of retries and section-size reduction, and the relationship to the later beta report. It distinguishes runtime evidence from code changes and identifies the remaining timing tests.
