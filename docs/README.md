@@ -28,3 +28,5 @@ The [build 24 model qualification record](model-reliability-qualification.md) do
 The [local reproduction plan](model-reproduction-plan.md) covers frozen-request replay, durable private evidence, controlled comparisons and local Dev qualification. Debugging takes place on the publisher’s Mac; a remote family member is only an optional beta tester. The plan records hardware-emulation limits and the outstanding release gate.
 
 The [model-failure history audit](model-failure-history.md) traces the original failures on this host, the introduction of retries and section-size reduction, and the relationship to the later beta report. It distinguishes runtime evidence from code changes and identifies the remaining timing tests.
+
+The [timing and queue investigation](timing-and-queue-investigation.md) records the real-model historical context control, queued/paced comparison, full-duration timeout tests and candidate build-26 architecture corrections. It preserves the distinction between confirmed defects and the still-unexplained invalid-label failure.

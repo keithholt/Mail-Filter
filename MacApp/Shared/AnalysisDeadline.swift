@@ -19,9 +19,14 @@ enum AnalysisDeadline {
                     } catch { state.finish(.failure(error)) }
                 }
                 state.install(task)
-                let timer = DispatchWorkItem { state.finish(.failure(AnalysisDeadlineError.timedOut)) }
+                // asyncAfter's default timer leeway made a nominal 60-second
+                // deadline return at about 63 seconds in full-duration tests.
+                // This is one cancellable one-shot deadline, not a polling timer.
+                let timer = DispatchSource.makeTimerSource(flags: .strict, queue: .global(qos: .userInitiated))
+                timer.setEventHandler { state.finish(.failure(AnalysisDeadlineError.timedOut)) }
+                timer.schedule(deadline: .now() + max(seconds, 0), leeway: .milliseconds(10))
                 state.install(timer)
-                DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + max(seconds, 0), execute: timer)
+                timer.resume()
             }
         } onCancel: { state.finish(.failure(CancellationError())) }
     }
@@ -32,7 +37,7 @@ private final class DeadlineResult<Value>: @unchecked Sendable {
     private var completed: Result<Value, Error>?
     private var continuation: CheckedContinuation<Value, Error>?
     private var task: Task<Void, Never>?
-    private var timer: DispatchWorkItem?
+    private var timer: DispatchSourceTimer?
 
     func install(_ continuation: CheckedContinuation<Value, Error>) {
         lock.lock()
@@ -44,7 +49,7 @@ private final class DeadlineResult<Value>: @unchecked Sendable {
         if completed != nil { lock.unlock(); task.cancel() }
         else { self.task = task; lock.unlock() }
     }
-    func install(_ timer: DispatchWorkItem) {
+    func install(_ timer: DispatchSourceTimer) {
         lock.lock()
         if completed != nil { lock.unlock(); timer.cancel() }
         else { self.timer = timer; lock.unlock() }

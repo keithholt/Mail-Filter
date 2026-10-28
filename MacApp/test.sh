@@ -69,3 +69,8 @@ done
 # Local evidence/replay tooling stays outside shipping targets. This mode uses
 # scripted replies only; no model generation, Mail or production settings.
 "$root/MacApp/probe-model.sh" --check-replay
+xcrun swiftc -swift-version 5 -parse-as-library -target arm64-apple-macos26.0 \
+    "$root/Sources/MailFilter/Core.swift" "$root/Sources/MailFilter/ClassificationRequest.swift" "$root/Sources/MailFilter/PoliticalModel.swift" \
+    "$root/MacApp/Tests/ModelGateChecks.swift" -o "$out/model-gate-checks"
+"$out/model-gate-checks"
+"$root/MacApp/qualify-timing.sh" --quick --output "$out/native-timing.json"

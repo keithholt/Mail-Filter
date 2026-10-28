@@ -13,14 +13,19 @@ final class NativeClassifier {
     private let attemptSeconds: TimeInterval
     private let totalSeconds: TimeInterval
     private let retryDelay: @MainActor (Int) async throws -> Void
+    private let sectionCharacters: (Int) -> Int
+    private let responseTokenLimit: Int
 
     init(store: SharedStore? = nil, engine: PoliticalModel.Engine? = nil,
          scheduler: InspectionScheduler? = nil,
          attemptSeconds: TimeInterval = ClassificationRetry.attemptSeconds,
          totalSeconds: TimeInterval = ClassificationRetry.totalSeconds,
+         sectionCharacters: @escaping (Int) -> Int = ClassificationRequest.sectionCharacters(forAttempt:),
+         responseTokenLimit: Int = ClassificationRequest.responseTokens,
          retryDelay: @escaping @MainActor (Int) async throws -> Void = { try await Task.sleep(for: .seconds(Double($0))) }) {
         self.store = store; self.engine = engine; self.scheduler = scheduler ?? InspectionScheduler()
         self.attemptSeconds = attemptSeconds; self.totalSeconds = totalSeconds; self.retryDelay = retryDelay
+        self.sectionCharacters = sectionCharacters; self.responseTokenLimit = responseTokenLimit
     }
 
     func inspect(messageID: String?, sender: String, subject: String, recipients: [String], body: DecodedMailBody) async -> Bool {
@@ -91,6 +96,7 @@ final class NativeClassifier {
         case .completed: return requestJunk
         case .duplicate: record(store, outcome: "skipped", category: "duplicateCallback", traceID: traceID)
         case .queueFull: record(store, outcome: "review", category: "queueFull", traceID: traceID)
+        case .cancelled: record(store, outcome: "review", category: "analysisCancelled", traceID: traceID)
         }
         return false
     }
@@ -153,7 +159,7 @@ final class NativeClassifier {
                     let result: Classification
                     do {
                         result = try await PoliticalModel.classify(message, rules: configuration.rules, engine: selectedEngine,
-                            maximumCharacters: ClassificationRequest.sectionCharacters(forAttempt: attempt), onSection: { section, count in
+                            maximumCharacters: self.sectionCharacters(attempt), responseTokenLimit: self.responseTokenLimit, onSection: { section, count in
                                 self.record(store, outcome: "analysisSection", category: "section\(section)Of\(count)", traceID: traceID, attempt: attempt)
                             }, onRequest: { metrics in
                                 self.record(store, outcome: metrics.status == .started ? "modelRequestStarted" : "modelRequestFinished",

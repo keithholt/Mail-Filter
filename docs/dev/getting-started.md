@@ -165,6 +165,28 @@ Native checks compile small Swift executables and use synthetic messages and tem
 
 Synthetic tests do not generate real model responses or prove MailKit delivered an action. A successful build also does not prove extension activation, Automation permission or shared storage access in a real session. Run the affected checks, then broaden only if new failures or changes justify it.
 
+### Qualify timing and queued inference
+
+The normal native suite includes accelerated timing tests and 200 model-slot cancellation/handoff races. Run production-duration qualification separately from the repository root, using a new output file whose parent exists:
+
+```sh
+./MacApp/qualify-timing.sh --full \
+  --output /private/tmp/mail-filter-full-timing.json
+```
+
+It takes about three minutes. It runs the actual native retry/scheduler/parser/action-gate code with temporary stores and scripted SDK calls, real 20-second attempt and 60-second overall limits, and actual 1-/2-second delays. It checks legacy overlap, corrected SDK serialization, before/after-deadline replies, late positives, slow multi-section exhaustion, the next queued message and cancellation while waiting. It generates no real model response and makes no Mail call. Its intended-action counters belong only to temporary state. Reports identify each scenario, retain a monotonic timeline and report individual checks for the total-budget case.
+
+For the actual model comparison on this Mac, run:
+
+```sh
+./MacApp/probe-model-queue.sh \
+  /private/tmp/mail-filter-real-model-queue
+```
+
+Use a new directory. This experiment reconstructs the historical unbudgeted JSON request from Git as data, uses fictional token-dense tracking links, and then compares queued and paced native processing under fixed policy/budgets. It performs 16 message trials in AB/BA blocks and saves requests, replies, usage, timings and the historical contract. There is no Mail access, actual move, installed-app replacement or production-settings change. Keep outputs out of Git. A recreated context overflow or an injected timeout does not prove the remote invalid-label error has the same cause.
+
+Read the [timing and queue investigation](../timing-and-queue-investigation.md) and [original failure history](../model-failure-history.md) before changing retry budgets. Smaller sections reduce individual request size while potentially increasing total attempt time. Queue admission begins the 60-second budget; earlier waiting time is separate. The SDK gate is process-local, and a never-returning framework call cannot be forcefully retired through this code. Store review remains on hold.
+
 ### Test mail sent to yourself
 
 In **Mail-Filter Dev**, open Filtering and turn on **Filter mail from my own addresses (testing)**, then **Save Settings**. This switch is off by default and appears only in the signed Development configuration. It allows mail from any configured own address, including unchecked accounts, to reach classification when delivered to a selected recipient. Preview, keyword validation, meaningful-body and recovery checks still apply. For actual Junk moves, turn Preview off and save; enable only the Dev extension for the designated test setup. Send a fresh message for each action test because previously moved/restored messages remain protected. Turn the testing switch off and save when finished.
@@ -191,7 +213,7 @@ For synthetic inputs only, without reading email reports or accessing Mail:
 ./MacApp/probe-model.sh --probe-output-limits --synthetic-only
 ```
 
-The owner-only output is `~/Desktop/Mail-Filter Request Budget Comparison.json`. Real-email comparisons contain private message/model text; keep them outside Git. Share the explicit report together with the normal support report when investigating a failure. Build 24 production uses the 3,000-character/256-token combination, with retries at 1,500 characters and unchanged 20/60-second deadlines; this command changes no filtering settings or mailbox contents. The local synthetic matrix does not reproduce or prove resolution of the original failure. Keep review on hold until a plausible matching failure has been reproduced and the mitigation demonstrated. If local synthetic tests keep passing, collect an explicit affected-email export and a read-only comparison from the affected Mac before making a root-cause claim.
+The owner-only output is `~/Desktop/Mail-Filter Request Budget Comparison.json`. Real-email comparisons contain private message/model text; keep them outside Git. Share the explicit report together with the normal support report when investigating a failure. Build 24 production uses the 3,000-character/256-token combination, with retries at 1,500 characters and unchanged 20/60-second deadlines; this command changes no filtering settings or mailbox contents. The local synthetic matrix does not reproduce or prove resolution of the original failure. Keep review on hold until a plausible matching failure has been reproduced and the mitigation demonstrated. Keep debugging on the publisher’s Mac using the local reproduction plan. The remote family member is only a beta tester; neither extra passing controls nor a different hardware specification establishes the original failure’s cause.
 
 The stress probe compares the exact previous standard policy with the candidate policy, captures response scalars and evaluates the approved build's parser. The output-limit probe intentionally uses tiny response limits as a truncation control; failure at one or two tokens is not evidence that the shipped 64-token budget caused a failure. Reports are private Desktop files and must not become committed email fixtures. The 48 local stress trials passed without reproducing the affected Mac's first-attempt failure. Review remains on hold until a plausible matching scenario is recreated and a mitigation is demonstrated; passing injected faults alone does not satisfy that gate.
 

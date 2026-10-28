@@ -32,7 +32,7 @@ That report contains no `modelTimedOut` entries. This does not establish that ti
 | [8a29920](https://github.com/keithholt/Mail-Filter/commit/8a29920), October 19, tagged `v2.1.0-app-store-submission` | Original Store build 18. | Includes the 6,000/3,000/1,500 section-cap sequence, 64 output tokens, three attempts and 20-/60-second deadlines. The retry mechanism was present in the released Store app. |
 | [9be2a05](https://github.com/keithholt/Mail-Filter/commit/9be2a05), October 27, 21:33 | Candidate builds start with 3,000-character sections, then 1,500/1,500; output reserve restored to 256; stronger parser and numeric diagnostics. | Bounded mitigations awaiting qualification. The 20-/60-second limits did not change. |
 
-`AnalysisDeadline.swift` has the same Git blob from its introduction in `00b9e1c` through the original Store tag and the current source. The retry deadline constants also remain 20 and 60 seconds. That establishes source continuity, not proof that every asynchronous deadline race is correct.
+`AnalysisDeadline.swift` has the same Git blob from its introduction in `00b9e1c` through the original Store tag and commit `56a997c`, before the later timing qualification. The retry deadline constants also remain 20 and 60 seconds. That establishes source continuity, not proof that every asynchronous deadline race is correct.
 
 ## Comparison with the beta tester’s report
 
@@ -68,3 +68,5 @@ The original failure has not yet been reproduced with retained raw response/usag
 ## Evidence retained privately
 
 A local audit index under ignored `.build/model-replays/history-audit-2026-10-28.json` records the source-report paths/digests, exact supporting Git objects and relevant numerical observations. It contains no copied message bodies and is not part of the public documentation. Git history establishes the implementation changes; the retained reports establish runtime observations. The original bad response bytes cannot be recovered from a log that never saved them.
+
+The subsequent [timing and queue investigation](timing-and-queue-investigation.md) recreated the context overflow with a constructed historical request, reproduced logical-timeout/SDK overlap, and found excess timer leeway in a full-duration test. Candidate build 26 corrects SDK ownership, queued cancellation and deadline timer scheduling. These findings do not recover the original invalid response bytes or establish the same cause for the remote report.

@@ -2,6 +2,43 @@ import Foundation
 import FoundationModels
 import Dispatch
 
+/// A logical timeout does not prove the SDK operation acknowledged cancellation.
+/// Keep its process-local execution slot until the awaited call actually returns.
+/// Waiting callers remain cancellable under their existing outer deadlines.
+@MainActor
+final class ModelExecutionGate {
+    static let shared = ModelExecutionGate()
+    private var busy = false
+    private var waiters: [(UUID, CheckedContinuation<Void, Error>)] = []
+    var waitingCount: Int { waiters.count }
+    var isBusy: Bool { busy }
+
+    func perform<Value>(_ operation: () async throws -> Value) async throws -> Value {
+        try Task.checkCancellation()
+        if busy {
+            let id = UUID()
+            try await withTaskCancellationHandler {
+                try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                    if Task.isCancelled { continuation.resume(throwing: CancellationError()) }
+                    else { waiters.append((id, continuation)) }
+                }
+            } onCancel: {
+                Task { @MainActor in
+                    if let index = self.waiters.firstIndex(where: { $0.0 == id }) {
+                        self.waiters.remove(at: index).1.resume(throwing: CancellationError())
+                    }
+                }
+            }
+        } else { busy = true }
+        defer {
+            if waiters.isEmpty { busy = false }
+            else { waiters.removeFirst().1.resume() }
+        }
+        try Task.checkCancellation()
+        return try await operation()
+    }
+}
+
 /// One model interface for incoming MailKit processing, read-only diagnosis and
 /// the engineering CLI. Apple's permissive transformation mode is supported only
 /// by string generation, so ask for one label and validate it before any action.
@@ -29,6 +66,18 @@ enum PoliticalModel {
         let promptTokens: (String) async throws -> Int
         let respond: (String, String, Int) async throws -> Reply
 
+        @MainActor
+        func serialized(using gate: ModelExecutionGate? = nil) -> Engine {
+            let gate = gate ?? .shared
+            return Engine(contextSize: contextSize, estimatedTokens: estimatedTokens,
+                instructionTokens: { text in try await gate.perform { try await instructionTokens(text) } },
+                promptTokens: { text in try await gate.perform { try await promptTokens(text) } },
+                respond: { instructions, prompt, limit in
+                    try await gate.perform { try await respond(instructions, prompt, limit) }
+                })
+        }
+
+        @MainActor
         static func system(_ model: SystemLanguageModel) -> Engine {
             let instructionCount: (String) async throws -> Int
             let promptCount: (String) async throws -> Int
@@ -56,7 +105,7 @@ enum PoliticalModel {
                         reply.reasoningTokens = response.usage.output.reasoningTokenCount
                     }
                     return reply
-                })
+                }).serialized()
         }
     }
 

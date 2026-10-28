@@ -1819,6 +1819,20 @@
 			"path" = "MacApp/Tests/MIMEBodyChecks.swift";
 			"sourceTree" = "SOURCE_ROOT";
 		};
+		"3C40158FF82FD5C04980728B" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "ModelGateChecks.swift";
+			"path" = "MacApp/Tests/ModelGateChecks.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"4951CF477A75705F356D2196" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "ModelQueueProbe.swift";
+			"path" = "MacApp/Tests/ModelQueueProbe.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
 		"D604F75D27A089550D06EA94" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -1859,6 +1873,13 @@
 			"lastKnownFileType" = "sourcecode.swift";
 			"name" = "StoreReadinessChecks.swift";
 			"path" = "MacApp/Tests/StoreReadinessChecks.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"3CAAB58D1FFFE02B0F93C4D6" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "TimingQualification.swift";
+			"path" = "MacApp/Tests/TimingQualification.swift";
 			"sourceTree" = "SOURCE_ROOT";
 		};
 		"ACF534CA9B80FB30E4CB3A6D" = {
@@ -1917,11 +1938,25 @@
 			"path" = "MacApp/prepare-direct-products.py";
 			"sourceTree" = "SOURCE_ROOT";
 		};
+		"C4506F0988221572515F1D1E" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.script.sh";
+			"name" = "probe-model-queue.sh";
+			"path" = "MacApp/probe-model-queue.sh";
+			"sourceTree" = "SOURCE_ROOT";
+		};
 		"98D747AFFD0DDA5CF407EB3E" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "text.script.sh";
 			"name" = "probe-model.sh";
 			"path" = "MacApp/probe-model.sh";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"A3CE6856DF9FD928C097076E" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.script.sh";
+			"name" = "qualify-timing.sh";
+			"path" = "MacApp/qualify-timing.sh";
 			"sourceTree" = "SOURCE_ROOT";
 		};
 		"65B1B824DCA8562673160FE1" = {
@@ -2078,6 +2113,13 @@
 			"path" = "docs/store-review-preparation.md";
 			"sourceTree" = "SOURCE_ROOT";
 		};
+		"B7C1899F54D8934FB17311B4" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "net.daringfireball.markdown";
+			"name" = "timing-and-queue-investigation.md";
+			"path" = "docs/timing-and-queue-investigation.md";
+			"sourceTree" = "SOURCE_ROOT";
+		};
 		"1779378023456FE0B1C1682D" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "net.daringfireball.markdown";
@@ -2216,6 +2258,7 @@
 				"9482C05A05EA76F96FBBF37F",
 				"9831AFD2DA449F91AFC93069",
 				"74FCF38993456C0CCF47F6EB",
+				"B7C1899F54D8934FB17311B4",
 				"1779378023456FE0B1C1682D",
 			);
 			"path" = "docs";
@@ -2363,12 +2406,15 @@
 				"F4661BF5B4CA91DFEE78D379",
 				"0A94E6533FF3B800008B131D",
 				"007E74EF93E377F19716BFCD",
+				"3C40158FF82FD5C04980728B",
+				"4951CF477A75705F356D2196",
 				"D604F75D27A089550D06EA94",
 				"2BF6BFB08BD70BF470F6BEED",
 				"5FF505F727B48BFD149CA338",
 				"F9A0DAF680C37477F024BECD",
 				"6F337081F35C18885C7677A6",
 				"3D1EDDF680FC61E51E2B5901",
+				"3CAAB58D1FFFE02B0F93C4D6",
 			);
 			"path" = "Tests";
 			"sourceTree" = "<group>";
@@ -2400,7 +2446,9 @@
 				"7F7B0BA80D7D28D862282A9A",
 				"8CCDDB0362EC1F1F1B6623AB",
 				"732359E46E3EFF7F3DF28803",
+				"C4506F0988221572515F1D1E",
 				"98D747AFFD0DDA5CF407EB3E",
+				"A3CE6856DF9FD928C097076E",
 				"D61366A4192F7AB146B4AAAC",
 				"EF154CABE95C979848B98CAC",
 				"62D14A185FB0AFD3129DF58A",

@@ -1,4 +1,4 @@
-# Model reliability qualification for builds 24 and 25
+# Model reliability qualification for builds 24 through 26
 
 This records the application changes and local qualification for the replacement 2.1.1 update. The publisher withdrew build 23. The original Store version remains 2.1.0 build 18. Build 24 was uploaded but not submitted. The publisher requires a plausible reproduction of the affected Mac's failure before any replacement review submission. This gate remains unmet. Build 25 adds the local Dev-only self-mail test switch; it has not been uploaded.
 
@@ -84,3 +84,11 @@ The current native suite passed, including **30 local replay evidence checks**, 
 The [historical investigation](model-failure-history.md) confirms actual context-limit and repeated invalid-response failures on the publisher’s Mac on October 12. Retries arrived in `00b9e1c`; token-aware splitting and progressively smaller sections arrived later in `29b68fe`, and the String interface in `df807d3`. Store build 18 retains that retry/splitting mechanism and the same deadline implementation. The remote first-invalid/smaller-retry-success pattern can plausibly be a recurrence of that failure family; hardware differences are not an established requirement. Exact common cause remains unproven because the earlier local response contract differed and failed reply bytes were not retained.
 
 The local frozen-budget controls fit in single sections. Full-duration native tests of near-context, multi-section requests, real retry delays and whole-attempt deadlines are still outstanding. Keep those gaps explicit rather than treating the 80 passing controls as qualification of the original problem. No production code or timeout was changed by the audit.
+
+## Candidate build 26 timing and SDK ownership
+
+The [timing and queue investigation](timing-and-queue-investigation.md) records a reproduced historical context-overflow mechanism, a confirmed timeout/SDK-overlap gap, and a full-duration timer failure. Build 26 serializes SDK awaits across each process, removes canceled queue waiters promptly and uses a strict one-shot deadline timer. Limits remain 20 seconds per whole attempt and 60 seconds overall; no timeout was increased. Full-duration tests and the native/CLI suites passed, including 205 model-slot assertions with 200 cancellation/handoff races. The unsigned Store archive/payload checks passed. The updated engineering Word guides were regenerated and their changed rendered pages inspected. No installed app or active extension was replaced.
+
+Sixteen actual-model queued/paced trials with fictional dense-link receipt/campaign content passed. The constructed historical request used 4,591 tokens against a 4,096-token context and produced the actual `modelContextLimit` error; budgeted String processing completed. That identifies one original local failure mechanism, not the exact source of the later invalid-label reply. Queue wait, callback delivery, cross-process coordination and a never-returning SDK remain explicit architecture limits. Store submission remains on hold.
+
+The final adapter also passed a repeat actual-model run and an additional 16-message comparison using ten-second idle gaps, with zero invalid/empty replies or timeouts. Signed Dev build 26 and its provisioned groups passed verification without installation. See the investigation for the limited conclusions supported by these controls; they do not close the invalid-label release gate.
