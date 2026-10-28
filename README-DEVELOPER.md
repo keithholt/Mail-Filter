@@ -6,6 +6,12 @@ For a source-code introduction, start with the [developer getting-started guide]
 
 The [App Store deployment plan](docs/app-store-deployment-plan.md) records feasibility results, developer membership requirements, build configurations, logging and the remaining signing/desktop/review gates. Its isolated checks are documented in [MacApp/Feasibility](MacApp/Feasibility/README.md); they do not change the installed filtering app.
 
+## Reproduce model failures
+
+Start with [the affected-Mac reproduction plan](docs/model-reproduction-plan.md). Run `./MacApp/probe-model.sh --environment` on each Mac before comparing results. This preflight performs no generation or Mail access and reads no account settings or email exports. It reports the actual on-device variant and reasoning capability, not an inference from installed RAM. Every model probe report now includes this environment snapshot. The source runner requires Xcode command-line tools with the current Foundation Models SDK.
+
+The local M1 Max uses AFM 3 Core without reasoning; the affected M3 Pro's variant is not yet known. Preserve exact failing inputs and compare original versus candidate behavior on the affected physical Mac. Do not treat induced one-token truncation, artificial deadlines or successful synthetic examples as a reproduction of its reported failure. Store review remains on hold.
+
 ## Native app development
 
 Use the **Mail-Filter Dev** Xcode scheme for the signed sandboxed development app beside the Store installation. Stage it with `MAIL_FILTER_TEAM_ID=YOURTEAMID ./MacApp/install-dev.sh`; it has separate settings and an extension named Mail-Filter Dev. Its Filtering page includes **Filter mail from my own addresses (testing)**, off by default. Turn it on and click **Save Settings** to classify self-mail, including mail between your own accounts. Enable only the Dev extension for a live test inbox. Turn Preview off to permit Junk actions; selected recipients, keyword validation, meaningful-body checks and restored-message protection still apply. A previously moved test message remains protected, so send a fresh message for each test. Turn the switch off and save after testing.

@@ -24,3 +24,5 @@ Native development starts with `Mail-Filter.xcodeproj` at the repository root. T
 The [Store build workflow](../MacApp/Store/README.md) covers unsigned checks, isolated signing configurations, archiving and local export. [Store review preparation](store-review-preparation.md) is a Markdown publisher worksheet with privacy and entitlement drafts; it remains separate from the generated engineering guides. `./MacApp/store-build.sh` also regenerates the registered Word documents before compilation.
 
 The [build 24 model qualification record](model-reliability-qualification.md) documents fault injection, the synthetic model comparison, Dev isolation and the limits of those tests.
+
+The [affected-Mac reproduction plan](model-reproduction-plan.md) separates model-variant identification, exact-input replay, controlled request comparisons and MailKit qualification. It records the limits of the earlier synthetic tests and the outstanding release gate.

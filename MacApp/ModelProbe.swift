@@ -1,12 +1,57 @@
 import Foundation
 import FoundationModels
 import CryptoKit
+import Darwin
 
 /// Developer-only read-only experiments. No Mail automation, saved-state writes,
 /// Junk decisions, or production configuration changes.
 @main
 @MainActor
 struct ModelProbe {
+    /// No host name, serial number, accounts, email or settings are collected.
+    struct Environment: Encodable {
+        struct Model: Encodable {
+            let useCase: String
+            let availability: String
+            let contextTokens: Int
+            let variant: String?
+            let supportsReasoning: Bool?
+        }
+        let operatingSystem: String
+        let hardwareModel: String?
+        let processor: String?
+        let physicalMemoryMiB: UInt64
+        let preferredLanguages: [String]
+        let locale: String
+        let lowPowerMode: Bool
+        let models: [Model]
+
+        static func systemString(_ key: String) -> String? {
+            var size = 0
+            guard sysctlbyname(key, nil, &size, nil, 0) == 0, size > 0, size < 4096 else { return nil }
+            var bytes = [CChar](repeating: 0, count: size)
+            guard sysctlbyname(key, &bytes, &size, nil, 0) == 0 else { return nil }
+            return String(cString: bytes)
+        }
+
+        static func capture() -> Environment {
+            let models: [Model] = [("general", SystemLanguageModel.UseCase.general), ("contentTagging", .contentTagging)].map { name, useCase in
+                let model = SystemLanguageModel(useCase: useCase, guardrails: .permissiveContentTransformations)
+                var variant: String?, reasoning: Bool?
+                if #available(macOS 27.0, *) {
+                    variant = model.variant.displayName
+                    reasoning = model.capabilities.contains(.reasoning)
+                }
+                return Model(useCase: name, availability: String(describing: model.availability),
+                    contextTokens: model.contextSize, variant: variant, supportsReasoning: reasoning)
+            }
+            return Environment(operatingSystem: ProcessInfo.processInfo.operatingSystemVersionString,
+                hardwareModel: systemString("hw.model"), processor: systemString("machdep.cpu.brand_string"),
+                physicalMemoryMiB: ProcessInfo.processInfo.physicalMemory / 1_048_576,
+                preferredLanguages: Locale.preferredLanguages, locale: Locale.current.identifier,
+                lowPowerMode: ProcessInfo.processInfo.isLowPowerModeEnabled, models: models)
+        }
+    }
     struct Input: Decodable {
         struct Policy: Decodable { let rules: String; let evidenceTerms: [String] }
         let diagnosticKey: String?
@@ -30,7 +75,13 @@ struct ModelProbe {
         var policyDigest: String? = nil
     }
     struct Case: Encodable { let diagnosticKey: String?; let subject: String; let trials: [Trial] }
-    struct Report: Encodable { let schemaVersion = 1; let date = Date(); let cases: [Case] }
+    struct Report: Encodable {
+        let schemaVersion = 1
+        let date = Date()
+        let environmentCapturePhase = "afterTrials"
+        let environment: Environment
+        let cases: [Case]
+    }
 
     static func decisionSchema() throws -> GenerationSchema {
         try GenerationSchema(root: .init(name: "EmailTag", properties: [
@@ -172,6 +223,11 @@ struct ModelProbe {
 
     static func run() async throws {
         var supplied = Array(CommandLine.arguments.dropFirst())
+        if supplied == ["--environment"] {
+            let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+            print(String(decoding: try encoder.encode(Environment.capture()), as: UTF8.self))
+            return
+        }
         let stress = supplied.first == "--stress-model"
         let limits = supplied.first == "--probe-output-limits"
         if stress || limits { supplied.removeFirst() }
@@ -269,7 +325,9 @@ struct ModelProbe {
         }
         let output = desktop.appendingPathComponent(stress ? "Mail-Filter Baseline Stress.json" : limits ? "Mail-Filter Output Limit Controls.json" : compare ? "Mail-Filter Request Budget Comparison.json" : supported ? "Mail-Filter Supported Path.json" : investigate ? "Mail-Filter Model Probe Controls.json" : "Mail-Filter Model Probe.json")
         let encoder = JSONEncoder(); encoder.dateEncodingStrategy = .iso8601; encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        try encoder.encode(Report(cases: cases)).write(to: output, options: .atomic)
+        // Query both use cases only after all trials. Extra preflight queries
+        // must not change the initial model-loading conditions under test.
+        try encoder.encode(Report(environment: Environment.capture(), cases: cases)).write(to: output, options: .atomic)
         try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: output.path)
         print("Saved \(output.path). No Mail access, moves or filtering-setting changes.")
     }

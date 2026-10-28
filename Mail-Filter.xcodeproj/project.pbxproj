@@ -2015,6 +2015,13 @@
 			"path" = "docs/model-reliability-qualification.md";
 			"sourceTree" = "SOURCE_ROOT";
 		};
+		"9482C05A05EA76F96FBBF37F" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "net.daringfireball.markdown";
+			"name" = "model-reproduction-plan.md";
+			"path" = "docs/model-reproduction-plan.md";
+			"sourceTree" = "SOURCE_ROOT";
+		};
 		"74FCF38993456C0CCF47F6EB" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "net.daringfireball.markdown";
@@ -2156,6 +2163,7 @@
 				"3E4B3EB06422AAED166090E5",
 				"353174241C81480002A3B5EC",
 				"D18330B876D0542F4B1F2B1C",
+				"9482C05A05EA76F96FBBF37F",
 				"9831AFD2DA449F91AFC93069",
 				"74FCF38993456C0CCF47F6EB",
 				"1779378023456FE0B1C1682D",
