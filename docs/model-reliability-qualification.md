@@ -61,7 +61,7 @@ The private results are Desktop JSON exports named Mail-Filter Request Budget Co
 
 ## Release gates
 
-Before any replacement review submission, recreate a plausible matching failure under the original contract, retain its input and numeric/raw selected-response evidence, and demonstrate the proposed mitigation against that same case plus negative controls. Injected empty replies, shortened test deadlines and tiny output caps establish application contracts, not the cause of this reported failure. If local synthetic cases continue to pass, obtain the affected Mac's selected-email export and a read-only baseline comparison rather than claiming the issue is fixed.
+Before any replacement review submission, recreate a plausible matching failure under the original contract, retain its input and numeric/raw selected-response evidence, and demonstrate the proposed mitigation against that same case plus negative controls. Injected empty replies, shortened test deadlines and tiny output caps establish application contracts, not the cause of this reported failure. If local cases continue to pass, record that limitation rather than claiming the issue is fixed. Continue the local reproduction plan without making the remote beta tester a debugging dependency.
 
 Also require the full native suite, Swift package tests, signed Dev verification, signed Store archive and exported-package verification. Regenerate the engineering Word guides, inspect their rendered pages and review the final diff for private data. Preserve approved, cancelled and delivered artifacts. A changed future Store binary needs a new build number; update its reviewer ZIP, notes and selected build together only after qualification and publisher authorization.
 
@@ -70,3 +70,11 @@ The signed Dev build-25 UI showed the self-mail switch off on upgrade, saved its
 ## Environment follow-up
 
 A subsequent no-generation preflight identified the development Mac as Apple M1 Max (MacBookPro18,2), macOS 27.0.1 build 26A434, using AFM 3 Core with no reasoning capability for both general and content-tagging use cases. The affected M3 Pro variant remains unknown. The probe now records this model/environment snapshot, and `--environment` prints it without reading Mail or email reports. See the [reproduction plan](model-reproduction-plan.md) for the next controlled experiment; this finding is not a diagnosis.
+
+## Local-first investigation
+
+The publisher clarified that the remote family member can provide beta testing only. The [reproduction plan](model-reproduction-plan.md) now keeps debugging local and pauses portable helper signing. A standalone replay runner freezes production request text, varies one factor per experiment, counterbalances AB/BA order, compares both parsers on each captured reply, and journals private evidence after each section. Its offline checks join the normal native test suite. It neither links Mail automation/action code nor changes shipping inference settings. Passing these collector checks is not itself a reproduction of the reported model failure.
+
+The first local frozen-budget run completed **80 real-model message trials**: 20 repetitions per fixture/arm for a fictional long campaign appeal and a long receipt, alternating AB/BA order. Frozen instructions/prompts were byte-identical between the 64- and 256-token arms. All replies matched the expected labels, both parsers agreed, and transcripts/digests/private file modes were verified. Maximum observed request duration was 2,467 ms, input usage 2,008 tokens, output usage seven tokens, and reasoning usage zero. These two controls did not reproduce the reported failure. The private artifacts are under ignored `.build/model-replays/2026-10-28-output-budget-80-trials/`; no email data or raw trial output is committed.
+
+The current native suite passed, including **30 local replay evidence checks**, the existing production/Dev fault scenarios and packaging/build boundaries. The standalone CLI’s 29 tests also passed. Registered Word documents still match their Markdown sources. No installed app, active extension, production setting or mail message was changed.

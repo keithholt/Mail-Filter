@@ -15,6 +15,11 @@ project = root / 'Mail-Filter.xcodeproj'
 payload = json.loads(subprocess.check_output(
     ['/usr/bin/plutil', '-convert', 'json', '-o', '-', str(project / 'project.pbxproj')]))
 objects = payload['objects']
+compiled_refs = {value['fileRef'] for value in objects.values() if value['isa'] == 'PBXBuildFile'}
+for key, value in objects.items():
+    if value['isa'] == 'PBXFileReference' and (value.get('path', '').startswith('MacApp/ModelCheck/')
+            or value.get('path') in ('MacApp/ModelProbe.swift', 'MacApp/LocalModelReplay.swift', 'MacApp/Shared/ModelEnvironment.swift')):
+        assert key not in compiled_refs, 'Standalone model investigation code leaked into a shipping target'
 targets = {value['name']: key for key, value in objects.items() if value['isa'] in ('PBXNativeTarget', 'PBXAggregateTarget')}
 
 

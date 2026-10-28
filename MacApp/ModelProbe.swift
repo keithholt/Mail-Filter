@@ -1,57 +1,13 @@
 import Foundation
 import FoundationModels
 import CryptoKit
-import Darwin
 
 /// Developer-only read-only experiments. No Mail automation, saved-state writes,
 /// Junk decisions, or production configuration changes.
 @main
 @MainActor
 struct ModelProbe {
-    /// No host name, serial number, accounts, email or settings are collected.
-    struct Environment: Encodable {
-        struct Model: Encodable {
-            let useCase: String
-            let availability: String
-            let contextTokens: Int
-            let variant: String?
-            let supportsReasoning: Bool?
-        }
-        let operatingSystem: String
-        let hardwareModel: String?
-        let processor: String?
-        let physicalMemoryMiB: UInt64
-        let preferredLanguages: [String]
-        let locale: String
-        let lowPowerMode: Bool
-        let models: [Model]
-
-        static func systemString(_ key: String) -> String? {
-            var size = 0
-            guard sysctlbyname(key, nil, &size, nil, 0) == 0, size > 0, size < 4096 else { return nil }
-            var bytes = [CChar](repeating: 0, count: size)
-            guard sysctlbyname(key, &bytes, &size, nil, 0) == 0 else { return nil }
-            return String(cString: bytes)
-        }
-
-        static func capture() -> Environment {
-            let models: [Model] = [("general", SystemLanguageModel.UseCase.general), ("contentTagging", .contentTagging)].map { name, useCase in
-                let model = SystemLanguageModel(useCase: useCase, guardrails: .permissiveContentTransformations)
-                var variant: String?, reasoning: Bool?
-                if #available(macOS 27.0, *) {
-                    variant = model.variant.displayName
-                    reasoning = model.capabilities.contains(.reasoning)
-                }
-                return Model(useCase: name, availability: String(describing: model.availability),
-                    contextTokens: model.contextSize, variant: variant, supportsReasoning: reasoning)
-            }
-            return Environment(operatingSystem: ProcessInfo.processInfo.operatingSystemVersionString,
-                hardwareModel: systemString("hw.model"), processor: systemString("machdep.cpu.brand_string"),
-                physicalMemoryMiB: ProcessInfo.processInfo.physicalMemory / 1_048_576,
-                preferredLanguages: Locale.preferredLanguages, locale: Locale.current.identifier,
-                lowPowerMode: ProcessInfo.processInfo.isLowPowerModeEnabled, models: models)
-        }
-    }
+    typealias Environment = ModelEnvironment
     struct Input: Decodable {
         struct Policy: Decodable { let rules: String; let evidenceTerms: [String] }
         let diagnosticKey: String?
@@ -223,6 +179,14 @@ struct ModelProbe {
 
     static func run() async throws {
         var supplied = Array(CommandLine.arguments.dropFirst())
+        if supplied.first == "--replay-local" {
+            try await LocalModelReplay.run(Array(supplied.dropFirst()))
+            return
+        }
+        if supplied == ["--check-replay"] {
+            try await LocalModelReplay.check()
+            return
+        }
         if supplied == ["--environment"] {
             let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
             print(String(decoding: try encoder.encode(Environment.capture()), as: UTF8.self))

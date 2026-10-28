@@ -1686,6 +1686,34 @@
 			"path" = "MacApp/InstallerScripts/CommandLineOn/preinstall";
 			"sourceTree" = "SOURCE_ROOT";
 		};
+		"4AFBB8D226A0B43720EFF535" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "LocalModelReplay.swift";
+			"path" = "MacApp/LocalModelReplay.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"1E587DE85390EE6BED75E77F" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.plist.xml";
+			"name" = "ModelCheck.entitlements";
+			"path" = "MacApp/ModelCheck/ModelCheck.entitlements";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"96ED8E8DE9C64344185A5EA8" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "ModelCheckApp.swift";
+			"path" = "MacApp/ModelCheck/ModelCheckApp.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"E69BD4F055EF07BDA4D3DA96" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "net.daringfireball.markdown";
+			"name" = "README.md";
+			"path" = "MacApp/ModelCheck/README.md";
+			"sourceTree" = "SOURCE_ROOT";
+		};
 		"07280DCB92DEAADB672F9E95" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -1705,6 +1733,13 @@
 			"lastKnownFileType" = "image.icns";
 			"name" = "PoliticalAdFilter.icns";
 			"path" = "MacApp/Resources/PoliticalAdFilter.icns";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"8E58D749E16B043339F22C2D" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "ModelEnvironment.swift";
+			"path" = "MacApp/Shared/ModelEnvironment.swift";
 			"sourceTree" = "SOURCE_ROOT";
 		};
 		"AB061E12E3F2638C8D807214" = {
@@ -1824,6 +1859,13 @@
 			"lastKnownFileType" = "sourcecode.swift";
 			"name" = "StoreReadinessChecks.swift";
 			"path" = "MacApp/Tests/StoreReadinessChecks.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"ACF534CA9B80FB30E4CB3A6D" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.script.python";
+			"name" = "build-model-check.py";
+			"path" = "MacApp/build-model-check.py";
 			"sourceTree" = "SOURCE_ROOT";
 		};
 		"03971F35A8A7406E06CB9370" = {
@@ -2257,6 +2299,16 @@
 			"path" = "InstallerScripts";
 			"sourceTree" = "<group>";
 		};
+		"8594F9862BEEBDDB42CFBD36" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"1E587DE85390EE6BED75E77F",
+				"96ED8E8DE9C64344185A5EA8",
+				"E69BD4F055EF07BDA4D3DA96",
+			);
+			"path" = "ModelCheck";
+			"sourceTree" = "<group>";
+		};
 		"016062C3206CCEB3F1758007" = {
 			"isa" = "PBXGroup";
 			"children" = (
@@ -2277,6 +2329,7 @@
 				"32FA5306C0DF31F3ADCACA71",
 				"3443A527845D1091CED41E2E",
 				"B280DEF19848D4BEEE440D96",
+				"8E58D749E16B043339F22C2D",
 			);
 			"path" = "Shared";
 			"sourceTree" = "<group>";
@@ -2318,16 +2371,19 @@
 				"D84E7E611DAF98B5288CA997",
 				"BBCDC69089BCFB7CD02E0ECA",
 				"49CCA63271EF03CFE3937E6E",
+				"8594F9862BEEBDDB42CFBD36",
 				"016062C3206CCEB3F1758007",
 				"1D8DBFDD4FF22839FB04374B",
 				"CC4F86DEF33A9FE4D2912646",
 				"A30F2D8BA84D5FE9CA55BEB5",
 				"EC253747E1B9226F92DB92E1",
+				"ACF534CA9B80FB30E4CB3A6D",
 				"03971F35A8A7406E06CB9370",
 				"BC0271A04BA3304BBB776E8C",
 				"E2D352830C11FA469F275050",
 				"041737C471AF5861DE8C183A",
 				"0988C2597FE545428EE607F0",
+				"4AFBB8D226A0B43720EFF535",
 				"44A00F555C15EB7A64D29F2C",
 				"5DE3AEDF1CCB7EA72FB57959",
 				"07280DCB92DEAADB672F9E95",

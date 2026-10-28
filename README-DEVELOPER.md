@@ -8,9 +8,18 @@ The [App Store deployment plan](docs/app-store-deployment-plan.md) records feasi
 
 ## Reproduce model failures
 
-Start with [the affected-Mac reproduction plan](docs/model-reproduction-plan.md). Run `./MacApp/probe-model.sh --environment` on each Mac before comparing results. This preflight performs no generation or Mail access and reads no account settings or email exports. It reports the actual on-device variant and reasoning capability, not an inference from installed RAM. Every model probe report now includes this environment snapshot. The source runner requires Xcode command-line tools with the current Foundation Models SDK.
+Start with the [local reproduction plan](docs/model-reproduction-plan.md). Development and debugging take place on the publisher’s Mac; the remote family member is available only for brief beta checks. No access to his Mac, source builds or repeated debugging sessions is assumed. The local M1 Max reports AFM 3 Core without reasoning; the remote M3 Pro’s selected variant remains unknown and cannot be forced through the public API.
 
-The local M1 Max uses AFM 3 Core without reasoning; the affected M3 Pro's variant is not yet known. Preserve exact failing inputs and compare original versus candidate behavior on the affected physical Mac. Do not treat induced one-token truncation, artificial deadlines or successful synthetic examples as a reproduction of its reported failure. Store review remains on hold.
+`./MacApp/probe-model.sh --environment` reports local hardware, OS and model metadata without generation, Mail access or account lookup. The optional [Model Check helper](MacApp/ModelCheck/README.md) shares this collector; portable signing work is paused. It is not a prerequisite for local testing.
+
+Use `./MacApp/probe-model.sh --check-replay` to verify the developer collector offline. The new local runner freezes exact inputs, compares old and current parsers on the same reply, alternates comparison order and saves private evidence after every section:
+
+```sh
+./MacApp/probe-model.sh --replay-local --synthetic-only \
+  --output /private/tmp/mail-filter-local-budget-run --repetitions 20
+```
+
+The [plan](docs/model-reproduction-plan.md) explains separate output-budget, section-size and policy experiments, explicit locally selected email exports, transcripts, journal recovery and limits. Do not treat scripted faults, tiny output caps or successful fictional examples as proof of the original failure’s cause. Store review remains on hold.
 
 ## Native app development
 

@@ -65,3 +65,7 @@ xcrun swiftc -swift-version 5 -parse-as-library -target arm64-apple-macos26.0 "$
     "$root/MacApp/Tests/FailureInjectionChecks.swift" -o "$out/failure-injection-checks-$variant"
 "$out/failure-injection-checks-$variant"
 done
+
+# Local evidence/replay tooling stays outside shipping targets. This mode uses
+# scripted replies only; no model generation, Mail or production settings.
+"$root/MacApp/probe-model.sh" --check-replay

@@ -1,99 +1,101 @@
-# Reproduce the affected Mac's classification failure
+# Local model-failure reproduction plan
 
-The next experiment must reproduce a real first-attempt failure under the original classification contract and then demonstrate a mitigation on that same input. More injected empty replies or more successful fictional examples on the current Mac cannot establish that result. Store review remains on hold. This plan does not install an app, change settings, send mail or authorize access to another person's Mac.
+Development and debugging take place on the publisher’s Mac. The remote family member is a beta tester, not a debugging resource. Do not require him to install Xcode, run source scripts, record Instruments traces, or provide repeated diagnostic sessions. No access to his Mac is assumed. A later optional beta check should be a brief normal-use test of a prepared build.
 
-## Establish which model is actually running
+Store review remains on hold. The publisher requires a plausible reproduction before submitting a replacement update. Scripted empty replies and deliberately tiny token limits establish application behavior but do not establish the cause of the reported failure.
 
-The October 27 preflight on the development Mac reported:
+## Evidence available locally
 
-| Variable | Observed value |
-|---|---|
-| Hardware | Apple M1 Max, MacBookPro18,2 |
-| Physical memory | 65,536 MiB |
-| macOS | 27.0.1, build 26A434 |
-| General model | AFM 3 Core |
-| Content-tagging model | AFM 3 Core |
-| Reasoning capability | false for both use cases |
-| Context | 4,096 tokens for both use cases |
+The original support report records invalid first-attempt responses after about five to six seconds, followed by successful smaller-section retries. These were not application deadline expirations. The report did not retain raw reply bytes or token usage. An empty reply, hidden formatting, output truncation and a response-association error remain different hypotheses.
 
-The affected Mac is reported as M3 Pro with 18 GiB and macOS 27.0.1. Its exact OS build, selected model variant and reasoning capability have not been captured. Apple exposes both Core and Core Advanced variants. Do not infer its selected variant from its chip, installed RAM or OS version. Matching those reported version numbers does not yet establish equivalent model environments.
+The development Mac is Apple M1 Max (MacBookPro18,2), 65,536 MiB, macOS 27.0.1 build 26A434. Both general and content-tagging queries reported AFM 3 Core, context 4,096 tokens and no reasoning capability. The remote Mac is reported as M3 Pro, 18 GiB and macOS 27.0.1; its actual selected model remains unknown. Do not infer it from memory or chip type.
 
-Run this preflight from the same source revision on both Macs:
+Apple states that the public API cannot select the on-device model variant; the device and OS determine it. Consequently, this M1 Mac cannot be configured through that API to force a different hardware’s model. A VM, process memory limit or large memory allocation is not an established substitute. Do not manufacture memory pressure on the publisher’s working Mac. [Apple’s accepted answer](https://developer.apple.com/forums/thread/832555)
 
-```sh
-./MacApp/probe-model.sh --environment
-```
+The local `./MacApp/probe-model.sh --environment` command performs no generation, Mail access, account lookup or email-file scan. The shared collector also has an optional standalone [Model Check helper](../MacApp/ModelCheck/README.md). Its local UI is tested; portable signing/notarization is paused and is not a prerequisite for this investigation.
 
-It prints model variants, availability, context sizes and reasoning support for the general and content-tagging use cases, together with hardware, OS build, language, locale and Low Power Mode. It performs no generation and reads no Mail, account settings or Desktop reports. It records no host name or serial number. Comparisons also include this environment object automatically, captured after their trials to avoid extra preflight model queries before the first request. For a cold/loading experiment, run the separate preflight after that first trial, not immediately before it; use Instruments to establish loading state. Running from source requires Xcode command-line tools with the current Foundation Models SDK; the command is not part of the installed Store tool.
+## Local test sequence
 
-First compare the two JSON outputs. A different model variant is a test variable, not proof that it caused the failure. A matching display name is also not an exact model-asset revision identifier. Preserve the full OS build and any later session/profile evidence.
+1. Verify the evidence collector with deterministic checks, including partial multi-section failures and private journal retention.
+2. Capture and repeat exact baseline requests locally, using fictional controls and any problematic email exports already available on the publisher’s Mac. Do not depend on obtaining another export from the beta tester. A locally forwarded copy is useful, but label it as a different input unless bytes match.
+3. Compare one variable at a time: output budget, section size, then policy wording. Alternate AB/BA order with at least 20 repetitions per arm for a release-evidence run.
+4. If a real failure occurs, retain the request, response, transcript and event journal immediately. Narrow it to an inference failure, a parser rejection or a later application gate before changing production code.
+5. Exercise retries, deadlines, cancellation, duplicate callbacks, bursts and settings changes through the real Dev application pipeline with scripted transport and temporary stores. Keep this evidence separate from actual Foundation Models generation.
+6. Qualify the sandboxed Dev/MailKit context locally in Preview using the Dev-only self-mail switch and a designated test inbox. Never enable two filters against the same working inbox. Use normal incoming test mail; do not assume importing an email file generates a received-message callback. Real moves are outside automated replay tests.
+7. Only after local evidence supports a mitigation, offer a prepared beta build for a short normal-use check. The beta tester’s availability is not a dependency for steps 1–6. Submission still requires the publisher’s reproduction gate and authorization.
 
-## Obtain the actual failing input
+## Frozen-request replay runner
 
-On the affected Mac, export the original problematic message with **Export selected email report**. Keep that private JSON and the accompanying support report outside Git. The export supplies the RFC source, extracted text, sender, subject, current policy and retained automatic history. Record the installed app/extension build and whether the policy was edited. Do not forward it again to produce the fixture: forwarding can change the model input even when the message remains readable.
+The new developer-only `--replay-local` mode links no Mail automation, settings store or action code. It requires an explicit single export path or fictional controls, plus a new output directory. It never sweeps Desktop. Parent directories must already exist, and an existing run directory is refused.
 
-Record SHA-256 digests of the original export, exact decoded excerpt, instructions and each final prompt. Preserve their bytes locally so the two Macs can replay the same request. A hash alone cannot reconstruct missing content. If the old automatic reply was not retained, a later positive manual analysis cannot recover that lost reply; reproduce a new failure with explicit capture.
-
-Use the failing message, a second previously failing message, an ordinary receipt and a short political appeal as the initial corpus. Synthetic controls establish that labeling still works. The actual failing input is the principal case.
-
-## Keep reproduction separate from shipping changes
-
-Use a standalone read-only replay first. It needs no Mail connection, extension activation, account credentials, protection reset or replacement of the Store app. Run on the affected physical Mac before attempting to emulate its resource conditions elsewhere. If source tools are unavailable, prepare a Developer ID signed and notarized replay helper; do not require the recipient to enroll as a developer or weaken Gatekeeper. The signed Development app has device-provisioning requirements and is not automatically a portable helper for another Mac.
-
-The current budget comparison can begin with an explicit export path:
+From the repository root, start with fictional controls:
 
 ```sh
-./MacApp/probe-model.sh --compare-request-budgets '/private/path/to/affected-email.json'
+./MacApp/probe-model.sh --check-replay
+./MacApp/probe-model.sh --replay-local --synthetic-only \
+  --output /private/tmp/mail-filter-budget-run --repetitions 20
 ```
 
-That command compares section/output budgets and records the environment, labels, raw selected response, response scalars, timings and available token usage. Its default comparison uses the report's saved policy, not necessarily the original untouched build-18 policy. The stress mode reconstructs the previous standard ending for its baseline and records policy digests. Its original synthetic suite verifies that standard digest. A custom policy requires an explicit original snapshot before calling a run an exact baseline.
+This runs two fictional long messages, a political appeal and a receipt, 20 times for each of two arms: 80 message trials. The baseline requests are planned once with a 6,000-character maximum and a 64-token response reserve. Both arms then use the identical instructions and final prompts. Only the output limit changes from 64 to 256. If an unchanged request cannot fit the larger reserve, it is recorded as skipped; the runner does not secretly shorten it.
 
-These existing comparisons are a starting point, not the finished experiment. The next replay runner needs the following properties before using it to attribute a cause:
+Compare section size separately:
 
-- Preserve the original wrapper, String response interface, greedy sampling, permissive transformation setting, original policy and old whole-label parser. Parse each captured reply with both old and candidate parsers, without regenerating it.
-- Capture the exact instructions/prompt and session transcript for each request in an explicit private export. Record UTF-8 bytes/scalars, input/output/reasoning usage, request duration, section plan and cancellation/error state. Keep raw captures out of routine support logs.
-- Persist a trial-start record before inference and its outcome immediately after completion, so a stalled run or helper termination does not erase the earlier evidence. The current probe saves its report at the end and does not meet this crash-evidence requirement.
-- Repeat one fixed failing input at least 20 times, counterbalancing baseline/candidate order. The earlier 48-trial suite repeats each combination twice in a fixed order; it is not a 48-repeat test of the affected email.
-- Freeze the final prompt when varying only output limits. Larger output reserves can change the current planner's section boundaries, confounding that comparison. Compare 64, 256 and, if the unchanged input fits, 512 or 1,024 output tokens; skip incompatible combinations rather than silently shortening the prompt.
-- Change section length, policy ending, use case or reasoning level in separate experiments. Use supported reasoning controls only when the model reports that capability. A content-tagging String trial is different from the historical guided-schema tagger, which reintroduced guardrail refusals.
+```sh
+./MacApp/probe-model.sh --replay-local --synthetic-only \
+  --experiment section-size --output /private/tmp/mail-filter-section-run
+```
 
-## Test hypotheses with observable outcomes
+Both arms retain the same policy and 64-token output limit. The second arm plans at most 3,000 characters per section. All eligible first-6,000-character content remains covered, with the production planner’s overlap and opening/closing context. A positive may finish early; a negative requires all sections. Compare policy wording separately using `--experiment policy`, which changes only the reconstructed previous ending versus the saved current policy, retaining the 6,000-character maximum and 64-token limit. Policy changes can themselves change token counts and therefore the section plan; inspect the manifest rather than treating that experiment as byte-identical input.
 
-| Hypothesis | Controlled comparison | Evidence that would support it |
+Use a locally exported message explicitly:
+
+```sh
+./MacApp/probe-model.sh --replay-local \
+  --report '/private/path/to/selected-email.json' \
+  --original-policy '/private/path/to/original-policy.txt' \
+  --output /private/tmp/mail-filter-selected-run --repetitions 20
+```
+
+`--original-policy` supplies the exact old policy snapshot. Without it, the runner reconstructs the known previous standard ending from the saved policy and labels that provenance in the manifest. A custom saved policy is not automatically an exact build-18 baseline. The original wrapper, String interface, greedy generation, permissive transformation mode and original parser are preserved. Request planning uses the production engine’s tokenizer; no generation occurs while constructing the frozen plan.
+
+Add `--plan-only` to save requests without generating. `--repetitions` accepts even numbers from 2 through 100; two is only a smoke test. Every run stores the exact schedule, with equally many AB and BA pairs and rotating fixture order. Fresh sessions do not prove the operating-system model was cold; token-count planning may load assets.
+
+## Retained evidence and privacy
+
+The output directory is mode 0700; generated files are mode 0600. It contains private email and prompt text if a real export is selected. Keep it outside Git and do not automatically upload it or attach it to support mail.
+
+- `manifest.json`: exact instructions/prompts, exact-byte SHA-256 digests, input-file digest, source fingerprints, token counts, policy provenance, section plans and full trial order.
+- `events.jsonl`: synchronized trial-start, section-start, section-finish and trial-finish records. A started request without a finish identifies interruption; earlier completed trials remain available.
+- `trial-NNNN.json`: raw responses, UTF-8 bytes as base64, full Unicode scalars, old and current parser decisions on the same reply, timing, available input/output/reasoning usage, thermal state and Low Power Mode.
+- Per-section transcript files: the session before inference and its final observable state on return/error. The completed response also retains a JSON transcript in the trial file. A killed process cannot save a reply it never observed.
+- `results.json`: final retained outcomes and environment snapshot, queried after trials to avoid additional preflight model queries before generation. Interrupted runs can lack this final file while retaining earlier evidence.
+
+The replay bounds each generation at 20 seconds and stops the experiment on timeout or cancellation. It does not retry into a potentially still-running inference or overlap trials. This request-level experiment is not a simulation of the production whole-attempt/total retry deadlines. Those paths have separate application tests. If the service stalls, the journal distinguishes the observation from a completed invalid label. No timeout settings in the shipping product change.
+
+## Interpret results by layer
+
+| Hypothesis | Local controlled test | Supporting evidence |
 |---|---|---|
-| Reasoning consumes a small output budget | Same exact prompt, model and settings; change only the response limit, then supported reasoning level separately | Invalid/empty visible reply with output/reasoning usage at the cap; a larger budget consistently restores a label without changing input. |
-| The old parser rejects valid presentation formatting | Run both parsers over the same captured bytes | Old parser rejects a whole label with documented boundary formatting; candidate accepts it. No model rerun is needed. |
-| Long input triggers the failure | Hold policy, use case and output limit constant; change section plan explicitly | Original full request repeatedly fails while the smaller plan succeeds, including negative controls requiring every section. |
-| Model loading or cache state matters | First request after a normal restart/idle period versus subsequent requests | Instruments shows loading/latency or different response behavior correlated with the failure. A fresh app session alone does not prove a cold model. |
-| Runtime resources matter | Same physical Mac/input under ordinary idle and ordinary workload conditions | Recorded pressure/thermal/token/latency changes correlate with repeated failures; installed memory alone is insufficient. |
-| Host/extension context matters | Same frozen input in standalone replay, sandboxed Dev host and MailKit Preview | Failure appears in a specific execution context with matching request/model fingerprints. |
+| Output budget truncates the label | Same frozen request, 64 versus 256 tokens | Invalid visible output with actual usage at the cap; higher cap repeatedly returns a whole label. |
+| Presentation formatting breaks parsing | Both parsers examine one captured reply | Original parser rejects boundary bytes that the candidate accepts. Plain ASCII `political` must pass both. |
+| Long input triggers failure | Same policy/cap, explicit large versus smaller section plans | Baseline repeatedly fails and smaller sections recover on that input, including negative controls requiring every section. |
+| Loading or cache state matters | Normal first request after restart/idle versus repeats | Instruments loading/timing evidence correlates with failures. A new process alone is insufficient. |
+| Application lifecycle or queue causes loss | Local NativeClassifier injection and Dev Preview | Callback, generation, retry and final gate evidence identifies the exact loss; no late result causes an action. |
+| Hardware-specific model behavior | Local model identity and available traces | A hardware limitation is documented explicitly; a different model cannot be emulated by changing a response string or the app’s heap. |
 
-If the affected Mac also reports Core without reasoning, or failed replies show zero reasoning tokens, reduce the priority of the reasoning-budget hypothesis. If a response contains plain valid ASCII `political` and the old parser accepts those exact bytes, investigate how that response became associated with the reported failure instead of continuing to blame keyword parsing.
+If a captured response is plain valid `political` and both parsers accept its bytes, investigate response association, callbacks and final action gates. Adding verification words cannot fix a label parser failure. If reasoning usage is zero on local failures, do not attribute those failures to reasoning consuming the output budget.
 
-## Trace one failure through Apple's tools
+Use the Foundation Models Instruments template on the publisher’s Mac when a local failure is reproducible. Apple documents model loading, instructions, responses, token consumption and latency. Compare profiled and unprofiled runs because instrumentation can change timing. Traces and transcripts may contain unencrypted email; preserve them privately. Uploading a reproduction to Apple is a separate publisher decision.
 
-Use the Foundation Models template in Instruments on a designated test session. Apple documents request instructions, responses, token consumption, model loading and time-to-first-token views. Save the session transcript alongside the app-side event timeline. Compare unprofiled and profiled runs because instrumentation can alter timing.
+## Completion and release gate
 
-Traces and transcripts can contain the email and prompt in unencrypted form. Keep them private. Capture them deliberately for the selected reproduction; do not silently add full transcripts to normal filtering logs or upload them to Apple. A Feedback Assistant submission would be a separate publisher decision.
+Success requires a plausible actual baseline failure, retained layer-specific evidence and a targeted mitigation that succeeds against that case under repeated comparison while ordinary mail stays negative. A scripted first-empty/second-valid sequence demonstrates recovery but does not prove why Apple returned an invalid first result. Earlier 16- and 48-trial suites passed; the one-/two-token truncation controls failed only at artificial limits. None satisfies the original reproduction gate.
 
-For a model failure that reproduces without Mail, this trace can distinguish a framework-generated empty/truncated response from an application parser rejection. If the model succeeds outside MailKit, continue to the delivery/runtime stage rather than treating the standalone pass as resolution.
-
-## Reproduce the MailKit context only when necessary
-
-Use a separate macOS test user and a designated IMAP test inbox on the affected or equivalent physical hardware. Confirm the model is Ready and record its variant again in that user. Use the isolated Dev identifiers, Preview mode and the Dev-only own-mail switch where appropriate; do not enable both working-inbox filters together.
-
-Replay source fixtures into the test inbox using a controlled ingestion method, and verify MailKit actually produces body-requested/body-ready callbacks. Do not assume dragging an email file into Mail or importing a mailbox produces received-message callbacks. An IMAP append mechanism is a candidate to qualify, not an already validated callback source. Preserve original subject/sender/body for a model comparison; a fresh Message-ID can avoid test deduplication because it is excluded from the classification prompt. Delivery recipients may need test routing changes, which must be recorded separately.
-
-Start with a single message, then a small burst, then idle/wake/restart cases. Preview must report intended actions without moving mail. Only after callback, inference and final-gate behavior are understood should a disposable test inbox exercise actual Junk actions. Do not clear real recovery records or repeatedly reprocess working-inbox mail to obtain a failure.
-
-## Limits of emulation and release evidence
-
-An 18 GiB VM or memory allocation on the M1 Max is not automatically an M3 Pro reproduction. Before relying on a VM, prove that Foundation Models is available and selects an equivalent variant there. Restricting the helper's address space does not establish a machine-wide memory limit for the framework and its services. Do not manufacture pressure on the user's working Mac. A separate macOS user isolates app settings and accounts, not physical RAM or all operating-system model caches.
-
-Success means retaining a real baseline failure, identifying which layer failed, and showing that one targeted change resolves that same case under counterbalanced repeats while ordinary mail stays negative. If the original failure no longer occurs, record that result and the changed environment; do not relabel injected faults or a one-token truncation control as the missing reproduction. Review stays on hold until the publisher's stated requirement is met.
+If all local requests keep succeeding, record that limit candidly. Do not claim identical M3 behavior or make the beta tester responsible for finishing the investigation. Decide with the publisher whether additional hardware access is justified or the release criterion should change; elapsed time and extra passing controls do not silently waive it.
 
 ## Primary references
 
+- [Apple: model selection is determined by device and OS](https://developer.apple.com/forums/thread/832555)
 - [SystemLanguageModel and model variants](https://developer.apple.com/documentation/foundationmodels/systemlanguagemodel)
 - [Output limits can terminate generation without throwing](https://developer.apple.com/documentation/foundationmodels/generationoptions/maximumresponsetokens)
 - [Foundation Models performance analysis in Instruments](https://developer.apple.com/documentation/foundationmodels/analyzing-the-runtime-performance-of-your-foundation-models-app)
