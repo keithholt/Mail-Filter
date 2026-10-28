@@ -1,5 +1,7 @@
 # Timing and queue investigation
 
+Current release decision (October 28): after reviewing the completed defensive audit and clean Store/Dev qualification, the publisher explicitly approved submitting build 27. The exact invalid-response cause remains unreproduced. Earlier hold statements below record the investigation at that time; see [current release qualification](release-2.1.1.md).
+
 This October 28, 2026 investigation tests whether the native queue, cancellation and retry architecture can compound model failures on the publisher’s Mac. Candidate build 26 fixes two confirmed implementation gaps and improves queued cancellation. A real-model experiment also recreates the historical unbudgeted context overflow. The specific invalid-label/empty-response mechanism reported on the remote Mac remains unresolved; Store review remains on hold.
 
 ## Confirmed findings

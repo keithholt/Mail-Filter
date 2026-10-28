@@ -1,5 +1,7 @@
 # Model reliability qualification for builds 24 through 26
 
+Current release decision (October 28): after reviewing the completed defensive audit and clean Store/Dev qualification, the publisher explicitly approved submitting build 27. The exact invalid-response cause remains unreproduced. Earlier hold statements below record the investigation at that time; see [current release qualification](release-2.1.1.md).
+
 This records the application changes and local qualification for the replacement 2.1.1 update. The publisher withdrew build 23. The original Store version remains 2.1.0 build 18. Build 24 was uploaded but not submitted. The publisher requires a plausible reproduction of the affected Mac's failure before any replacement review submission. This gate remains unmet. Build 25 adds the local Dev-only self-mail test switch; it has not been uploaded.
 
 ## Evidence and limits

@@ -1,5 +1,7 @@
 # Local model-failure reproduction plan
 
+Current release decision (October 28): after reviewing the completed defensive audit and clean Store/Dev qualification, the publisher explicitly approved submitting build 27. The exact invalid-response cause remains unreproduced. Earlier hold statements below record the investigation at that time; see [current release qualification](release-2.1.1.md).
+
 Development and debugging take place on the publisher’s Mac. The remote family member is a beta tester, not a debugging resource. Do not require him to install Xcode, run source scripts, record Instruments traces, or provide repeated diagnostic sessions. No access to his Mac is assumed. A later optional beta check should be a brief normal-use test of a prepared build.
 
 Store review remains on hold. The publisher requires a plausible reproduction before submitting a replacement update. Scripted empty replies and deliberately tiny token limits establish application behavior but do not establish the cause of the reported failure.

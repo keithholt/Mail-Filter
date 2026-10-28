@@ -1,5 +1,7 @@
 # Mail Filter Store Review Preparation
 
+Current release decision (October 28): after reviewing the completed defensive audit and clean Store/Dev qualification, the publisher explicitly approved submitting build 27. The exact invalid-response cause remains unreproduced. Earlier hold statements below record the investigation at that time; see [current release qualification](release-2.1.1.md).
+
 This checklist records preparation for the first submission and provides the workflow for future candidates. Signed Development tests and local archive/export validation passed on October 19, 2026. Build 18 processed successfully in App Store Connect, and the publisher reported submitting version 2.1.0 for review that day. On October 27 the publisher reported Apple approval without requested changes; App Store Connect confirmed **Ready for Distribution**. Final Store runtime and clean-install/update checks remain separate from that approval.
 
 Create the review candidate from the root `Mail-Filter.xcodeproj` using **Mail-Filter Store → Product → Archive**, or `./MacApp/store-build.sh archive`. Both use the same Store configuration and exclude engineering tools. The Local Installer scheme creates a direct-install test package; use the provisioned Store archive for App Store validation. See [Store build workflow](../MacApp/Store/README.md) for signing and export.

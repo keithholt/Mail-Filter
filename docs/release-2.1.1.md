@@ -1,6 +1,6 @@
 # Mail Filter 2.1.1 release qualification
 
-Candidate build 27 completes a defensive-programming and diagnostic audit following the original invalid-response investigation. The exact reported first-attempt failure remains unreproduced. This document records the candidate and evidence; it does not claim that a successful control or an injected timeout establishes that cause. Submission status is pending qualification and portal access.
+Candidate build 27 completes a defensive-programming and diagnostic audit following the original invalid-response investigation. The exact reported first-attempt failure remains unreproduced. This document records the candidate and evidence; it does not claim that a successful control or an injected timeout establishes that cause. The publisher explicitly approved submitting this qualified candidate. Transporter delivery and Apple processing succeeded. App Store Connect confirmed version 2.1.1 is Waiting for Review with build 27 submitted.
 
 ## Defensive audit
 
@@ -34,4 +34,4 @@ Use separate new derived-data directories for Development and Store, with the sa
 
 The Store upload package is `outputs/store/Mail-Filter-2.1.1-build-27.pkg`; the isolated Dev ZIP is `outputs/development/build-27-clean/Mail-Filter-Dev-2.1.1-build-27.zip`. Matching fictional reviewer samples are `outputs/store/Mail-Filter-Review-Samples-2.1.1-build-27.zip`. A private output manifest records package/sample digests and both bundle identities. Previous build-24 archive/export and earlier submitted packages were preserved.
 
-Nothing from build 27 has been uploaded or submitted. Safari requires a fresh App Store Connect sign-in. Automatic approval review rejected an attempted documentation change declaring the earlier reproduction hold lifted, citing that earlier user requirement. A confirmation for this specific tested candidate is pending; the report does not represent the original failure as resolved.
+The publisher signed in and explicitly answered “Submit build 27” to the candidate-specific confirmation, superseding the earlier reproduction-only hold. Transporter delivery succeeded. Build-27 release notes, reviewer instructions, entitlement explanation and fictional sample ZIP were saved in App Store Connect. After processing, build 27 was selected and saved, then added and submitted for review. App Store Connect confirmed Waiting for Review and 1 Item Submitted. This report does not represent the original failure as resolved.
