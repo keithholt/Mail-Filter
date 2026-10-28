@@ -61,7 +61,9 @@ struct ModelGateChecks {
         try await ready { gate.waitingCount == 1 }
         try expect(!countRan, "tokenization cannot overlap an unreturned generation")
         generation?.resume(returning: .init(content: "not-political"))
-        _ = try await response.value; _ = try await count.value
+        let measuredReply = try await response.value; _ = try await count.value
+        try expect(measuredReply.modelWaitMilliseconds != nil && engine.executionState?().busy == false,
+                   "engine reports model-slot wait and current ownership without response content")
         try expect(countRan && !gate.isBusy, "tokenization resumes after generation")
         print("Passed \(checks) model-slot FIFO, error, cancellation/handoff and tokenization checks; no model or Mail calls.")
     }

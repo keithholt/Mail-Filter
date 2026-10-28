@@ -18,9 +18,14 @@ objects = payload['objects']
 compiled_refs = {value['fileRef'] for value in objects.values() if value['isa'] == 'PBXBuildFile'}
 for key, value in objects.items():
     if value['isa'] == 'PBXFileReference' and (value.get('path', '').startswith(('MacApp/ModelCheck/', 'MacApp/Tests/'))
-            or value.get('path') in ('MacApp/ModelProbe.swift', 'MacApp/LocalModelReplay.swift', 'MacApp/Shared/ModelEnvironment.swift')):
+            or value.get('path') in ('MacApp/ModelProbe.swift', 'MacApp/LocalModelReplay.swift')):
         assert key not in compiled_refs, 'Standalone model investigation code leaked into a shipping target'
 targets = {value['name']: key for key, value in objects.items() if value['isa'] in ('PBXNativeTarget', 'PBXAggregateTarget')}
+environment_ref = next(key for key, value in objects.items() if value.get('path') == 'MacApp/Shared/ModelEnvironment.swift')
+for name, key in targets.items():
+    members = {objects[item].get('fileRef') for phase in objects[key].get('buildPhases', [])
+               for item in objects[phase].get('files', [])}
+    assert (environment_ref in members) == (name == 'MailFilter'), 'Read-only environment collector must belong only to the settings app'
 
 
 def closure(ids):

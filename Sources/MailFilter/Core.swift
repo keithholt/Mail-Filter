@@ -236,16 +236,25 @@ struct ModelRequestMetrics: Codable, Equatable, Sendable {
     var physicalMemoryMiB: Int? = nil
     var memoryPressure: String? = nil
     var thermalState: String? = nil
+    var requestID: String? = nil
+    var instructionDigest: String? = nil
+    var promptDigest: String? = nil
+    var modelVariant: String? = nil
+    var supportsReasoning: Bool? = nil
+    var modelWaitMilliseconds: Int? = nil
 
     var valid: Bool {
         let values = [excerptCharacters, sectionCharacters, maximumSectionCharacters, instructionTokens, promptTokens, contextTokens, responseTokenLimit]
-            + [elapsedMilliseconds, responseCharacters, responseBytes, inputTokens, outputTokens, reasoningTokens, physicalMemoryMiB].compactMap { $0 }
+            + [elapsedMilliseconds, responseCharacters, responseBytes, inputTokens, outputTokens, reasoningTokens, physicalMemoryMiB, modelWaitMilliseconds].compactMap { $0 }
         return (1...12).contains(sections) && (1...sections).contains(section)
             && values.allSatisfy { (0...1_000_000_000).contains($0) }
             && sectionCharacters <= excerptCharacters && maximumSectionCharacters > 0 && responseTokenLimit > 0
             && (memoryPressure == nil || ["unknown", "normal", "warning", "critical"].contains(memoryPressure!))
             && (thermalState == nil || ["unknown", "nominal", "fair", "serious", "critical"].contains(thermalState!))
             && (reasoningTokens == nil || (outputTokens != nil && reasoningTokens! <= outputTokens!))
+            && (requestID == nil || UUID(uuidString: requestID!) != nil)
+            && [instructionDigest, promptDigest].allSatisfy { $0 == nil || ($0!.count == 64 && $0!.utf8.allSatisfy { (48...57).contains($0) || (97...102).contains($0) }) }
+            && (modelVariant == nil || (!modelVariant!.isEmpty && modelVariant!.count <= 128 && !modelVariant!.unicodeScalars.contains { CharacterSet.controlCharacters.contains($0) }))
     }
 
     var summary: String {
@@ -255,10 +264,13 @@ struct ModelRequestMetrics: Codable, Equatable, Sendable {
             "instructionTokens=\(instructionTokens)", "promptTokens=\(promptTokens)", "tokenCountEstimated=\(tokenCountEstimated)",
             "contextTokens=\(contextTokens)", "responseLimit=\(responseTokenLimit)"]
         for (name, value) in [("elapsedMs", elapsedMilliseconds), ("responseChars", responseCharacters), ("responseBytes", responseBytes),
-                              ("inputTokens", inputTokens), ("outputTokens", outputTokens), ("reasoningTokens", reasoningTokens), ("physicalMemoryMiB", physicalMemoryMiB)] {
+                              ("inputTokens", inputTokens), ("outputTokens", outputTokens), ("reasoningTokens", reasoningTokens), ("physicalMemoryMiB", physicalMemoryMiB), ("modelWaitMs", modelWaitMilliseconds)] {
             if let value { fields.append("\(name)=\(value)") }
         }
         if let outputTokens { fields.append("outputLimitReached=\(outputTokens >= responseTokenLimit)") }
+        if let requestID { fields.append("request=\(requestID)") }
+        if let modelVariant { fields.append("modelVariant=\(modelVariant)") }
+        if let supportsReasoning { fields.append("supportsReasoning=\(supportsReasoning)") }
         if let memoryPressure { fields.append("memoryPressure=\(memoryPressure)") }
         if let thermalState { fields.append("thermalState=\(thermalState)") }
         return fields.joined(separator: " ")

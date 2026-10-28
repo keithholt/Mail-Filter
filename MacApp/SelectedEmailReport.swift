@@ -12,7 +12,7 @@ struct SelectedEmailReport: Encodable {
         let rules: String
         let evidenceTerms: [String]
     }
-    let schemaVersion = 1
+    let schemaVersion = 2
     let exportedAt = Date()
     let appBuild: String
     let installedExtensionBuild: String?
@@ -29,9 +29,13 @@ struct SelectedEmailReport: Encodable {
     let currentPolicy: Policy?
     let automaticHistory: [NativeActivity]
     let currentReadOnlyAnalysis: String?
+    let originalModelFailures: [ModelFailureRecord]
+    let failureHistoryAvailable: Bool?
+    let currentModelEnvironment: String?
 
     init(selection: MessageDiagnostics.Selection, settings: NativeSettings, activity: NativeActivityLog,
-         analysis: String?, appBuild: String, extensionBuild: String?) {
+         analysis: String?, appBuild: String, extensionBuild: String?, failures: [ModelFailureRecord] = [],
+         failureHistoryAvailable: Bool? = nil, modelEnvironment: String? = nil) {
         let message = selection.message
         self.appBuild = appBuild
         installedExtensionBuild = extensionBuild
@@ -62,6 +66,9 @@ struct SelectedEmailReport: Encodable {
         } else { currentPolicy = nil }
         automaticHistory = activity.recent.filter { key != nil && $0.traceID == key }.reversed()
         currentReadOnlyAnalysis = analysis
+        originalModelFailures = failures.filter { key != nil && $0.traceID == key && $0.valid }
+        self.failureHistoryAvailable = failureHistoryAvailable
+        currentModelEnvironment = modelEnvironment
     }
 
     func write(to url: URL) throws {

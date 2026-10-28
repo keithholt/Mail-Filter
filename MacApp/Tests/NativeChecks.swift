@@ -295,7 +295,42 @@ struct NativeChecks {
         let brokenExport = SelectedEmailReport(selection: brokenSelection, settings: legacyWords, activity: try diagnosticStore.activity(), analysis: nil, appBuild: "11", extensionBuild: "11")
         try require(brokenExport.extractionError == "malformedHeaders" && brokenExport.extractedBody == nil && brokenExport.messageID == selectedID,
                     "body extraction failures can still be exported with identity and source")
+        try modelFailureFixtures(root: root, selection: selected, settings: legacyWords)
         print("Passed \(count) native settings, hot reload, migration, activity and removal checks; no model generation or real Mail/installer/removal actions")
+    }
+
+    static func modelFailureFixtures(root: URL, selection: MessageDiagnostics.Selection, settings: NativeSettings) throws {
+        let store = SharedStore(directory: root.appendingPathComponent("failure-cache"))
+        try store.save(settings)
+        let key = String(try JunkIdentity.key(selection.message.messageID).prefix(12))
+        var metrics = ModelRequestMetrics(status: .invalidLabel, section: 1, sections: 1, excerptCharacters: 100,
+            sectionCharacters: 100, maximumSectionCharacters: 3000, instructionTokens: 100, promptTokens: 100,
+            tokenCountEstimated: false, contextTokens: 4096, responseTokenLimit: 256)
+        metrics.requestID = UUID().uuidString
+        let reply = "political\u{200B}"
+        try store.recordModelFailure(traceID: key, attempt: 1, policyRevision: settings.revision, metrics: metrics, reply: reply)
+        let records = try store.modelFailures(messageID: selection.message.messageID)
+        try require(records.count == 1 && Data(base64Encoded: records[0].replyUTF8Base64) == Data(reply.utf8), "original rejected output preserves invisible UTF-8 characters")
+        try require(try store.modelFailures(messageID: "different@example.org").isEmpty, "failure cache is scoped to the selected message")
+        try require((try FileManager.default.attributesOfItem(atPath: store.modelFailuresURL.path)[.posixPermissions] as? NSNumber)?.intValue == 0o600, "failure cache is owner-readable only")
+        let export = SelectedEmailReport(selection: selection, settings: settings, activity: NativeActivityLog(), analysis: nil,
+            appBuild: "27", extensionBuild: "27", failures: records, failureHistoryAvailable: true)
+        let object = try JSONSerialization.jsonObject(with: JSONEncoder().encode(export)) as! [String: Any]
+        try require((object["originalModelFailures"] as? [[String: Any]])?.count == 1 && object["failureHistoryAvailable"] as? Bool == true, "explicit email export includes original rejected output")
+        try require(!String(decoding: try JSONEncoder().encode(store.activity()), as: UTF8.self).contains("replyUTF8Base64"), "ordinary activity excludes private failure cache")
+        let future = Date().addingTimeInterval(8 * 86400)
+        try require(try store.modelFailures(messageID: selection.message.messageID, now: future).isEmpty, "expired replies are excluded from exports")
+        for _ in 0..<35 { try store.recordModelFailure(traceID: key, attempt: 1, policyRevision: settings.revision, metrics: metrics, reply: String(repeating: "x", count: 9000)) }
+        let bounded = try store.modelFailures(messageID: selection.message.messageID)
+        try require(bounded.count == 32 && bounded.allSatisfy { $0.replyTruncated && Data(base64Encoded: $0.replyUTF8Base64)?.count == 8192 }, "private reply count and per-reply bytes are bounded")
+        try require(try Data(contentsOf: store.modelFailuresURL).count <= SharedStore.modelFailureFileLimit, "private cache stays within its file budget")
+        try Data("interrupted diagnostics".utf8).write(to: store.modelFailuresURL)
+        try rejects("corrupt diagnostic replies are not exported") { _ = try store.modelFailures(messageID: selection.message.messageID) }
+        try store.recordModelFailure(traceID: key, attempt: 2, policyRevision: settings.revision, metrics: metrics, reply: "")
+        try require(try store.modelFailures(messageID: selection.message.messageID).count == 1, "a corrupt expendable cache can recover on the next rejection")
+        let preservedSettings = try Data(contentsOf: store.settingsURL)
+        try store.eraseApplicationData()
+        try require(!FileManager.default.fileExists(atPath: store.modelFailuresURL.path) && !preservedSettings.isEmpty, "explicit data removal includes rejected replies")
     }
 
     static func removalFixtures(root: URL) throws {

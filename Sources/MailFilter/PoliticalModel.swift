@@ -1,6 +1,7 @@
 import Foundation
 import FoundationModels
 import Dispatch
+import CryptoKit
 
 /// A logical timeout does not prove the SDK operation acknowledged cancellation.
 /// Keep its process-local execution slot until the awaited call actually returns.
@@ -55,6 +56,7 @@ enum PoliticalModel {
         var inputTokens: Int? = nil
         var outputTokens: Int? = nil
         var reasoningTokens: Int? = nil
+        var modelWaitMilliseconds: Int? = nil
     }
 
     /// Injection seam for deterministic developer tests. Production uses the
@@ -65,6 +67,9 @@ enum PoliticalModel {
         let instructionTokens: (String) async throws -> Int
         let promptTokens: (String) async throws -> Int
         let respond: (String, String, Int) async throws -> Reply
+        var modelVariant: String? = nil
+        var supportsReasoning: Bool? = nil
+        var executionState: (() -> (busy: Bool, waiting: Int))? = nil
 
         @MainActor
         func serialized(using gate: ModelExecutionGate? = nil) -> Engine {
@@ -73,8 +78,15 @@ enum PoliticalModel {
                 instructionTokens: { text in try await gate.perform { try await instructionTokens(text) } },
                 promptTokens: { text in try await gate.perform { try await promptTokens(text) } },
                 respond: { instructions, prompt, limit in
-                    try await gate.perform { try await respond(instructions, prompt, limit) }
-                })
+                    let queued = ProcessInfo.processInfo.systemUptime
+                    return try await gate.perform {
+                        let wait = Int(max(0, ProcessInfo.processInfo.systemUptime - queued) * 1000)
+                        var reply = try await respond(instructions, prompt, limit)
+                        reply.modelWaitMilliseconds = wait
+                        return reply
+                    }
+                }, modelVariant: modelVariant, supportsReasoning: supportsReasoning,
+                executionState: { (gate.isBusy, gate.waitingCount) })
         }
 
         @MainActor
@@ -91,7 +103,7 @@ enum PoliticalModel {
                 promptCount = instructionCount
                 estimated = true
             }
-            return Engine(contextSize: model.contextSize, estimatedTokens: estimated,
+            var engine = Engine(contextSize: model.contextSize, estimatedTokens: estimated,
                 instructionTokens: instructionCount, promptTokens: promptCount, respond: { instructions, prompt, limit in
                     // Fresh string session: guided generation restores default
                     // guardrails even with permissive transformations selected.
@@ -105,7 +117,12 @@ enum PoliticalModel {
                         reply.reasoningTokens = response.usage.output.reasoningTokenCount
                     }
                     return reply
-                }).serialized()
+                })
+            if #available(macOS 27.0, *) {
+                engine.modelVariant = model.variant.displayName
+                engine.supportsReasoning = model.capabilities.contains(.reasoning)
+            }
+            return engine.serialized()
         }
     }
 
@@ -121,16 +138,18 @@ enum PoliticalModel {
                          maximumCharacters: Int = ClassificationRequest.initialSectionCharacters,
                          responseTokenLimit: Int = ClassificationRequest.responseTokens,
                          onSection: (Int, Int) -> Void = { _, _ in },
-                         onRequest: (ModelRequestMetrics) -> Void = { _ in }) async throws -> Result {
+                         onRequest: (ModelRequestMetrics) -> Void = { _ in },
+                         onRejectedResponse: (ModelRequestMetrics, String) -> Void = { _, _ in }) async throws -> Result {
         try await classify(candidate, rules: rules, engine: .system(model), maximumCharacters: maximumCharacters,
-            responseTokenLimit: responseTokenLimit, onSection: onSection, onRequest: onRequest)
+            responseTokenLimit: responseTokenLimit, onSection: onSection, onRequest: onRequest, onRejectedResponse: onRejectedResponse)
     }
 
     static func classify(_ candidate: MailMessage, rules: String, engine: Engine,
                          maximumCharacters: Int = ClassificationRequest.initialSectionCharacters,
                          responseTokenLimit: Int = ClassificationRequest.responseTokens,
                          onSection: (Int, Int) -> Void = { _, _ in },
-                         onRequest: (ModelRequestMetrics) -> Void = { _ in }) async throws -> Result {
+                         onRequest: (ModelRequestMetrics) -> Void = { _ in },
+                         onRejectedResponse: (ModelRequestMetrics, String) -> Void = { _, _ in }) async throws -> Result {
         let message = candidate.classificationExcerpt
         let request = ClassificationRequest(message: message)
         let instructions = """
@@ -161,6 +180,11 @@ enum PoliticalModel {
             metrics.physicalMemoryMiB = Int(ProcessInfo.processInfo.physicalMemory / 1_048_576)
             metrics.memoryPressure = pressureMonitor.level
             metrics.thermalState = thermalState
+            metrics.requestID = UUID().uuidString
+            metrics.instructionDigest = SHA256.hash(data: Data(instructions.utf8)).map { String(format: "%02x", $0) }.joined()
+            metrics.promptDigest = SHA256.hash(data: Data(prompt.utf8)).map { String(format: "%02x", $0) }.joined()
+            metrics.modelVariant = engine.modelVariant
+            metrics.supportsReasoning = engine.supportsReasoning
             onRequest(metrics)
             let started = ProcessInfo.processInfo.systemUptime
             let response: String
@@ -170,6 +194,7 @@ enum PoliticalModel {
                 metrics.inputTokens = generated.inputTokens
                 metrics.outputTokens = generated.outputTokens
                 metrics.reasoningTokens = generated.reasoningTokens
+                metrics.modelWaitMilliseconds = generated.modelWaitMilliseconds
             } catch {
                 metrics.status = .generationError
                 metrics.elapsedMilliseconds = Int(max(0, ProcessInfo.processInfo.systemUptime - started) * 1000)
@@ -195,6 +220,7 @@ enum PoliticalModel {
                     }
                 } else { metrics.status = .invalidLabel }
                 onRequest(metrics)
+                onRejectedResponse(metrics, response)
                 throw error
             }
             onRequest(metrics)

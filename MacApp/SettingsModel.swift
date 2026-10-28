@@ -231,8 +231,11 @@ final class SettingsModel: ObservableObject {
         let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "unknown"
         let extensionURL = Bundle.main.builtInPlugInsURL?.appendingPathComponent("Mail-Filter.appex")
         let extensionBuild = extensionURL.flatMap { Bundle(url: $0) }?.object(forInfoDictionaryKey: "CFBundleVersion") as? String
-        let report = DiagnosticReport.summary(build: build, extensionBuild: extensionBuild, mailRunning: mailRunning,
+        var report = DiagnosticReport.summary(build: build, extensionBuild: extensionBuild, mailRunning: mailRunning,
             modelStatus: modelStatus, settings: try? store?.settings(), activity: activity)
+        if let data = try? JSONEncoder().encode(ModelEnvironment.capture()), let environment = String(data: data, encoding: .utf8) {
+            report += "\nCurrent model environment (may differ from an earlier event):\n" + environment + "\n"
+        }
         // Show the saved activity immediately. Log collection never blocks UI or
         // prevents the user from selecting and copying the report manually.
         diagnosticReport = report
@@ -291,13 +294,16 @@ final class SettingsModel: ObservableObject {
                 else { selection = try MessageDiagnostics.selectedMessage() }
                 let settings = try store.settings()
                 let extensionURL = Bundle.main.builtInPlugInsURL?.appendingPathComponent("Mail-Filter.appex")
+                let failures = try? store.modelFailures(messageID: selection.message.messageID)
+                let environment = (try? JSONEncoder().encode(ModelEnvironment.capture())).flatMap { String(data: $0, encoding: .utf8) }
                 let report = SelectedEmailReport(selection: selection, settings: settings, activity: try store.activity(),
                     analysis: analyzedMessageID == selection.message.messageID && analyzedPolicyRevision == settings.revision ? selectedAnalysis : nil,
                     appBuild: Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "unknown",
-                    extensionBuild: extensionURL.flatMap { Bundle(url: $0) }?.object(forInfoDictionaryKey: "CFBundleVersion") as? String)
+                    extensionBuild: extensionURL.flatMap { Bundle(url: $0) }?.object(forInfoDictionaryKey: "CFBundleVersion") as? String,
+                    failures: failures ?? [], failureHistoryAvailable: failures != nil, modelEnvironment: environment)
                 let panel = NSSavePanel()
                 panel.title = "Export selected email report"
-                panel.message = "This file contains the selected email's full source, extracted text, current filtering rules and processing history. Share it only with someone you want to inspect this email. No messages will be moved."
+                panel.message = "This file contains the selected email's full source, extracted text, current filtering rules, processing history and any retained rejected model replies. Share it only with someone you want to inspect this email. No messages will be moved."
                 panel.nameFieldStringValue = "Mail-Filter Diagnostic \(report.diagnosticKey ?? "selected-email").json"
                 panel.directoryURL = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Desktop")
                 panel.allowedContentTypes = [.json]

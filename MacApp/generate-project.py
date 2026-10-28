@@ -45,7 +45,7 @@ shared = [
     'MacApp/Shared/JunkProtection.swift', 'MacApp/Shared/AnalysisDeadline.swift',
     'MacApp/Shared/ClassificationRetry.swift',
 ]
-host = shared + ['Sources/MailFilter/MailAutomation.swift'] + [
+host = shared + ['Sources/MailFilter/MailAutomation.swift', 'MacApp/Shared/ModelEnvironment.swift'] + [
     'MacApp/' + name + '.swift' for name in ('MailFilterApp', 'SettingsModel', 'SettingsView',
     'AccountInventory', 'MessageDiagnostics', 'SelectedEmailReport', 'DiagnosticReport', 'UninstallPlan')]
 extension = shared + ['MacApp/' + name + '.swift' for name in (

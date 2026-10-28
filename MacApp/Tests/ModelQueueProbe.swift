@@ -27,6 +27,7 @@ struct ModelQueueProbe {
     static var directory: URL!
     static var sequence = 0
     static var pacedGapSeconds = 10
+    static var candidate = false
     static func save<T: Encodable>(_ value: T, _ name: String) throws {
         let encoder = JSONEncoder(); encoder.dateEncodingStrategy = .iso8601; encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         let url = directory.appendingPathComponent(name)
@@ -101,10 +102,11 @@ struct ModelQueueProbe {
                     request.milliseconds = Int((ProcessInfo.processInfo.systemUptime - start) * 1000)
                     try save(request, filename); throw error
                 }
-            })
+            }, modelVariant: system.modelVariant, supportsReasoning: system.supportsReasoning, executionState: system.executionState)
         let scheduler = InspectionScheduler()
         let classifier = NativeClassifier(store: store, engine: engine, scheduler: scheduler,
-            sectionCharacters: { 6000 / (1 << min(2, $0 - 1)) }, responseTokenLimit: 64)
+            sectionCharacters: { candidate ? ClassificationRequest.sectionCharacters(forAttempt: $0) : 6000 / (1 << min(2, $0 - 1)) },
+            responseTokenLimit: candidate ? ClassificationRequest.responseTokens : 64)
         let start = ProcessInfo.processInfo.systemUptime
         func inspect(_ index: Int) async -> Job {
             let political = index.isMultiple(of: 2)
@@ -148,10 +150,14 @@ struct ModelQueueProbe {
     static func main() async {
         do {
             let args = Array(CommandLine.arguments.dropFirst())
-            guard args.count == 2 || args.count == 3 else { throw ToolError("Expected new output directory, historical contract JSON and optional pacing gap") }
-            if args.count == 3 {
+            guard (2...4).contains(args.count) else { throw ToolError("Expected new output directory, historical contract JSON, optional pacing gap and baseline/candidate") }
+            if args.count >= 3 {
                 guard let gap = Int(args[2]), (1...60).contains(gap) else { throw ToolError("Pacing gap must be 1 through 60 seconds") }
                 pacedGapSeconds = gap
+            }
+            if args.count == 4 {
+                guard ["baseline", "candidate"].contains(args[3]) else { throw ToolError("Use baseline or candidate") }
+                candidate = args[3] == "candidate"
             }
             directory = URL(fileURLWithPath: args[0])
             guard mkdir(directory.path, 0o700) == 0 else { throw ToolError("Use a new output directory with an existing parent") }
@@ -160,10 +166,18 @@ struct ModelQueueProbe {
             let model = SystemLanguageModel(guardrails: .permissiveContentTransformations)
             guard case .available = model.availability else { throw ToolError("Model not Ready") }
             try await contextControl(model, legacy: legacy)
+            var policy = legacy
+            if candidate {
+                let url = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("Resources/filter.txt")
+                let rules = try String(contentsOf: url, encoding: .utf8)
+                policy = Legacy(commit: "candidate-working-tree", instructions: legacy.instructions, rules: rules,
+                    sourceSHA256: SHA256.hash(data: Data(rules.utf8)).map { String(format: "%02x", $0) }.joined())
+            }
+            try save(policy, "classification-policy.json")
             var blocks: [Block] = []
             // Counterbalance the order of queued and paced blocks.
             for (name, burst) in [("burst-a", true), ("paced-a", false), ("paced-b", false), ("burst-b", true)] {
-                blocks.append(try await block(name, burst: burst, model: model, legacy: legacy))
+                blocks.append(try await block(name, burst: burst, model: model, legacy: policy))
             }
             try save(blocks, "results.json")
             try save(ModelEnvironment.capture(), "environment.json")

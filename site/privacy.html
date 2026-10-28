@@ -17,7 +17,7 @@
 <main id="main" class="wrap"><div class="reading">
   <p class="eyebrow">Your data</p>
   <h1>Privacy policy.</h1>
-  <p class="meta">Effective October 19, 2026 · Developer: Keith Holt</p>
+  <p class="meta">Effective October 28, 2026 · Developer: Keith Holt</p>
   <p class="lead">Mail-Filter analyzes email on your Mac. The app does not automatically send email, account settings or diagnostic history to the developer.</p>
   <div class="callout"><p>Mail-Filter has no advertising, analytics SDK, developer-operated account service or email-upload service. Classification uses Apple's on-device Foundation Models framework.</p></div>
   <h2>What the app accesses</h2>
@@ -29,13 +29,15 @@
     <li><strong>Settings:</strong> account names and addresses, aliases, selected account groups, filtering instructions, evidence terms, and Preview and pause preferences.</li>
     <li><strong>Recovery protection:</strong> message-identity hashes used to avoid moving the same message to Junk again. These are identifiers, not a guarantee of anonymity.</li>
     <li><strong>Activity and diagnostic history:</strong> counters, timestamps, processing decisions/categories, opaque message keys, attempts and sanitized error information. Ordinary activity records exclude email subjects, addresses, bodies, generated reasons and evidence quotes.</li>
+    <li><strong>Rejected model replies:</strong> a separate private troubleshooting cache retains the exact bytes of rejected classification replies, request fingerprints and measurements. A rejected reply can contain text from the email. This cache is excluded from ordinary application diagnostic reports and is included only when you explicitly export a detailed report for the matching email.</li>
   </ul>
   <p>The App Store edition stores this information in its private shared App Group on your Mac. It is used for filtering, recovery and troubleshooting. Email source is not saved as a separate history by routine incoming classification.</p>
   <h2>Retention</h2>
   <p>Settings and recovery records remain until you remove the app's data. Reinstalling or updating the app retains compatible data; removing the app alone does not erase it.</p>
   <p>Activity retains aggregate counters and up to 500 recent events. Supplemental diagnostic history rotates across at most three files of one MiB each. Support reports include events from the last seven days; older diagnostic files are pruned as new activity is recorded. Recovery protection does not expire with diagnostic history.</p>
+  <p>The rejected-reply cache holds at most 32 records, at most 8 KiB of reply bytes per record and at most 512 KiB in total. Records older than seven days are excluded from exports and pruned on a subsequent rejected-reply write. Removing the app's private data also removes this cache.</p>
   <h2>Files you choose to export</h2>
-  <p>Exports are saved only when you request them, to a location you choose. An application diagnostic report contains status and processing history. A detailed selected-email report includes that email's full source, extracted text, filtering instructions, identity key, retained processing history and any matching analysis. A setup export contains private account settings and recovery records.</p>
+  <p>Exports are saved only when you request them, to a location you choose. An application diagnostic report contains status, model/device metadata and processing history. A detailed selected-email report includes that email's full source, extracted text, filtering instructions, identity key, retained processing history, retained rejected model replies and any matching analysis. A setup export contains private account settings and recovery records.</p>
   <p>These files can contain sensitive information. They are not automatically uploaded. You decide whether to share them, and you manage their storage and deletion, including copies in cloud-synced folders or backups you use.</p>
   <h2 id="remove-data">Your choices and data removal</h2>
   <p>Turn Enable filtering off to pause analysis, or disable Mail-Filter in Mail's Extensions settings. You can revoke the settings app's Mail automation permission in System Settings → Privacy &amp; Security → Automation. Revoking automation does not disable the separately enabled Mail extension.</p>

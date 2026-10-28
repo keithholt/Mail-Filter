@@ -1,7 +1,7 @@
 #!/bin/zsh
 set -eu
 root=${0:A:h:h}
-[[ $# -eq 1 || $# -eq 2 ]] || { print -u2 'Usage: MacApp/probe-model-queue.sh NEW_OUTPUT_DIRECTORY [PACING_GAP_SECONDS]'; exit 2; }
+[[ $# -ge 1 && $# -le 3 ]] || { print -u2 'Usage: MacApp/probe-model-queue.sh NEW_OUTPUT_DIRECTORY [PACING_GAP_SECONDS] [baseline|candidate]'; exit 2; }
 out=$(mktemp -d "${TMPDIR:-/tmp}/mail-filter-queue-probe.XXXXXX")
 trap 'rm -rf "$out"' EXIT
 export CLANG_MODULE_CACHE_PATH="$out/clang-cache"
@@ -27,4 +27,4 @@ xcrun swiftc -O -swift-version 5 -parse-as-library -target arm64-apple-macos27.0
   "$root/MacApp/Shared/MIMEBodyDecoder.swift" "$root/MacApp/Shared/FilteringConfiguration.swift" "$root/MacApp/Shared/JunkProtection.swift" \
   "$root/MacApp/Shared/AnalysisDeadline.swift" "$root/MacApp/Shared/ClassificationRetry.swift" "$root/MacApp/Shared/InspectionScheduler.swift" \
   "$root/MacApp/SharedStore.swift" "$root/MacApp/Shared/ModelEnvironment.swift" "$root/MacApp/NativeClassifier.swift" "$root/MacApp/Tests/ModelQueueProbe.swift" -o "$out/queue-probe"
-"$out/queue-probe" "$1" "$out/legacy.json" "${2:-10}"
+"$out/queue-probe" "$1" "$out/legacy.json" "${2:-10}" "${3:-baseline}"

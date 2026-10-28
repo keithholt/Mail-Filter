@@ -50,7 +50,6 @@ struct FailureInjectionChecks {
                 attemptSeconds: attemptSeconds, totalSeconds: totalSeconds, retryDelay: { _ in })
             self.counter = counter
         }
-
         private let counter: Counter
         var callCount: Int { counter.calls }
         var events: [NativeActivity] { get throws { try store.activity().recent } }
@@ -76,6 +75,13 @@ struct FailureInjectionChecks {
 
     static func main() async throws {
         defer { try? FileManager.default.removeItem(at: root) }
+        do {
+            let h = try Harness { call, _ in reply(call == 1 ? "invalid reply" : "political") }
+            try FileManager.default.createDirectory(at: h.store.modelFailuresURL, withIntermediateDirectories: true)
+            let moved = await h.run("cache-unavailable@example.org")
+            try check(moved && h.callCount == 2, "a failed private reply-cache write does not block a valid retry")
+            try check(try h.events.contains { $0.outcome == "diagnosticUnavailable" && $0.category == "modelFailureCapture" }, "capture failure is visible without raw content")
+        }
         for (bad, status, category) in [("", "emptyResponse", "modelEmptyResponse"),
                                       (" \n\t", "blankResponse", "modelEmptyResponse"),
                                       ("private-invalid-reply-marker", "invalidLabel", "invalidModelResponse")] {
@@ -87,6 +93,11 @@ struct FailureInjectionChecks {
             try check(try h.store.activity().junkRequested == 1 && h.store.protection.contains(messageID: "test@example.org"), "recovery reserves one protected Junk intent")
             let json = String(decoding: try JSONEncoder().encode(h.store.activity()), as: UTF8.self)
             try check(!json.contains("private-invalid-reply-marker") && !json.contains("outside@example.org") && !json.contains("Please support"), "ordinary metrics contain no raw response or message")
+            let captured = try h.store.modelFailures(messageID: "test@example.org")
+            try check(captured.count == 1 && Data(base64Encoded: captured[0].replyUTF8Base64) == Data(bad.utf8), "automatic first-attempt rejection survives successful retry byte for byte")
+            try check(captured[0].metrics.requestID != nil && captured[0].metrics.promptDigest?.count == 64
+                && captured[0].metrics.instructionDigest?.count == 64, "rejected reply is linked to the exact request and instructions")
+            try check(try h.events.contains { $0.outcome == "queueAdmitted" && $0.queueWaitMilliseconds != nil }, "logical queue wait is recorded separately from model timing")
         }
 
         let exhausted = try Harness { _, _ in reply("") }

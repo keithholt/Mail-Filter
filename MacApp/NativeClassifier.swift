@@ -72,11 +72,14 @@ final class NativeClassifier {
         }
         let fingerprint = SHA256.hash(data: Data(settings.revision.utf8) + data).map { String(format: "%02x", $0) }.joined()
         record(store, outcome: "queued", category: "waitingForAnalysis", traceID: traceID)
+        let queuedAt = ProcessInfo.processInfo.systemUptime
         var requestJunk = false
         let admission = await scheduler.perform(fingerprint: fingerprint) {
+            self.record(store, outcome: "queueAdmitted", category: "", traceID: traceID,
+                queueWaitMilliseconds: Int(max(0, ProcessInfo.processInfo.systemUptime - queuedAt) * 1000))
             var attempted = false
             guard let result = await self.generate(message: message, configuration: configuration, store: store,
-                                                   onAttempt: { attempted = true }) else {
+                                                   policyRevision: settings.revision, onAttempt: { attempted = true }) else {
                 // Exhaustion/permanent failure is terminal for this input and
                 // settings revision. Duplicate callbacks cannot reset its budget.
                 return attempted
@@ -121,6 +124,7 @@ final class NativeClassifier {
     }
 
     private func generate(message: MailMessage, configuration: FilteringConfiguration, store: SharedStore,
+                          policyRevision: String,
                           onAttempt: @escaping @MainActor () -> Void) async -> (decision: Classification.Decision, evidence: String?, attempt: Int)? {
         let selectedEngine: PoliticalModel.Engine
         if let engine { selectedEngine = engine }
@@ -147,7 +151,7 @@ final class NativeClassifier {
                     let details = failure?.details ?? (failure == nil ? ModelFailureDetails.describe(error) : nil)
                     self.record(store, outcome: retry ? "retryScheduled" : "review",
                                 category: failure?.category ?? details?.category ?? "modelGeneration",
-                                traceID: traceID, attempt: attempt, details: details)
+                                traceID: traceID, attempt: attempt, details: details, modelState: selectedEngine.executionState?())
                     if !retry { finalFailureRecorded = true }
                 },
                 operation: { attempt in
@@ -164,6 +168,14 @@ final class NativeClassifier {
                             }, onRequest: { metrics in
                                 self.record(store, outcome: metrics.status == .started ? "modelRequestStarted" : "modelRequestFinished",
                                     category: metrics.status.rawValue, traceID: traceID, attempt: attempt, metrics: metrics)
+                            }, onRejectedResponse: { metrics, reply in
+                                guard let traceID else { return }
+                                do {
+                                    try store.recordModelFailure(traceID: traceID, attempt: attempt,
+                                        policyRevision: policyRevision, metrics: metrics, reply: reply)
+                                } catch {
+                                    self.record(store, outcome: "diagnosticUnavailable", category: "modelFailureCapture", traceID: traceID, attempt: attempt)
+                                }
                             }).classification
                     } catch { throw ClassificationAttemptFailure.generation(error) }
                     try Task.checkCancellation()
@@ -177,7 +189,7 @@ final class NativeClassifier {
             if !finalFailureRecorded {
                 let details = ModelFailureDetails.describe(error)
                 record(store, outcome: "review", category: details.category, traceID: traceID,
-                       attempt: activeAttempt > 0 ? activeAttempt : nil, details: details)
+                       attempt: activeAttempt > 0 ? activeAttempt : nil, details: details, modelState: selectedEngine.executionState?())
             }
             return nil
         }
@@ -185,12 +197,14 @@ final class NativeClassifier {
 
     private func record(_ store: SharedStore, outcome: String, category: String, processed: Bool = false, requested: Bool = false,
                         traceID: String? = nil, callback: Bool = false, attempt: Int? = nil, details: ModelFailureDetails? = nil,
-                        metrics: ModelRequestMetrics? = nil, bodyWaitMilliseconds: Int? = nil) {
+                        metrics: ModelRequestMetrics? = nil, bodyWaitMilliseconds: Int? = nil,
+                        queueWaitMilliseconds: Int? = nil, modelState: (busy: Bool, waiting: Int)? = nil) {
         logger.notice("Mail decision: \(outcome, privacy: .public); category: \(category, privacy: .public); key: \(traceID ?? "unavailable", privacy: .public); attempt: \(attempt ?? 0, privacy: .public); error domain: \(details?.domain ?? "", privacy: .public); error code: \(details?.code ?? 0, privacy: .public); Junk action requested: \(requested, privacy: .public)")
         do { try store.record(outcome: outcome, category: category, processed: processed, junkRequested: requested,
                               traceID: traceID, receivedCallback: callback, attempt: attempt,
                               failureDomain: details?.domain, failureCode: details?.code, modelMetrics: metrics,
-                              bodyWaitMilliseconds: bodyWaitMilliseconds) }
+                              bodyWaitMilliseconds: bodyWaitMilliseconds, queueWaitMilliseconds: queueWaitMilliseconds,
+                              modelSlotBusy: modelState?.busy, modelSlotWaiters: modelState?.waiting) }
         catch { logger.error("Recent activity could not be saved; category: activityStorage") }
     }
 }

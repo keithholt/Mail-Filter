@@ -19,9 +19,11 @@ Use `./MacApp/probe-model.sh --check-replay` to verify the developer collector o
   --output /private/tmp/mail-filter-local-budget-run --repetitions 20
 ```
 
-The [plan](docs/model-reproduction-plan.md) explains separate output-budget, section-size and policy experiments, explicit locally selected email exports, transcripts, journal recovery and limits. Do not treat scripted faults, tiny output caps or successful fictional examples as proof of the original failure’s cause. Store review remains on hold.
+The [plan](docs/model-reproduction-plan.md) explains separate output-budget, section-size and policy experiments, explicit locally selected email exports, transcripts, journal recovery and limits. Do not treat scripted faults, tiny output caps or successful fictional examples as proof of the original failure’s cause. Candidate build 27 is undergoing the requested defensive audit and clean Store/Dev qualification; see the [release record](docs/release-2.1.1.md). The exact invalid-response cause remains unresolved.
 
 The [timing and queue investigation](docs/timing-and-queue-investigation.md) records the historical context-overflow reproduction, timeout-overlap fix and full-duration qualification. `./MacApp/qualify-timing.sh --full --output NEW_REPORT.json` uses real production deadlines with a scripted SDK. `./MacApp/probe-model-queue.sh NEW_DIRECTORY` uses fictional content with the actual model and native queue. Both keep installed apps and Mail untouched. The normal native suite runs the accelerated timing cases and 200 model-slot cancellation/handoff races; full-duration and real-model comparisons remain explicit engineering commands.
+
+Use `./MacApp/probe-model-queue.sh NEW_DIRECTORY 10 candidate` to run the current bundled policy and generation budgets; the default `baseline` mode retains historical comparison limits. `MAIL_FILTER_DERIVED_DATA_PATH` selects a separate clean build directory for `store-build.sh` and `install-dev.sh`. Build 27's explicit selected-email reports can include retained original rejected reply bytes; ordinary application reports remain content-free.
 
 ## Native app development
 

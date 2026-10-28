@@ -269,6 +269,10 @@ The shared CLI provides further engineering entry points:
 
 The last command reads real mail but explicitly disables moves. Use your actual account privately. A normal CLI run without diagnostic or `--dry-run` arguments applies verified matches by default; do not use it as a read-only test. The fixture path never accesses Mail. Full CLI flags, state semantics and development timer commands are in `README-DEVELOPER.md`.
 
+Build 27 retains original automatic rejected replies in a separate private cache, even if the next attempt succeeds. Export the selected email report promptly after a failure. Its `originalModelFailures` field includes exact reply bytes, request fingerprints, policy revision and per-section metrics. An empty list can mean no rejection or expired/evicted records; `failureHistoryAvailable: false` means the cache could not be read. Ordinary application diagnostics omit those replies and email content. The cache is bounded to 32 records, 8 KiB of reply per record and 512 KiB total, with seven-day export eligibility.
+
+Current app diagnostics also report hardware/model metadata. Compare retained per-request variant, reasoning usage, request sizes, model-slot wait and queue admission duration before assigning a cause. A busy model slot at timeout indicates an outstanding framework await, not proof of ongoing hardware inference. Use `MAIL_FILTER_DERIVED_DATA_PATH` with `store-build.sh` to isolate clean Dev and Store builds in separate new directories.
+
 ## 7 Validate a change before release
 
 Keep a private reproduction for each reported failure and pair it with an ordinary negative control. Test extraction, label validity, political accuracy and verified evidence separately. Never commit real mail exports, account files, email addresses, local settings or raw MIME as public fixtures. Convert regression cases into synthetic examples that preserve the relevant structure.

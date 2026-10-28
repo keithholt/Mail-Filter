@@ -158,12 +158,42 @@ struct NativeActivity: Codable, Identifiable, Sendable {
     var bodyWaitMilliseconds: Int? = nil
     var build: String? = nil
     var channel: String? = nil
+    var queueWaitMilliseconds: Int? = nil
+    var modelSlotBusy: Bool? = nil
+    var modelSlotWaiters: Int? = nil
 
     var measurementSummary: String {
         var values: [String] = []
         if let modelMetrics { values.append(modelMetrics.summary) }
         if let bodyWaitMilliseconds { values.append("bodyWaitMs=\(bodyWaitMilliseconds)") }
+        if let queueWaitMilliseconds { values.append("queueWaitMs=\(queueWaitMilliseconds)") }
+        if let modelSlotBusy { values.append("modelSlotBusy=\(modelSlotBusy)") }
+        if let modelSlotWaiters { values.append("modelSlotWaiters=\(modelSlotWaiters)") }
         return values.joined(separator: " ")
+    }
+}
+
+/// Private rejected output only. Kept out of ordinary activity, Console and
+/// application support reports; included only in an explicit same-email export.
+struct ModelFailureRecord: Codable, Sendable {
+    var date = Date()
+    let traceID: String
+    let attempt: Int
+    let policyRevision: String
+    let build: String?
+    let metrics: ModelRequestMetrics
+    let replyUTF8Base64: String
+    let replyTruncated: Bool
+    let replySHA256: String
+
+    var valid: Bool {
+        guard traceID.count == 12, traceID.utf8.allSatisfy({ (48...57).contains($0) || (97...102).contains($0) }),
+              (1...10).contains(attempt), policyRevision.count <= 100,
+              build == nil || (build!.count <= 50 && build!.range(of: "^[A-Za-z0-9._-]+$", options: .regularExpression) != nil),
+              metrics.valid, [.emptyResponse, .blankResponse, .invalidLabel, .refusal].contains(metrics.status),
+              replyUTF8Base64.utf8.count <= 10_924, let bytes = Data(base64Encoded: replyUTF8Base64), bytes.count <= 8192,
+              replySHA256.count == 64, replySHA256.utf8.allSatisfy({ (48...57).contains($0) || (97...102).contains($0) }) else { return false }
+        return replyTruncated || SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined() == replySHA256
     }
 }
 
@@ -224,6 +254,7 @@ final class SharedStore {
     let directory: URL
     var settingsURL: URL { directory.appendingPathComponent("settings.json") }
     var activityURL: URL { directory.appendingPathComponent("activity.json") }
+    var modelFailuresURL: URL { directory.appendingPathComponent("model-failures.json") }
     var protection: JunkProtection { JunkProtection(url: directory.appendingPathComponent("junk-protection.json")) }
 
     init(directory: URL) { self.directory = directory }
@@ -410,6 +441,47 @@ final class SharedStore {
             && (event.channel == nil || token(event.channel!, limit: 50))
             && (event.modelMetrics == nil || event.modelMetrics!.valid)
             && (event.bodyWaitMilliseconds == nil || (0...1_000_000_000).contains(event.bodyWaitMilliseconds!))
+            && (event.queueWaitMilliseconds == nil || (0...1_000_000_000).contains(event.queueWaitMilliseconds!))
+            && (event.modelSlotWaiters == nil || (0...10_000).contains(event.modelSlotWaiters!))
+    }
+
+    static let modelFailureFileLimit = 512 * 1_024
+
+    private func loadModelFailures(now: Date) throws -> [ModelFailureRecord] {
+        guard FileManager.default.fileExists(atPath: modelFailuresURL.path) else { return [] }
+        let records = try JSONDecoder().decode([ModelFailureRecord].self, from: boundedData(modelFailuresURL, maximum: Self.modelFailureFileLimit))
+        guard records.count <= 32, records.allSatisfy(\.valid) else { throw NativeStoreError.invalidActivity }
+        return records.filter { $0.date >= now.addingTimeInterval(-7 * 86400) && $0.date <= now.addingTimeInterval(60) }
+    }
+
+    func modelFailures(messageID: String, now: Date = Date()) throws -> [ModelFailureRecord] {
+        let key = String(try JunkIdentity.key(messageID).prefix(12))
+        return try locked { try loadModelFailures(now: now).filter { $0.traceID == key } }
+    }
+
+    func recordModelFailure(traceID: String, attempt: Int, policyRevision: String,
+                            metrics: ModelRequestMetrics, reply: String, now: Date = Date(), bundle: Bundle = .main) throws {
+        let bytes = Data(reply.utf8)
+        let record = ModelFailureRecord(date: now, traceID: traceID, attempt: attempt, policyRevision: policyRevision,
+            build: bundle.object(forInfoDictionaryKey: "CFBundleVersion") as? String, metrics: metrics,
+            replyUTF8Base64: Data(bytes.prefix(8192)).base64EncodedString(), replyTruncated: bytes.count > 8192,
+            replySHA256: SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined())
+        guard record.valid else { throw NativeStoreError.invalidActivity }
+        try locked {
+            // This expendable diagnostic cache must not become permanently
+            // unwritable because an earlier diagnostic file was interrupted.
+            var records = (try? loadModelFailures(now: now)) ?? []
+            records.append(record)
+            records = Array(records.suffix(32))
+            let encoder = JSONEncoder()
+            var data = try encoder.encode(records)
+            while data.count > Self.modelFailureFileLimit && records.count > 1 {
+                records.removeFirst(); data = try encoder.encode(records)
+            }
+            guard data.count <= Self.modelFailureFileLimit else { throw NativeStoreError.invalidActivity }
+            try data.write(to: modelFailuresURL, options: .atomic)
+            try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: modelFailuresURL.path)
+        }
     }
 
     static let diagnosticFileLimit = 1_024 * 1_024
@@ -461,13 +533,17 @@ final class SharedStore {
     func record(outcome: String, category: String, processed: Bool = false, junkRequested: Bool = false,
                 traceID: String? = nil, receivedCallback: Bool = false, attempt: Int? = nil,
                 failureDomain: String? = nil, failureCode: Int? = nil, modelMetrics: ModelRequestMetrics? = nil,
-                bodyWaitMilliseconds: Int? = nil, bundle: Bundle = .main) throws {
+                bodyWaitMilliseconds: Int? = nil, queueWaitMilliseconds: Int? = nil,
+                modelSlotBusy: Bool? = nil, modelSlotWaiters: Int? = nil, bundle: Bundle = .main) throws {
         try locked {
             var event = NativeActivity(outcome: outcome, category: category, traceID: traceID,
                 attempt: attempt, failureDomain: failureDomain, failureCode: failureCode,
                 modelMetrics: modelMetrics, bodyWaitMilliseconds: bodyWaitMilliseconds)
             event.build = bundle.object(forInfoDictionaryKey: "CFBundleVersion") as? String
             event.channel = bundle.object(forInfoDictionaryKey: "MailFilterDistribution") as? String
+            event.queueWaitMilliseconds = queueWaitMilliseconds
+            event.modelSlotBusy = modelSlotBusy
+            event.modelSlotWaiters = modelSlotWaiters
             guard Self.validEvent(event) else { throw NativeStoreError.invalidActivity }
             var activity = try loadActivity()
             if outcome == "extensionStarted" { activity.lastExtensionStart = event }
@@ -498,7 +574,7 @@ final class SharedStore {
     // Called only after the user explicitly chooses to erase private application data.
     func eraseApplicationData() throws {
         try locked {
-            for url in [settingsURL, activityURL, directory.appendingPathComponent("migration-backup.json"), directory.appendingPathComponent("junk-protection.json"), directory.appendingPathComponent("junk-protection.json.lock")] + (0...2).map(logURL) {
+            for url in [settingsURL, activityURL, modelFailuresURL, directory.appendingPathComponent("migration-backup.json"), directory.appendingPathComponent("junk-protection.json"), directory.appendingPathComponent("junk-protection.json.lock")] + (0...2).map(logURL) {
                 if FileManager.default.fileExists(atPath: url.path) { try FileManager.default.removeItem(at: url) }
             }
         }

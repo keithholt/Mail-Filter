@@ -117,6 +117,13 @@
 			"path" = "MacApp/Shared/MIMEBodyDecoder.swift";
 			"sourceTree" = "SOURCE_ROOT";
 		};
+		"8E58D749E16B043339F22C2D" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "ModelEnvironment.swift";
+			"path" = "MacApp/Shared/ModelEnvironment.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
 		"24B8C1145EFC4D3D812C499E" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -429,6 +436,10 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "669BC498F5A0ED83833814FD";
 		};
+		"4D9C1FBC2161A9FC78AA8907" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "8E58D749E16B043339F22C2D";
+		};
 		"6B21DBC355DD855CB95CF1C4" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "44A00F555C15EB7A64D29F2C";
@@ -475,6 +486,7 @@
 				"B7E4AF042D87055693AAAE08",
 				"3C5F7BC21F0A37AFD3C78C44",
 				"1757318B5A4E76E648BF9A70",
+				"4D9C1FBC2161A9FC78AA8907",
 				"6B21DBC355DD855CB95CF1C4",
 				"44670D43C387E727E0810D6B",
 				"4CAE8AE3F1513908F46B8B52",
@@ -1735,13 +1747,6 @@
 			"path" = "MacApp/Resources/PoliticalAdFilter.icns";
 			"sourceTree" = "SOURCE_ROOT";
 		};
-		"8E58D749E16B043339F22C2D" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"name" = "ModelEnvironment.swift";
-			"path" = "MacApp/Shared/ModelEnvironment.swift";
-			"sourceTree" = "SOURCE_ROOT";
-		};
 		"AB061E12E3F2638C8D807214" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "text.plist.xml";
@@ -2106,6 +2111,13 @@
 			"path" = "docs/model-reproduction-plan.md";
 			"sourceTree" = "SOURCE_ROOT";
 		};
+		"004C7B00DFC5CFD07F1BAD5A" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "net.daringfireball.markdown";
+			"name" = "release-2.1.1.md";
+			"path" = "docs/release-2.1.1.md";
+			"sourceTree" = "SOURCE_ROOT";
+		};
 		"74FCF38993456C0CCF47F6EB" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "net.daringfireball.markdown";
@@ -2257,6 +2269,7 @@
 				"D18330B876D0542F4B1F2B1C",
 				"9482C05A05EA76F96FBBF37F",
 				"9831AFD2DA449F91AFC93069",
+				"004C7B00DFC5CFD07F1BAD5A",
 				"74FCF38993456C0CCF47F6EB",
 				"B7C1899F54D8934FB17311B4",
 				"1779378023456FE0B1C1682D",

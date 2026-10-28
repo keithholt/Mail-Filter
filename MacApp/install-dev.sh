@@ -7,7 +7,7 @@ root=${0:A:h:h}
     print -u2 'Usage: MacApp/install-dev.sh [--no-build]'; exit 1
 }
 if [[ $# == 0 ]]; then "$root/MacApp/store-build.sh" development; fi
-source_app="$root/.build/xcode-derived/Build/Products/Development/Mail-Filter.app"
+source_app="${MAIL_FILTER_DERIVED_DATA_PATH:-$root/.build/xcode-derived}/Build/Products/Development/Mail-Filter.app"
 python3 "$root/MacApp/Store/verify.py" "$source_app" --development
 python3 - "$root" "$source_app" <<'PY'
 from pathlib import Path
