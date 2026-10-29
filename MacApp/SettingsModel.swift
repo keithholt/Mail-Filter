@@ -14,7 +14,10 @@ final class SettingsModel: ObservableObject {
     @Published var preview = false
     @Published var paused = false
     #if MAIL_FILTER_DEV
-    @Published var filterOwnMailForTesting = false
+    @Published var filterOwnMailForTesting = true
+    var selfMailChoiceNeedsSave: Bool {
+        filterOwnMailForTesting != loaded.allowsOwnMailForTesting
+    }
     #endif
     @Published var saved = false
     @Published var busy = false

@@ -114,12 +114,18 @@ struct SettingsView: View {
                     }
                 }
                 #if MAIL_FILTER_DEV
-                Toggle("Filter mail from my own addresses (testing)", isOn: $model.filterOwnMailForTesting)
+                Toggle("Analyze and filter self-sent mail (Dev)", isOn: $model.filterOwnMailForTesting)
                     .toggleStyle(.switch)
                 Text(model.filterOwnMailForTesting
-                     ? "Dev testing: mail from your own addresses can be classified and moved to Junk. Account selection, Preview, keyword validation and recovery protection still apply. Save Settings to apply."
-                     : "Mail from all your configured addresses is protected. Turn on this Dev-only option to test with mail sent to yourself, then Save Settings.")
+                     ? "ON: Messages sent from any of your own addresses are analyzed and can move to Junk. This includes mail between your accounts. Account selection, Preview, keyword validation and recovery protection still apply."
+                     : "OFF: Messages sent from any of your own addresses are protected and stay in place without AI analysis.")
                     .font(.caption).foregroundStyle(.secondary)
+                Text("Default: ON in Dev. Click Save Settings to apply changes.")
+                    .font(.caption).foregroundStyle(.secondary)
+                if model.selfMailChoiceNeedsSave {
+                    Text("Self-sent mail change is not saved. Click Save Settings to apply.")
+                        .font(.caption).foregroundStyle(.orange)
+                }
                 #else
                 Text("Mail from any of your configured addresses is protected, including accounts you leave unchecked.")
                     .font(.caption).foregroundStyle(.secondary)

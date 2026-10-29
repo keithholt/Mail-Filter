@@ -20,7 +20,7 @@ struct FailureInjectionChecks {
     @MainActor final class Harness {
         let store: SharedStore
         let classifier: NativeClassifier
-        init(terms: [String] = ["campaign"], preview: Bool = false, allowOwnMail: Bool = false,
+        init(terms: [String] = ["campaign"], preview: Bool = false, allowOwnMail: Bool? = false,
              attemptSeconds: TimeInterval = 1, totalSeconds: TimeInterval = 3,
              scheduler: InspectionScheduler? = nil,
              respond: @escaping (Int, String) async throws -> PoliticalModel.Reply) throws {
@@ -35,7 +35,9 @@ struct FailureInjectionChecks {
             // Decode the same key in both compilations: production must ignore
             // even an explicitly true Dev setting copied into its JSON.
             var object = try JSONSerialization.jsonObject(with: JSONEncoder().encode(settings)) as! [String: Any]
-            object["filterOwnMailForTesting"] = allowOwnMail
+            // nil models a pre-existing schema-1 file with no Dev key.
+            if let allowOwnMail { object["filterOwnMailForTesting"] = allowOwnMail }
+            else { object.removeValue(forKey: "filterOwnMailForTesting") }
             settings = try JSONDecoder().decode(NativeSettings.self, from: JSONSerialization.data(withJSONObject: object))
             try store.save(settings)
             // This holder avoids capturing a partially initialized Harness.
@@ -215,19 +217,31 @@ struct FailureInjectionChecks {
         let ownMailMove = await ownMail.run(sender: "My address <me@example.com>")
         let ownSettings = try ownMail.store.settings()
         let encodedOwn = try JSONSerialization.jsonObject(with: JSONEncoder().encode(ownSettings)) as! [String: Any]
-        try check(!NativeSettings().allowsOwnMailForTesting, "new settings protect self-mail by default")
         let crossSelfMove = await ownMail.run("cross-self@example.org", sender: "me@other.example")
+        let defaultOwn = try Harness(allowOwnMail: nil) { _, _ in reply("political") }
+        let defaultOwnMove = await defaultOwn.run(sender: "me@example.com")
+        let defaultCrossMove = await defaultOwn.run("default-cross@example.org", sender: "me@other.example")
+        let explicitProtection = try Harness(allowOwnMail: false) { _, _ in reply("political") }
+        let explicitSettings = try JSONDecoder().decode(NativeSettings.self,
+            from: JSONEncoder().encode(explicitProtection.store.settings()))
+        let explicitSelfMove = await explicitProtection.run(sender: "me@example.com")
+        let explicitCrossMove = await explicitProtection.run("protected-cross@example.org", sender: "me@other.example")
+        try check(!explicitSettings.allowsOwnMailForTesting && !explicitSelfMove && !explicitCrossMove
+            && explicitProtection.callCount == 0, "explicit saved OFF survives round trip and protects all own senders")
         #if MAIL_FILTER_DEV
+        try check(NativeSettings().allowsOwnMailForTesting, "new Dev settings filter self-mail by default")
+        try check(try defaultOwn.store.settings().allowsOwnMailForTesting && defaultOwnMove && defaultCrossMove
+            && defaultOwn.callCount == 2, "Dev settings missing the key default to filtering across own accounts")
         try check(ownSettings.allowsOwnMailForTesting && encodedOwn["filterOwnMailForTesting"] as? Bool == true,
-                  "Dev opt-in survives private settings round trip")
+                  "Dev ON survives private settings round trip")
         try check(ownMailMove && crossSelfMove && ownMail.callCount == 2,
-                  "Dev opt-in allows self-mail from selected or unchecked own accounts to request Junk")
+                  "Dev ON allows self-mail from selected or unchecked own accounts to request Junk")
         let restoredSelf = await ownMail.run(sender: "me@example.com")
-        try check(!restoredSelf && ownMail.callCount == 2, "restored self-mail is protected even while Dev opt-in is on")
+        try check(!restoredSelf && ownMail.callCount == 2, "restored self-mail is protected even while the Dev switch is ON")
         let ownPreview = try Harness(preview: true, allowOwnMail: true) { _, _ in reply("political") }
         let ownPreviewMove = await ownPreview.run(sender: "me@example.com")
         try check(!ownPreviewMove && ownPreview.callCount == 1 && (try ownPreview.events.contains { $0.outcome == "previewPolitical" }),
-                  "Dev self-mail opt-in retains Preview")
+                  "Dev self-mail ON retains Preview")
         let ownNegative = try Harness(allowOwnMail: true) { _, _ in reply("not-political") }
         let negativeSelfMove = await ownNegative.run(sender: "me@example.com")
         try check(!negativeSelfMove && ownNegative.callCount == 1, "Dev self-mail still needs a positive model label")
@@ -253,8 +267,11 @@ struct FailureInjectionChecks {
         selfRelease?.resume(returning: reply("political"))
         let changedSelfMove = await selfTask.value
         try check(!changedSelfMove && (try ownChanged.store.activity().junkRequested == 0),
-                  "saving Dev opt-out during inference blocks final Junk intent")
+                  "saving Dev OFF during inference blocks final Junk intent")
         #else
+        try check(!NativeSettings().allowsOwnMailForTesting, "new production settings protect self-mail by default")
+        try check(!defaultOwnMove && !defaultCrossMove && defaultOwn.callCount == 0,
+                  "production settings missing the Dev key still protect all own senders")
         try check(!ownSettings.allowsOwnMailForTesting && encodedOwn["filterOwnMailForTesting"] == nil,
                   "production ignores and drops the Dev-only JSON setting")
         try check(!ownMailMove && !crossSelfMove && ownMail.callCount == 0,

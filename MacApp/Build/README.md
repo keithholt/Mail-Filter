@@ -18,7 +18,7 @@ Native builds regenerate Word documentation. Direct packaging stages the native 
 
 ## Dev self-mail testing
 
-Only `Development.xcconfig` defines `MAIL_FILTER_DEV`. The signed Dev app exposes **Filter mail from my own addresses (testing)**, off by default. Save Settings applies the switch to the Dev extension and read-only analysis. Production builds omit the saved field and bypass entry point, so an imported Dev setting cannot disable Store self-mail protection. Preview, recipient selection, body/identity checks, evidence and recovery remain active. See the developer guide for the fresh-message test procedure.
+Only `Development.xcconfig` defines `MAIL_FILTER_DEV`. The signed Dev app exposes **Analyze and filter self-sent mail (Dev)**, defaulting to **ON** for new settings and older files without the key. An explicit saved OFF choice is preserved. ON permits classification and verified Junk actions for own-sender mail; OFF protects it without analysis. The UI explains both states and flags an unsaved change. **Save Settings** applies the switch to the Dev extension and read-only analysis. Production builds omit the saved field and bypass entry point, so an imported Dev setting cannot disable Store self-mail protection. Preview, recipient selection, body/identity checks, evidence and recovery remain active. See the developer guide for the fresh-message test procedure.
 
 ## Application icon
 

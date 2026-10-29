@@ -64,13 +64,14 @@ struct NativeSettings: Codable {
     var importedProtection: [String]? = nil
     var activationRequired: Bool? = nil
     #if MAIL_FILTER_DEV
-    // Dev-only, opt-in and backward compatible with existing private settings.
-    var filterOwnMailForTesting: Bool? = nil
+    // Dev defaults to testing self-mail, including older files without this key.
+    // Keep explicit saved false choices; production never compiles this field.
+    var filterOwnMailForTesting: Bool? = true
     #endif
 
     var allowsOwnMailForTesting: Bool {
         #if MAIL_FILTER_DEV
-        return filterOwnMailForTesting == true
+        return filterOwnMailForTesting ?? true
         #else
         return false
         #endif
