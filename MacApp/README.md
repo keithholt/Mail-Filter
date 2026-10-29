@@ -4,9 +4,17 @@ Mail-Filter is a settings app with an embedded MailKit extension. New messages f
 
 The CLI/timer baseline remains available and is tagged `v1.0.0`. The earlier compatibility Probe is retired. Shared filtering helpers are maintained in `MacApp/Shared/`; neither the app nor the CLI requires a separate Probe app. Building does not install apps or enable a timer.
 
-## Install with a click
+## Install the separate Dev app
 
-Open **outputs/Mail-Filter Installer.pkg** in the project folder and follow macOS Installer. It installs these two apps in Applications:
+Use **Mail-Filter Dev Installer** in Xcode or run `./MacApp/package.sh`. The verified package and Desktop shortcut are **Mail-Filter Dev Installer.pkg**. Its title and welcome page show the version and build. It installs `/Applications/Mail-Filter Dev.app` with separate identifiers and App Group; the Store app remains `/Applications/Mail-Filter.app`. Dev signing requires provisioned development capabilities and a registered test Mac. Compatible Dev settings are preserved. Enable exactly one of Store and Dev in Mail; Apple owns the independent checkboxes.
+
+The optional engineering CLI installs outside both app bundles under `/Library/Application Support/Mail-Filter Dev/DeveloperTools`. It has an independently owned PATH component and independent CLI settings. Neither package installation nor building activates an extension.
+
+The following direct-distribution notes apply only to the explicitly selected legacy Local/DeveloperID channel, not the separate Dev app.
+
+## Legacy direct installer
+
+Open **outputs/Mail-Filter Direct Installer.pkg** in the project folder and follow macOS Installer. It installs these two apps in Applications:
 
 - **Mail-Filter.app** — account selection, settings, setup help and recent activity.
 - **Uninstall Mail-Filter.app** — removal and optional private-data cleanup.
@@ -97,19 +105,19 @@ Reinstalling the same build or installing an update replaces only the applicatio
 
 ## Build and package locally
 
-Open the root `Mail-Filter.xcodeproj` for native development. **Mail-Filter Local** builds the direct app, **Mail-Filter Local Installer** packages the native products, and **Mail-Filter Store** selects signed sandboxed development or Store archiving. **Mail-Filter Build Check** compiles the sandboxed product unsigned. All use the same app and extension targets. The separate **mail-filter CLI** scheme runs the engineering executable with `--help` by default. See [Developer Getting Started](../docs/dev/getting-started.md) for the configuration and signing workflow.
+Open the root `Mail-Filter.xcodeproj` for native development. Use **Mail-Filter Dev Installer** for the isolated development package; the default `package.sh` selects it. The legacy direct installer refuses Store receipts, Store metadata and unexpected destination identities before replacement. **Mail-Filter Local** builds the direct app, **Mail-Filter Local Installer** packages the native products, and **Mail-Filter Store** selects signed sandboxed development or Store archiving. **Mail-Filter Build Check** compiles the sandboxed product unsigned. All use the same app and extension targets. The separate **mail-filter CLI** scheme runs the engineering executable with `--help` by default. See [Developer Getting Started](../docs/dev/getting-started.md) for the configuration and signing workflow.
 
 Developer requirements: full Xcode selected with first-launch setup completed, macOS 26+, Apple silicon and Python 3. No third-party libraries are used.
 
 ```sh
 cd ~/Documents/GitHub/Mail-Filter
 ./MacApp/test.sh
-./MacApp/package.sh
+./MacApp/package.sh local
 ```
 
 In Xcode, choose **Mail-Filter Local Installer**, **My Mac**, then **Product > Build** (Command-B). The Terminal commands above invoke the same root project and packaging steps. Native builds regenerate the Markdown guides as Word documents before compiling.
 
-The package is `outputs/Mail-Filter Installer.pkg` in the project folder. After package verification, the build creates a Desktop shortcut named `Mail-Filter Installer.pkg` pointing to that file, so it opens the latest package after each rebuild. Existing unrelated Desktop items are preserved; a conflict or denied Desktop access produces a warning while leaving the verified package available in `outputs/`. The `outputs/` directory is excluded from Git. Standalone apps and intermediate files are in `.build/`, which is also ignored. `./MacApp/build.sh` invokes the root `Mail-Filter.xcodeproj` targets and stages the apps with the bundled engineering CLI; it does not install/open/enable them or enable the retired extension. The package verification expands the payload into temporary files and checks identities, signatures, public application permissions, fixed destinations, mutually exclusive command-line choices, narrowly scoped PATH scripts and absence of personal settings/state. No test installs a package or moves real mail. Read-only Installer choice queries require a normal macOS session; the execution sandbox may not expose the target volume.
+The package is `outputs/Mail-Filter Direct Installer.pkg` in the project folder. After package verification, the build creates a Desktop shortcut named `Mail-Filter Direct Installer.pkg` pointing to that file, so it opens the latest package after each rebuild. Existing unrelated Desktop items are preserved; a conflict or denied Desktop access produces a warning while leaving the verified package available in `outputs/`. The `outputs/` directory is excluded from Git. Standalone apps and intermediate files are in `.build/`, which is also ignored. `./MacApp/build.sh` invokes the root `Mail-Filter.xcodeproj` targets and stages the apps with the bundled engineering CLI; it does not install/open/enable them or enable the retired extension. The package verification expands the payload into temporary files and checks identities, signatures, public application permissions, fixed destinations, mutually exclusive command-line choices, narrowly scoped PATH scripts and absence of personal settings/state. No test installs a package or moves real mail. Read-only Installer choice queries require a normal macOS session; the execution sandbox may not expose the target volume.
 
 Native checks cover first-run defaults, duplicate-name account selection, hot reload, pause during generation, stale results, preview, persistent recovery, migration, activity limits, corruption, file permissions and bounded uninstall planning using temporary fixtures. The same test script also runs the shared MIME, guard, political-evidence, burst-admission and recovery checks. Live GUI/Automation/shared-container behavior, real Mail moves/restoration and actual installation/removal need testing outside the execution sandbox. Test upgrades and removal on a separate Mac or clean user account before a public release.
 

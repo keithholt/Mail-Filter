@@ -61,7 +61,7 @@ extension_frameworks = [add('framework:' + name, 'PBXFileReference', lastKnownFi
     name=name + '.framework', path='System/Library/Frameworks/' + name + '.framework', sourceTree='SDKROOT')
     for name in ('MailKit', 'AppKit')]
 project_id = uid('project')
-target_ids = {name: uid(name + '-target') for name in ('host', 'extension', 'uninstaller', 'cli', 'documentation', 'local-installer')}
+target_ids = {name: uid(name + '-target') for name in ('host', 'extension', 'uninstaller', 'cli', 'documentation', 'local-installer', 'dev-installer')}
 products = {}
 for name, path, kind in (
     ('host', 'Mail-Filter.app', 'wrapper.application'),
@@ -169,6 +169,15 @@ add('local-installer-target', 'PBXAggregateTarget', name='MailFilterLocalInstall
     productName='MailFilterLocalInstaller', buildConfigurationList=configs('installer-configs', 'Helper'),
     dependencies=[dependency(name) for name in ('host', 'cli', 'uninstaller')], buildPhases=[installer_phase])
 
+dev_installer_phase = add('dev-installer-phase', 'PBXShellScriptBuildPhase', buildActionMask=2147483647,
+    files=[], inputPaths=[], outputPaths=[], name='Package isolated Dev products',
+    runOnlyForDeploymentPostprocessing=0, alwaysOutOfDate=1, showEnvVarsInLog=0, shellPath='/bin/zsh',
+    shellScript='set -eu\n[[ "$CONFIGURATION" == Development ]] || { print -u2 "Select the Development installer configuration."; exit 1; }\n'
+                '"${SRCROOT}/MacApp/package.sh" development --built-products "${BUILT_PRODUCTS_DIR}"\n')
+add('dev-installer-target', 'PBXAggregateTarget', name='MailFilterDevInstaller',
+    productName='MailFilterDevInstaller', buildConfigurationList=configs('dev-installer-configs', 'Helper'),
+    dependencies=[dependency(name) for name in ('host', 'cli')], buildPhases=[dev_installer_phase])
+
 product_group = add('products', 'PBXGroup', children=list(products.values()), name='Products', sourceTree='<group>')
 framework_group = add('frameworks', 'PBXGroup', children=extension_frameworks, name='Frameworks', sourceTree='<group>')
 project_configs = configs('project-configs')
@@ -229,7 +238,8 @@ def serialize(value, indent=0):
 def buildable(name):
     labels = {'host': ('Mail-Filter.app', 'MailFilter'), 'extension': ('Mail-Filter.appex', 'MailFilterExtension'),
               'uninstaller': ('Uninstall Mail-Filter.app', 'MailFilterUninstaller'), 'cli': ('mail-filter', 'MailFilterCLI'),
-              'local-installer': ('MailFilterLocalInstaller', 'MailFilterLocalInstaller')}
+              'local-installer': ('MailFilterLocalInstaller', 'MailFilterLocalInstaller'),
+              'dev-installer': ('MailFilterDevInstaller', 'MailFilterDevInstaller')}
     product, label = labels[name]
     return (f'<BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="{target_ids[name]}" '
             f'BuildableName="{product}" BlueprintName="{label}" ReferencedContainer="container:Mail-Filter.xcodeproj"/>')
@@ -238,7 +248,7 @@ def buildable(name):
 def scheme(configuration, targets, runnable=None, archive=None):
     actions = ''.join('<BuildActionEntry buildForTesting="NO" buildForRunning="YES" '
         f'buildForProfiling="{"YES" if runnable else "NO"}" buildForArchiving="{"YES" if archive else "NO"}" '
-        f'buildForAnalyzing="{"NO" if name == "local-installer" else "YES"}">{buildable(name)}</BuildActionEntry>' for name in targets)
+        f'buildForAnalyzing="{"NO" if name in ("local-installer", "dev-installer") else "YES"}">{buildable(name)}</BuildActionEntry>' for name in targets)
     run = f'<BuildableProductRunnable runnableDebuggingMode="0">{buildable(runnable)}</BuildableProductRunnable>' if runnable else ''
     arguments = '<CommandLineArguments><CommandLineArgument argument="--help" isEnabled="YES"/></CommandLineArguments>' if runnable == 'cli' else ''
     return f'''<?xml version="1.0" encoding="UTF-8"?>
@@ -259,6 +269,7 @@ for name, value in {
     'Mail-Filter Local': scheme('Local', ['host', 'cli', 'uninstaller'], runnable='host'),
     'Mail-Filter Local Installer': scheme('Local', ['local-installer']),
     'Mail-Filter Dev': scheme('Development', ['host'], runnable='host'),
+    'Mail-Filter Dev Installer': scheme('Development', ['dev-installer']),
     'Mail-Filter Store': scheme('Development', ['host'], runnable='host', archive='Store'),
     'Mail-Filter Build Check': scheme('BuildCheck', ['host']),
     'mail-filter CLI': scheme('Local', ['cli'], runnable='cli'),

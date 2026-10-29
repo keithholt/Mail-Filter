@@ -2,9 +2,25 @@
 set -eu
 umask 022
 root=${0:A:h:h}
-mode=${1:-local}
-[[ "$mode" == local || "$mode" == release ]] || { print -u2 'Usage: MacApp/package.sh [local|release]'; exit 1; }
+mode=${1:-development}
+[[ "$mode" == development || "$mode" == local || "$mode" == release ]] || { print -u2 'Usage: MacApp/package.sh [development|local|release]'; exit 1; }
 (( $# == 0 )) || shift
+if [[ "$mode" == development ]]; then
+    if (( $# == 0 )); then
+        python3 "$root/MacApp/generate-project.py" --check
+        signing=()
+        [[ -z "${MAIL_FILTER_TEAM_ID:-}" ]] || signing=(DEVELOPMENT_TEAM="$MAIL_FILTER_TEAM_ID")
+        xcodebuild -project "$root/Mail-Filter.xcodeproj" -scheme 'Mail-Filter Dev Installer' \
+            -configuration Development -destination 'platform=macOS,arch=arm64,name=My Mac' \
+            -derivedDataPath "${MAIL_FILTER_DERIVED_DATA_PATH:-$root/.build/xcode-derived}" \
+            -allowProvisioningUpdates -allowProvisioningDeviceRegistration "${signing[@]}" build
+    elif (( $# == 2 )) && [[ "$1" == --built-products ]]; then
+        python3 "$root/MacApp/package-dev.py" "$2"
+    else
+        print -u2 'Usage: MacApp/package.sh development [--built-products DIRECTORY]'; exit 1
+    fi
+    exit 0
+fi
 if [[ "$mode" == release ]]; then
     [[ "${MAIL_FILTER_INSTALLER_IDENTITY:-}" == 'Developer ID Installer:'* ]] || {
         print -u2 'Release packaging requires MAIL_FILTER_INSTALLER_IDENTITY (Developer ID Installer).'
@@ -26,6 +42,7 @@ out="$root/outputs"
 rm -rf "$work"
 mkdir -p "$work/Payload" "$work/Resources" "$out"
 version=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$root/.build/mac-app/Mail-Filter.app/Contents/Info.plist")
+build=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$root/.build/mac-app/Mail-Filter.app/Contents/Info.plist")
 mkdir -p "$work/CommandLinePayload/etc/paths.d"
 printf '%s\n' '/Applications/Mail-Filter.app/Contents/Resources/DeveloperTools/bin' > "$work/CommandLinePayload/etc/paths.d/org.mail-filter.command-line"
 ditto "$root/.build/mac-app/Mail-Filter.app" "$work/Payload/Mail-Filter.app"
@@ -46,17 +63,17 @@ path.write_bytes(plistlib.dumps(components))
 (work/'requirements.plist').write_bytes(plistlib.dumps({'os':['26.0'],'arch':['arm64']}))
 PY
 pkgbuild --root "$work/Payload" --component-plist "$work/components.plist" --scripts "$root/MacApp/InstallerScripts/App" \
-    --identifier org.mail-filter.installer --version "$version" --install-location /Applications \
+    --identifier org.mail-filter.installer --version "$version.$build" --install-location /Applications \
     "$work/MailFilterComponents.pkg"
 pkgbuild --root "$work/CommandLinePayload" --ownership recommended --scripts "$root/MacApp/InstallerScripts/CommandLineOn" \
-    --identifier org.mail-filter.command-line.enabled --version "$version" --install-location / \
+    --identifier org.mail-filter.command-line.enabled --version "$version.$build" --install-location / \
     "$work/MailFilterCommandLineOn.pkg"
 pkgbuild --nopayload --scripts "$root/MacApp/InstallerScripts/CommandLineOff" \
-    --identifier org.mail-filter.command-line.disabled --version "$version" \
+    --identifier org.mail-filter.command-line.disabled --version "$version.$build" \
     "$work/MailFilterCommandLineOff.pkg"
 productbuild --synthesize --product "$work/requirements.plist" --package "$work/MailFilterComponents.pkg" \
     --package "$work/MailFilterCommandLineOn.pkg" --package "$work/MailFilterCommandLineOff.pkg" "$work/Distribution.xml"
-python3 - "$work" "$mode" <<'PY'
+python3 - "$work" "$mode" "$version" "$build" <<'PY'
 from pathlib import Path
 import xml.etree.ElementTree as ET
 import sys
@@ -75,7 +92,8 @@ cli = ET.SubElement(root,'choice',{'id':'commandLine','title':'Add command-line 
 ET.SubElement(cli,'pkg-ref',{'id':'org.mail-filter.command-line.enabled'})
 off = ET.SubElement(root,'choice',{'id':'commandLineOff','title':'Remove command-line PATH entry','description':'Remove only the PATH entry managed by Mail-Filter.','visible':'false','selected':'!choices.commandLine.selected','enabled':'false'})
 ET.SubElement(off,'pkg-ref',{'id':'org.mail-filter.command-line.disabled'})
-ET.SubElement(root,'title').text = 'Mail-Filter'
+label = f'Mail-Filter Direct {sys.argv[3]} (build {sys.argv[4]})'
+ET.SubElement(root,'title').text = label
 ET.SubElement(root,'welcome',{'file':'Welcome.html','mime-type':'text/html'})
 ET.SubElement(root,'conclusion',{'file':'Finished.html','mime-type':'text/html'})
 ET.SubElement(root,'domains',{'enable_localSystem':'true','enable_currentUserHome':'false','enable_anywhere':'false'})
@@ -87,16 +105,16 @@ for identifier in ('com.apple.mail', 'org.mail-filter.app', 'org.mail-filter.uni
 tree.write(work/'Distribution.xml',encoding='utf-8',xml_declaration=True)
 local = '<p><b>Local test build:</b> this package is not signed with Developer ID or notarized by Apple. Public distribution will use those protections.</p>' if sys.argv[2] == 'local' else ''
 header = '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head><body style="font-family:-apple-system;font-size:14px">'
-(work/'Resources/Welcome.html').write_text(header+'<h2>Mail-Filter</h2><p>Analyze incoming Apple Mail messages on your Mac and move verified political solicitations to Junk.</p><p>Requires macOS 26 or later, an Apple Intelligence-capable Mac, and Apple Intelligence enabled with the on-device model available.</p><p><b>Before installing or updating:</b> quit Mail, Mail-Filter and its uninstaller. Replacing an extension while Mail is using it can stop incoming filtering. Installer will ask you to close these apps and will stop if an old extension process remains.</p><p>This installer places Mail-Filter and Uninstall Mail-Filter in Applications. The optional command-line PATH entry can be added or removed during installation. It does not read or move messages, change account settings, or enable extensions.</p>'+local+'</body></html>', encoding='utf-8')
+(work/'Resources/Welcome.html').write_text(header+'<h2>'+label+'</h2><p><b>Legacy direct distribution:</b> this is not the separate Mail-Filter Dev app. It cannot be installed over an App Store copy. Use Mail-Filter Dev Installer for development beside Store.</p><p>Analyze incoming Apple Mail messages on your Mac and move verified political solicitations to Junk.</p><p>Requires macOS 26 or later, an Apple Intelligence-capable Mac, and Apple Intelligence enabled with the on-device model available.</p><p><b>Before installing or updating:</b> quit Mail, Mail-Filter and its uninstaller. Replacing an extension while Mail is using it can stop incoming filtering. Installer will ask you to close these apps and will stop if an old extension process remains.</p><p>This installer places Mail-Filter and Uninstall Mail-Filter in Applications. The optional command-line PATH entry can be added or removed during installation. It does not read or move messages, change account settings, or enable extensions.</p>'+local+'</body></html>', encoding='utf-8')
 (work/'Resources/Finished.html').write_text(header+'<h2>Next: open Mail-Filter</h2><ol><li>Open Mail-Filter from Applications.</li><li>For an update, confirm the retained settings. For a new setup, read Mail accounts, select the inboxes to filter, and save.</li><li>Reopen Mail. Open Settings, then Extensions, and enable Mail-Filter. Its name includes the build number; compare it with the version and build in the Mail-Filter sidebar.</li></ol><p>If migrating, import your previous setup and protection records and leave any earlier filtering extension disabled.</p><p>Keep Mail running and your Mac awake. The Mail-Filter settings app can quit; its window does not need to stay open.</p><p>Open a new Terminal window for command-line PATH changes to take effect.</p><p>Use Uninstall Mail-Filter in Applications for removal. Existing private settings and protection records survive upgrades.</p></body></html>', encoding='utf-8')
 PY
 sign_options=()
 [[ "$mode" == release ]] && sign_options=(--sign "$MAIL_FILTER_INSTALLER_IDENTITY" --timestamp)
 productbuild --distribution "$work/Distribution.xml" --resources "$work/Resources" --package-path "$work" \
-    "${sign_options[@]}" "$out/Mail-Filter Installer.pkg"
-python3 "$root/MacApp/verify_package.py" "$out/Mail-Filter Installer.pkg"
-print "Installer ready: $out/Mail-Filter Installer.pkg"
-python3 "$root/MacApp/desktop_shortcut.py" "$out/Mail-Filter Installer.pkg"
+    "${sign_options[@]}" "$out/Mail-Filter Direct Installer.pkg"
+python3 "$root/MacApp/verify_package.py" "$out/Mail-Filter Direct Installer.pkg"
+print "Installer ready: $out/Mail-Filter Direct Installer.pkg"
+python3 "$root/MacApp/desktop_shortcut.py" "$out/Mail-Filter Direct Installer.pkg"
 if [[ "$mode" == release ]]; then
     print 'Next run MacApp/notarize.sh with your notarytool Keychain profile before distributing.'
 else

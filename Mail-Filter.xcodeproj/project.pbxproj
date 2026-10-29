@@ -1442,6 +1442,107 @@
 				"0B4C8C408CAF1D4B6EA45FA3",
 			);
 		};
+		"EF2A2C1EE113DD948BEF8749" = {
+			"isa" = "PBXShellScriptBuildPhase";
+			"buildActionMask" = 2147483647;
+			"files" = (
+			);
+			"inputPaths" = (
+			);
+			"outputPaths" = (
+			);
+			"name" = "Package isolated Dev products";
+			"runOnlyForDeploymentPostprocessing" = 0;
+			"alwaysOutOfDate" = 1;
+			"showEnvVarsInLog" = 0;
+			"shellPath" = "/bin/zsh";
+			"shellScript" = "set -eu\n[[ \"$CONFIGURATION\" == Development ]] || { print -u2 \"Select the Development installer configuration.\"; exit 1; }\n\"${SRCROOT}/MacApp/package.sh\" development --built-products \"${BUILT_PRODUCTS_DIR}\"\n";
+		};
+		"43D9C519F24194C333BDD203" = {
+			"isa" = "XCBuildConfiguration";
+			"name" = "Local";
+			"baseConfigurationReference" = "8B81B5153C68D2FDE812A661";
+			"buildSettings" = {
+				"CODE_SIGNING_ALLOWED" = "NO";
+				"CODE_SIGNING_REQUIRED" = "NO";
+				"DEVELOPMENT_TEAM" = "";
+				"CODE_SIGN_IDENTITY" = "";
+				"ENABLE_USER_SCRIPT_SANDBOXING" = "NO";
+			};
+		};
+		"5C29031CAE3CEF29A7E266BE" = {
+			"isa" = "XCBuildConfiguration";
+			"name" = "DeveloperID";
+			"baseConfigurationReference" = "63185B2B25D7508453C2F9A8";
+			"buildSettings" = {
+				"CODE_SIGNING_ALLOWED" = "NO";
+				"CODE_SIGNING_REQUIRED" = "NO";
+				"DEVELOPMENT_TEAM" = "";
+				"CODE_SIGN_IDENTITY" = "";
+				"ENABLE_USER_SCRIPT_SANDBOXING" = "NO";
+			};
+		};
+		"F167182A5090F04CAE89E47D" = {
+			"isa" = "XCBuildConfiguration";
+			"name" = "BuildCheck";
+			"baseConfigurationReference" = "E010D94CEFF87FE0FBF35464";
+			"buildSettings" = {
+				"CODE_SIGNING_ALLOWED" = "NO";
+				"CODE_SIGNING_REQUIRED" = "NO";
+				"DEVELOPMENT_TEAM" = "";
+				"CODE_SIGN_IDENTITY" = "";
+				"ENABLE_USER_SCRIPT_SANDBOXING" = "NO";
+			};
+		};
+		"DB2BC45BA1F00E549AE52F07" = {
+			"isa" = "XCBuildConfiguration";
+			"name" = "Development";
+			"baseConfigurationReference" = "0CCA558ABCCFF8FC8109E4A6";
+			"buildSettings" = {
+				"CODE_SIGNING_ALLOWED" = "NO";
+				"CODE_SIGNING_REQUIRED" = "NO";
+				"DEVELOPMENT_TEAM" = "";
+				"CODE_SIGN_IDENTITY" = "";
+				"ENABLE_USER_SCRIPT_SANDBOXING" = "NO";
+			};
+		};
+		"4AB7FA7067172ADCE67B4F01" = {
+			"isa" = "XCBuildConfiguration";
+			"name" = "Store";
+			"baseConfigurationReference" = "86C2901E92BDF550F9B78D19";
+			"buildSettings" = {
+				"CODE_SIGNING_ALLOWED" = "NO";
+				"CODE_SIGNING_REQUIRED" = "NO";
+				"DEVELOPMENT_TEAM" = "";
+				"CODE_SIGN_IDENTITY" = "";
+				"ENABLE_USER_SCRIPT_SANDBOXING" = "NO";
+			};
+		};
+		"F5379C5D69EFFE0859B81859" = {
+			"isa" = "XCConfigurationList";
+			"buildConfigurations" = (
+				"43D9C519F24194C333BDD203",
+				"5C29031CAE3CEF29A7E266BE",
+				"F167182A5090F04CAE89E47D",
+				"DB2BC45BA1F00E549AE52F07",
+				"4AB7FA7067172ADCE67B4F01",
+			);
+			"defaultConfigurationIsVisible" = 0;
+			"defaultConfigurationName" = "Local";
+		};
+		"9D3FB1FEE06E2F48B2EBA0A3" = {
+			"isa" = "PBXAggregateTarget";
+			"name" = "MailFilterDevInstaller";
+			"productName" = "MailFilterDevInstaller";
+			"buildConfigurationList" = "F5379C5D69EFFE0859B81859";
+			"dependencies" = (
+				"7E1B566C8C37C754335FC8ED",
+				"65BAD426725A76BEEB10AB0B",
+			);
+			"buildPhases" = (
+				"EF2A2C1EE113DD948BEF8749",
+			);
+		};
 		"0A3E27B8CA818264D75C8D81" = {
 			"isa" = "PBXGroup";
 			"children" = (
@@ -1698,6 +1799,13 @@
 			"path" = "MacApp/InstallerScripts/CommandLineOn/preinstall";
 			"sourceTree" = "SOURCE_ROOT";
 		};
+		"0956519F12201D577C2D9307" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.script.sh";
+			"name" = "preinstall";
+			"path" = "MacApp/InstallerScripts/Development/preinstall";
+			"sourceTree" = "SOURCE_ROOT";
+		};
 		"4AFBB8D226A0B43720EFF535" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -1929,6 +2037,13 @@
 			"path" = "MacApp/notarize.sh";
 			"sourceTree" = "SOURCE_ROOT";
 		};
+		"97A91AC7B5DB08F64039EF1D" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.script.python";
+			"name" = "package-dev.py";
+			"path" = "MacApp/package-dev.py";
+			"sourceTree" = "SOURCE_ROOT";
+		};
 		"8CCDDB0362EC1F1F1B6623AB" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "text.script.sh";
@@ -1983,6 +2098,13 @@
 			"lastKnownFileType" = "text.script.python";
 			"name" = "verify_bundle.py";
 			"path" = "MacApp/verify_bundle.py";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"D58DC9637CC7DF148902DF2E" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.script.python";
+			"name" = "verify_dev_package.py";
+			"path" = "MacApp/verify_dev_package.py";
 			"sourceTree" = "SOURCE_ROOT";
 		};
 		"66CBAC7CD772E4093BDC3B1B" = {
@@ -2353,12 +2475,21 @@
 			"path" = "CommandLineOn";
 			"sourceTree" = "<group>";
 		};
+		"03E7374E89D819DC0A09FDDF" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"0956519F12201D577C2D9307",
+			);
+			"path" = "Development";
+			"sourceTree" = "<group>";
+		};
 		"49CCA63271EF03CFE3937E6E" = {
 			"isa" = "PBXGroup";
 			"children" = (
 				"ED61EBCE5333004001E28288",
 				"5C2ED9F98EAA3EDDC6B9223E",
 				"63349F9B01FC0BAC5A26C2F9",
+				"03E7374E89D819DC0A09FDDF",
 			);
 			"path" = "InstallerScripts";
 			"sourceTree" = "<group>";
@@ -2457,6 +2588,7 @@
 				"B932300D747368EBE1C1B108",
 				"604716F53C5EDC63C4268989",
 				"7F7B0BA80D7D28D862282A9A",
+				"97A91AC7B5DB08F64039EF1D",
 				"8CCDDB0362EC1F1F1B6623AB",
 				"732359E46E3EFF7F3DF28803",
 				"C4506F0988221572515F1D1E",
@@ -2472,6 +2604,7 @@
 				"376D4C1B8B5049F1C6D3983D",
 				"B89782262EEC86D07762BBCD",
 				"17657031D88204D9E549A836",
+				"D58DC9637CC7DF148902DF2E",
 				"66CBAC7CD772E4093BDC3B1B",
 			);
 			"path" = "MacApp";
@@ -2593,6 +2726,7 @@
 				"2C8205F9CC6BD6EC239EC3D7",
 				"B8F1C788ECC68640F20B3A54",
 				"70F1C043A995B2E84CEB1654",
+				"9D3FB1FEE06E2F48B2EBA0A3",
 			);
 		};
 	};

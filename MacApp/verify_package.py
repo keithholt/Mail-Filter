@@ -11,7 +11,6 @@ with tempfile.TemporaryDirectory(prefix='mail-filter-package-check-') as directo
     root = Path(directory)/'expanded'
     subprocess.run(['/usr/sbin/pkgutil','--expand-full',sys.argv[1],str(root)],check=True,stdout=subprocess.DEVNULL)
     distribution = ET.parse(root/'Distribution').getroot()
-    assert distribution.find('title').text == 'Mail-Filter'
     assert distribution.find('options').attrib['customize'] == 'always'
     close = distribution.findall("./pkg-ref[@id='org.mail-filter.installer']/must-close/app")
     assert {item.attrib['id'] for item in close} == {'com.apple.mail','org.mail-filter.app','org.mail-filter.uninstaller'}
@@ -38,6 +37,10 @@ with tempfile.TemporaryDirectory(prefix='mail-filter-package-check-') as directo
     assert {p.name for p in (app/'Scripts').iterdir()} == {'preinstall'}
     assert (app/'Scripts/preinstall').read_bytes() == (scripts/'App/preinstall').read_bytes()
     host_info = plistlib.loads((payload/'Mail-Filter.app/Contents/Info.plist').read_bytes())
+    label = f"Mail-Filter Direct {host_info['CFBundleShortVersionString']} (build {host_info['CFBundleVersion']})"
+    assert distribution.find('title').text == label
+    assert label in (root/'Resources/Welcome.html').read_text()
+    assert {item.attrib['version'] for _,item in packages.values()} == {host_info['CFBundleShortVersionString']+'.'+host_info['CFBundleVersion']}
     extension_info = plistlib.loads((payload/'Mail-Filter.app/Contents/PlugIns/Mail-Filter.appex/Contents/Info.plist').read_bytes())
     assert host_info['CFBundleVersion'] == extension_info['CFBundleVersion']
     assert host_info['CFBundleShortVersionString'] == extension_info['CFBundleShortVersionString']

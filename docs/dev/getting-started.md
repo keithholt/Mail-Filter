@@ -17,7 +17,7 @@ Markdown is the source of truth. This guide and the architecture guide have gene
 
 In Xcode Settings, under Locations, select the intended Xcode installation as Command Line Tools. The SDK must include the Foundation Models APIs used by this checkout. The package and native scripts use different Swift language modes deliberately; a newer compiler alone is not a reason to unify them.
 
-Local builds use ad hoc signing and need no paid developer account. Public direct downloads require Developer ID certificates and notarization; Store distribution uses its own signing and review workflow. Do not treat a locally verified installer as a notarized release.
+Signed Dev installers require Apple Development signing and provisioned Dev identifiers/App Group. Legacy Local builds use ad hoc signing and need no paid developer account. Public direct downloads require Developer ID certificates and notarization; Store distribution uses its own signing and review workflow. Do not treat a locally verified installer as a notarized release.
 
 ## 2 Locate the code and private settings
 
@@ -53,7 +53,8 @@ The same `MailFilter` and `MailFilterExtension` targets build every app variant.
 |---|---|
 | Mail-Filter Dev | Build and run the signed sandboxed app with separate settings and extension beside Store. |
 | Mail-Filter Local | Build the legacy direct app, extension, CLI and uninstaller; shares the production app identity. |
-| Mail-Filter Local Installer | Build native direct products, then create and verify the installer. |
+| Mail-Filter Dev Installer | Build signed Dev app/extension and CLI, then package the isolated app. |
+| Mail-Filter Local Installer | Build legacy direct products, then package with a Store-overwrite guard. |
 | Mail-Filter Store | Signed sandboxed Development for Build/Run; Store configuration for Archive. |
 | Mail-Filter Build Check | Unsigned sandboxed app/extension compilation with development identities; no runnable. |
 | mail-filter CLI | Native CLI; Run defaults to harmless `--help`. |
@@ -66,13 +67,13 @@ Select **Mail-Filter Build Check** for unsigned sandboxed compilation without an
 
 Xcode may also expose automatic component schemes. Their default configuration is Local, so compiling the extension alone does not require a paid team. Use a host scheme for normal development; MailKit still needs its containing app for installation and activation.
 
-### Create the local installer inside Xcode
+### Create the Dev installer inside Xcode
 
-Select **Mail-Filter Local Installer**, then choose **Product > Build** or press Command-B. Its native dependencies build the app, extension, CLI and uninstaller first. The packaging phase stages copies of those products, adds the engineering CLI and its resources to the staged app, reseals its signature, and verifies the installer. It does not start another `xcodebuild` or maintain a second Swift compile list.
+Select **Mail-Filter Dev Installer**, then choose **Product > Build** or press Command-B. The aggregate builds the signed Development app, its embedded extension and the CLI. Packaging preserves the original app signature and stages the engineering CLI outside the app bundle. It does not start a recursive native build.
 
-The output is `outputs/Mail-Filter Installer.pkg`. The packager maintains a Desktop shortcut to that same file and leaves unrelated Desktop items untouched. Building creates the package; open it yourself to install. It does not launch Installer, change installed apps, filtering settings or PATH, or enable extensions. The package uses ad hoc signing and requires no paid developer membership.
+The output is `outputs/Mail-Filter Dev Installer.pkg`, with a Desktop shortcut. The installer title and introduction display the app name, marketing version and build number. It installs `/Applications/Mail-Filter Dev.app`, never `/Applications/Mail-Filter.app`. Existing compatible Dev settings survive updates. Both app identities and their App Groups remain separate; installation does not import setup or activate filtering. Development signing requires a team and registered test Mac.
 
-Each explicit installer build reruns packaging. Use **Mail-Filter Dev** for normal signed incremental development or **Mail-Filter Build Check** for unsigned Store compilation. Only the packaging helper disables Xcode's build-script sandbox, because it writes repository outputs and the Desktop shortcut. This is separate from the app's runtime sandbox, which is controlled by its distribution configuration.
+Each explicit installer build reruns packaging. Both packaging helpers disable Xcode's build-script sandbox to write outputs and the Desktop shortcut; this does not change the apps' runtime sandbox. Use **Mail-Filter Dev** for incremental development and **Mail-Filter Build Check** for unsigned compilation. The explicitly selected legacy Local Installer produces **Mail-Filter Direct Installer.pkg**, retains the production identity, and refuses to overwrite a Store copy.
 
 ### Configure signed Xcode builds
 
@@ -90,13 +91,13 @@ Quit Mail and the development settings app before replacing or registering a tes
 
 Prefer `MAIL_FILTER_TEAM_ID=YOURTEAMID ./MacApp/install-dev.sh` to build, verify and stage the isolated app. Use `--no-build` to stage an already verified Development product. The script preserves an existing staged copy under ignored outputs/development, rejects replacement of an in-use Dev bundle and never activates the extension or imports settings.
 
-For manual first installation, copy the signed Development `Mail-Filter.app` to your user Applications folder and name the copy `Mail-Filter Dev.app`. The shell build is under `.build/xcode-derived/Build/Products/Development/`; an Xcode build uses its selected Derived Data directory. For an update, replace the complete development app bundle while Mail and the settings app are closed. Preserve its separate App Group data. Do not replace the working `/Applications/Mail-Filter.app` to perform this test.
+For manual first installation, copy the signed Development `Mail-Filter.app` to `/Applications` and name the copy `Mail-Filter Dev.app`. Remove any older copy from `~/Applications` while keeping its private data. The staging script preserves that older copy under ignored outputs/development before installing the new one. The shell build is under `.build/xcode-derived/Build/Products/Development/`; an Xcode build uses its selected Derived Data directory. For an update, replace the complete development app bundle while Mail and the settings app are closed. Preserve its separate App Group data. Do not replace the working `/Applications/Mail-Filter.app` to perform this test.
 
 Register and open the staged copy:
 
 ```sh
-/usr/bin/pluginkit -a "$HOME/Applications/Mail-Filter Dev.app/Contents/PlugIns/Mail-Filter.appex"
-/usr/bin/open -a "$HOME/Applications/Mail-Filter Dev.app"
+/usr/bin/pluginkit -a "/Applications/Mail-Filter Dev.app/Contents/PlugIns/Mail-Filter.appex"
+/usr/bin/open -a "/Applications/Mail-Filter Dev.app"
 ```
 
 Open this settings app before reopening Mail. Confirm the saved accounts and enable Preview first. Reopen Mail, then use **Mail > Settings > Extensions** to enable **Mail-Filter Dev** and disable the original filter during the controlled test. A full registry entry alone is insufficient: normal discovery with `pluginkit -m -v -p com.apple.email.extension` must list the staged copy. Registration does not silently enable it.
@@ -130,7 +131,7 @@ Create the App Store Connect app record before upload, using the production bund
 ./build.sh
 ```
 
-`MacApp/build.sh` invokes the root project's Local scheme, stages the products under `.build/mac-app/`, embeds the CLI under `Mail-Filter.app/Contents/Resources/DeveloperTools/`, and verifies signatures and payloads. `package.sh` uses those staged products to create the direct installer. The Xcode installer scheme bypasses this build wrapper because its target dependencies have already compiled the products; it uses the same staging and package verification functions.
+`MacApp/build.sh` invokes the root project's Local scheme, stages the products under `.build/mac-app/`, embeds the CLI under `Mail-Filter.app/Contents/Resources/DeveloperTools/`, and verifies signatures and payloads. `package.sh local` uses those staged products to create the direct installer; the default selects the isolated Dev installer. The Xcode installer scheme bypasses this build wrapper because its target dependencies have already compiled the products; it uses the same staging and package verification functions.
 
 `store-build.sh check` invokes the same host and extension targets with Store settings, disables signing and substitutes development identities. It verifies an unsigned archive at `.build/store-unsigned.xcarchive`. All native configurations share `.build/xcode-derived/`, with products separated by configuration. None of these commands installs or activates the filter or requests Mail actions.
 
@@ -217,19 +218,23 @@ The owner-only output is `~/Desktop/Mail-Filter Request Budget Comparison.json`.
 
 The stress probe compares the exact previous standard policy with the candidate policy, captures response scalars and evaluates the approved build's parser. The output-limit probe intentionally uses tiny response limits as a truncation control; failure at one or two tokens is not evidence that the shipped 64-token budget caused a failure. Reports are private Desktop files and must not become committed email fixtures. The 48 local stress trials passed without reproducing the affected Mac's first-attempt failure. These trials do not recreate the original failure. The publisher approved build 27 after the defensive audit and clean-build qualification; see the release record.
 
-## 5 Package and install a local build
+## 5 Package and install a Dev build
 
 ```sh
-./MacApp/package.sh local
+MAIL_FILTER_TEAM_ID=YOURTEAMID ./MacApp/package.sh
 ```
 
-Packaging rebuilds the native product, verifies signatures and bundle identities, constructs the installer choices, expands/verifies the payload, and writes `outputs/Mail-Filter Installer.pkg`. It creates a Desktop symbolic-link shortcut to that same package. `.build/` and `outputs/` are ignored; generated developer `.docx` files are retained with their Markdown sources.
+A configured private Signing.local.xcconfig can supply the team instead. This invokes **Mail-Filter Dev Installer**, verifies signed capabilities, expands the package for inspection, and writes `outputs/Mail-Filter Dev Installer.pkg` plus its Desktop shortcut. The title, welcome and conclusion show the exact version and build. Both `.build/` and `outputs/` are ignored. Successful Dev packaging archives the old generic `outputs/Mail-Filter Installer.pkg` under ignored legacy-installers and removes only its matching owned Desktop symlink.
 
-Quit Mail, Mail-Filter and its uninstaller **before** opening the package to install into `/Applications`. Installer uses a native close-app requirement, plus a read-only preinstall check across users. It stops before replacement if an old extension process remains or process inspection fails. If Mail has quit but the extension does not exit, restart the Mac before retrying. The guard never terminates apps or changes private settings. Compatible private settings, activity and protection survive updates. The optional **Add command-line tool to PATH** choice adds only the dedicated `/etc/paths.d/org.mail-filter.command-line` entry. Unchecking it removes only a matching installer-owned entry. Open a new Terminal window for PATH changes to take effect; shell dotfiles are not edited.
+Quit Mail and Mail-Filter Dev before installing. The package requires closing those apps and checks again before replacement, including lingering Dev extension processes. It installs only **Mail-Filter Dev.app** in `/Applications`. An unexpected destination identity, symlink or Store receipt stops installation. It never replaces the production **Mail-Filter.app**, resets an App Group or enables filtering. Compatible Dev accounts, settings, activity and restored-message protection survive updates.
 
-After installation, open Mail-Filter and reopen Mail. Compare the sidebar build with **Mail-Filter (build 21)** in Mail Settings, using the current build number. Confirm saved accounts, **Enable filtering**, Preview and model readiness. Activity retains the last extension startup build and time; application diagnostics also record its process ID. This is historical evidence, not a liveness check, and earlier builds have no startup identity. Verify a new incoming callback after the update; old Inbox messages are not replayed. The settings window can then close; Mail must stay running.
+If Dev was previously staged in `~/Applications`, retire that older app before using the installer; preserve its private data. `install-dev.sh` stages at the new system Applications path and backs up any recognized personal copy under ignored outputs/development. Do not retain multiple installed Dev bundles. The Store copy can coexist at `/Applications/Mail-Filter.app`.
 
-A fresh native setup defaults to apply mode once configured. Use Preview for initial validation and keep it saved while testing. Updating does not automatically scan older Inbox messages. Own-sender mail is protected, so sending to yourself can exercise callback delivery but is not a positive-classification test.
+Mail Settings controls independent extension checkboxes. There is no public MailKit API to make them radio buttons or disable a competing extension. For a Dev test, uncheck **Mail-Filter**, then check **Mail-Filter Dev**; reverse those choices afterward. Restart Mail after replacing a loaded extension. Compare the sidebar build with the enabled extension build and verify a new callback; existing Inbox messages are not automatically replayed.
+
+The optional engineering CLI component installs under `/Library/Application Support/Mail-Filter Dev/DeveloperTools`. Its PATH file is `/etc/paths.d/org.mail-filter.development.command-line`. Deselecting it removes only an exact matching owned entry, preserving tool files and private CLI settings. No shell dotfiles are edited. Open a new Terminal window afterward. The CLI uses its own account configuration and recovery state; do not run apply mode alongside an active extension.
+
+For legacy direct-distribution qualification only, run `./MacApp/package.sh local` or choose **Mail-Filter Local Installer**. This produces **Mail-Filter Direct Installer.pkg** with a production identity. The preinstall guard refuses a Store receipt, Store channel metadata, an unexpected identity, a symlink, or an in-use app. Its existing optional PATH component and uninstaller remain specific to direct distribution. Use Dev for routine side-by-side engineering.
 
 ## 6 Investigate a missed email
 

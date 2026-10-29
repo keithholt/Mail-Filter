@@ -4,25 +4,25 @@ Mail-Filter analyzes incoming Apple Mail messages on your Mac and moves verified
 
 For setup help and contact information, see [Support](https://keithholt.github.io/Mail-Filter/support.html). Read the [Privacy Policy](https://keithholt.github.io/Mail-Filter/privacy.html) for on-device processing, local data and optional exports.
 
-## Build the installer
+## Install Mail-Filter
 
-To build from source, use macOS 26 or later on an Apple silicon Mac, full Xcode with its first-launch setup completed, and Python 3. Select Xcode as the active Command Line Tools installation in Xcode's Settings, under Locations. From Terminal in this project's folder, run:
+Requires macOS 26 or later, an Apple silicon Mac supporting Apple Intelligence, and Apple Intelligence enabled with its on-device model available.
 
-```sh
-./MacApp/package.sh
-```
+Install **Mail-Filter** from the [Mac App Store](https://apps.apple.com/app/id6824658566). Open it from Applications, configure your accounts, then enable its extension in Mail. Updates preserve compatible settings and restored-message protection. Quit Mail before replacing a loaded extension, then reopen it after the update.
 
-You can also open **Mail-Filter.xcodeproj** at the project root, select **Mail-Filter Local Installer**, and choose **Product > Build** (Command-B). Both methods regenerate the Word documentation from Markdown, build the app and uninstaller, verify the package, and create **outputs/Mail-Filter Installer.pkg** plus a Desktop shortcut to it. Each rebuild updates the same installer. Build products are excluded from Git; the installer is generated locally rather than included in the source repository. For checks and release signing, see [README-DEVELOPER.md](README-DEVELOPER.md).
+The running app's version and build number appear at the bottom of the sidebar. Mail's **Settings > Extensions** shows the extension name with its build number, so you can compare them.
 
-## Install
+## Build a separate development installer
 
-Quit **Mail**, **Mail-Filter** and its uninstaller before installing or updating. Double-click **Mail-Filter Installer.pkg** on your Desktop, or open it from the project's **outputs** folder. Installer asks you to close running apps and stops before replacing files if a Mail-Filter extension process remains. If Mail has quit but its extension does not exit, restart the Mac before retrying. After installation, open **Mail-Filter** from Applications, then reopen Mail. The installer also adds **Uninstall Mail-Filter** to Applications.
+For source development beside the Store app, open **Mail-Filter.xcodeproj**, select **Mail-Filter Dev Installer**, and choose **Product > Build** (Command-B). Alternatively, run `./MacApp/package.sh` from the checkout. This requires full Xcode, Python 3, and Apple Development signing with provisioned Dev identifiers and App Group. See [README-DEVELOPER.md](README-DEVELOPER.md) for signing and engineering instructions.
 
-You need macOS 26 or later, an Apple silicon Mac supporting Apple Intelligence, and Apple Intelligence enabled with its model available. No developer account is needed to use the local build. The current local installer is not Developer ID signed or notarized; macOS may require approval before opening it. End users do not need Xcode, Git, Python or Terminal.
+The build creates **outputs/Mail-Filter Dev Installer.pkg** and a Desktop shortcut. Its title and introduction show the exact version and build, for example **Mail-Filter Dev 2.1.1 (build 27)**. The package installs **/Applications/Mail-Filter Dev.app**, preserving **/Applications/Mail-Filter.app** and its Store settings. Both applications can be installed together; their accounts, settings, activity and recovery records are separate. The package does not enable an extension or move mail. Existing compatible Dev settings survive updates.
 
-The package installs into Applications for all users. Each user's account selections, settings and extension enablement are separate. Installing or updating copies the apps without reading messages or enabling filtering automatically. Compatible settings and protection records survive reinstalls and updates.
+Quit Mail and Mail-Filter Dev before installing or updating Dev. If you previously staged Dev in your personal **~/Applications** folder, move that old app out of Applications first, preserving its private data. Open the new Dev app from the main Applications folder afterward. Development signing is for registered test Macs; this installer is not a public notarized release.
 
-The running app's version and build number appear at the bottom of the left sidebar on every page. Mail's **Settings > Extensions** lists the extension as **Mail-Filter (build 21)**, for example, so you can compare both builds. The version remains a separate value such as **2.1.0**.
+In Mail Settings, enable **exactly one** of **Mail-Filter** and **Mail-Filter Dev**. To test Dev, uncheck Store, then check Dev; reverse those choices for normal Store filtering. Mail provides independent checkboxes; the app cannot make them mutually exclusive. Leave other filtering tools inactive during a live test.
+
+The legacy **Mail-Filter Local Installer** is a separate direct-distribution build, now explicitly named **Mail-Filter Direct Installer.pkg**. It shares the production identity and refuses to replace a Store installation. Use **Mail-Filter Dev Installer** for development.
 
 ## Set up filtering
 
@@ -89,6 +89,6 @@ Reinstalling or updating this app retains compatible account selections, custom 
 
 Turn **Enable filtering** OFF to pause and ON to resume. To disable the extension in Mail, uncheck **Mail-Filter** in Mail's Extensions settings. Closing the settings window does not pause filtering.
 
-Open **Uninstall Mail-Filter** from Applications or from Mail-Filter's menu/Setup & help. It pauses filtering and moves the installed apps to Trash. macOS may ask for permission. Settings and restored-message protection are preserved by default; select **Erase private settings...** only if you want to remove them too. Erasing protection records removes that protection if you reinstall. Email messages and Mail accounts are never removed. Restart Mail if an uninstalled extension still appears.
+To remove the Store or Dev app, disable that extension in Mail, quit Mail and the corresponding settings app, then move **Mail-Filter.app** or **Mail-Filter Dev.app** from Applications to Trash. Keep the other app if you still use it. App settings and restored-message protection remain available for a reinstall; email messages and Mail accounts are not removed. Restart Mail if an uninstalled extension still appears. The **Uninstall Mail-Filter** helper belongs only to the legacy direct distribution and is not part of Store or Dev.
 
 For build, testing and contributor instructions, see [README-DEVELOPER.md](README-DEVELOPER.md). The [developer documentation](docs/README.md) includes architecture and getting-started guides in Markdown and Word.

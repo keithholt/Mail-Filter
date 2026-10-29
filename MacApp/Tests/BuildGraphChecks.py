@@ -65,8 +65,12 @@ for config in (root / 'MacApp/Build').glob('*.xcconfig'):
 assert 'MAIL_FILTER_BUNDLE_ID = org.mail-filter.app\n' in production
 assert 'MAIL_FILTER_APP_GROUP = group.org.mail-filter.shared\n' in production
 installer_graph = closure(build_ids(scheme('Mail-Filter Local Installer')))
-assert installer_graph == set(targets.values()), 'Installer must build every direct product before packaging'
+assert installer_graph == {targets[name] for name in ('MailFilter', 'MailFilterExtension', 'MailFilterDocumentation', 'MailFilterCLI', 'MailFilterUninstaller', 'MailFilterLocalInstaller')}
 assert closure(build_ids(scheme('Mail-Filter Local'))) == installer_graph - {targets['MailFilterLocalInstaller']}
+dev_graph = closure(build_ids(scheme('Mail-Filter Dev Installer')))
+assert dev_graph == {targets[name] for name in ('MailFilter', 'MailFilterExtension', 'MailFilterDocumentation', 'MailFilterCLI', 'MailFilterDevInstaller')}
+assert scheme('Mail-Filter Dev Installer').find('LaunchAction').attrib['buildConfiguration'] == 'Development'
+assert targets['MailFilterUninstaller'] not in dev_graph
 assert scheme('Mail-Filter Build Check').find('./LaunchAction/BuildableProductRunnable') is None
 assert scheme('mail-filter CLI').find('./LaunchAction/CommandLineArguments/CommandLineArgument').attrib['argument'] == '--help'
 for value in objects.values():

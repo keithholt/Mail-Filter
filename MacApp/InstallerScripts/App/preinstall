@@ -1,5 +1,21 @@
 #!/bin/sh
 set -eu
+# The legacy direct app shares the production identity. It must never replace
+# a Store copy, even when its receipt is missing or it was renamed as a target.
+volume=${3:-/}
+app="${volume%/}/Applications/Mail-Filter.app"
+if [ -L "$app" ]; then
+    printf '%s\n' 'Mail-Filter Direct cannot replace a symbolic link. No app files have been replaced.' >&2
+    exit 1
+fi
+if [ -e "$app" ]; then
+    identifier=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$app/Contents/Info.plist" 2>/dev/null) || identifier=''
+    distribution=$(/usr/libexec/PlistBuddy -c 'Print :MailFilterDistribution' "$app/Contents/Info.plist" 2>/dev/null) || distribution=''
+    if [ "$identifier" != org.mail-filter.app ] || [ "$distribution" != direct ] || [ -e "$app/Contents/_MASReceipt/receipt" ]; then
+        printf '%s\n' 'Mail-Filter Direct cannot replace this app or an App Store installation. Use Mail-Filter Dev Installer for side-by-side testing. No app files have been replaced.' >&2
+        exit 1
+    fi
+fi
 # GUI Installer's must-close prompt handles normal updates. Check again here
 # before payload replacement, including command-line installs and other users.
 # Never terminate a process or touch private filtering data from this script.
@@ -13,6 +29,7 @@ while IFS= read -r executable; do
         */Mail-Filter.app/Contents/MacOS/MailFilter|\
         */Mail-Filter.app/Contents/PlugIns/Mail-Filter.appex/Contents/MacOS/MailFilterExtension|\
         */Mail-Filter.app/Contents/PlugIns/Mail-Filter.appex/Contents/MacOS/Mail-Filter|\
+        */Mail-Filter\ Dev.app/Contents/*|\
         */Uninstall\ Mail-Filter.app/Contents/MacOS/MailFilterUninstaller)
             printf '%s\n' 'Quit Mail, Mail-Filter and its uninstaller before installing this update. If their extension is still running after Mail quits, wait for it to exit or restart the Mac, then retry. No app files have been replaced.' >&2
             exit 1

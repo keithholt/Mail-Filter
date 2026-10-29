@@ -1,0 +1,33 @@
+#!/bin/sh
+set -eu
+# Never touch the production app or either App Group. Check the fixed Dev path
+# even for command-line installs; Installer relocation is disabled as well.
+volume=${3:-/}
+app="${volume%/}/Applications/Mail-Filter Dev.app"
+if [ -L "$app" ]; then
+    printf '%s\n' 'Mail-Filter Dev cannot replace a symbolic link. No app files have been replaced.' >&2
+    exit 1
+fi
+if [ -e "$app" ]; then
+    identifier=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$app/Contents/Info.plist" 2>/dev/null) || identifier=''
+    if [ "$identifier" != org.mail-filter.development ] || [ -e "$app/Contents/_MASReceipt/receipt" ]; then
+        printf '%s\n' 'The destination is not Mail-Filter Dev. No app files have been replaced.' >&2
+        exit 1
+    fi
+fi
+processes=$(/bin/ps -axo comm=) || {
+    printf '%s\n' 'Mail-Filter Dev could not check running applications. No app files have been replaced.' >&2
+    exit 1
+}
+while IFS= read -r executable; do
+    case "$executable" in
+        */Mail.app/Contents/MacOS/Mail|\
+        */Mail-Filter\ Dev.app/Contents/*|\
+        */Development/Mail-Filter.app/Contents/*)
+            printf '%s\n' 'Quit Mail and Mail-Filter Dev before installing. Wait for the Dev extension to exit, or restart the Mac. No app files have been replaced.' >&2
+            exit 1
+            ;;
+    esac
+done <<EOF
+$processes
+EOF
